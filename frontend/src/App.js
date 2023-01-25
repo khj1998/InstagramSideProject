@@ -1,5 +1,6 @@
-import logo from './logo.svg';
-import '/Chat/ChatRoom.css';
+import React from 'react';
+import './components/Chat/ChatRoom.css';
+import ChatRoom from './components/Chat/ChatRoom.js'
 
 function App() {
   return (
