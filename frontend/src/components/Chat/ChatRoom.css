@@ -124,3 +124,7 @@ ul {
 .message.self{
   justify-content: end;
 }
+
+.connect-button {
+    margin-left: 5px;
+}
