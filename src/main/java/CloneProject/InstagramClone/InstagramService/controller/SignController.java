@@ -1,34 +1,48 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
-import CloneProject.InstagramClone.InstagramService.domain.SignIn;
-import CloneProject.InstagramClone.InstagramService.domain.SignUp;
+import CloneProject.InstagramClone.InstagramService.domain.User;
+import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
 import CloneProject.InstagramClone.InstagramService.service.InstagramService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/instagram")
+@RequestMapping("/users")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:3000")
 public class SignController {
 
     private final InstagramService instagramService;
+    private final UserRepository userRepository;
 
-    public ResponseEntity<SignIn> SignInProcess(@RequestBody @Validated SignIn signIn, BindingResult bindingResult) {
+    @GetMapping("/{id}")
+    public ResponseEntity<User> FindUser(@RequestBody @Validated User user, BindingResult bindingResult) {
         return ResponseEntity
                 .ok()
                 .body(null);
     }
 
-    public ResponseEntity<SignUp> SignUpProcess(@RequestBody @Validated SignUp signUp, BindingResult bindingResult) {
+    @PostMapping("/{id}")
+    public ResponseEntity<User> CreateUser(@RequestBody @Validated User user, BindingResult bindingResult) {
+        return ResponseEntity
+               .ok()
+               .body(null);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<User> UpdateUser(@RequestBody @Validated User user, BindingResult bindingResult) {
         return ResponseEntity
                 .ok()
                 .body(null);
+    }
+
+    @DeleteMapping("/{id}")
+    public String DeleteUser(@RequestBody User user) {
+        return "Delete Process Complete!!";
     }
 }

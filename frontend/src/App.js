@@ -9,8 +9,8 @@ function App() {
   return (
         <Router>
             <Routes>
-                <Route exact path="/" className="App" element={<Home />} />
-                <Route exact path="/login" element={<Login />} />
+                <Route exact path="/home" className="App" element={<Home />} />
+                <Route exact path="/" element={<Login />} />
                 <Route exact path="/instagram/dm" element={<ChatRoom />} />
             </Routes>
         </Router>

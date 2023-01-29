@@ -10,16 +10,16 @@ import playstore from '../../images/play.png';
 const Login = () => {
 
   const [clicked, setClicked] = useState(false);
+  const [googleStoreUrl, setGoogleStoreUrl] = useState("");
+  const [appleStoreUrl, setAppleStoreUrl] = useState("");
 
-  function googleStore() {
-    setClicked(false);
-    window.open('https://play.google.com/store/apps/details?id=com.instagram.android&hl=ko&gl=US&pli=1','_self');
-  }
+  const googleClick = () => {
+    window.open('https://play.google.com/store/apps/details?id=com.instagram.android&hl=ko&gl=US','_blank');
+  };
 
-  function appleStore() {
-    setClicked(false);
-    window.open('https://apps.apple.com/kr/app/instagram/id389801252','_self')
-  }
+  const appleClick = () => {
+    window.open('https://apps.apple.com/kr/app/instagram/id389801252','_blank')
+  };
 
   return (
     <div className="container">
@@ -42,11 +42,20 @@ const Login = () => {
          <Grid item xs={3}>
          <div className="loginpage-rightcomponent">
                         <img className="loginpage-logo" src={instagram_logo} />
+
+                        <form>
                         <div className="loginpage-signin">
-                             <input type="text" className="loginpage-text" placeholder="핸드폰 번호,이메일을 입력하세요" />
-                             <input type="password" className="loginpage-text" placeholder="비밀번호를 입력하세요" />
+                             <input
+                                type="text"
+                                className="loginpage-text"
+                                placeholder="핸드폰 번호,이메일을 입력하세요" />
+                             <input
+                                type="password"
+                                className="loginpage-text"
+                                placeholder="비밀번호를 입력하세요" />
                              <button className="login-button">로그인</button>
                         </div>
+                        </form>
 
                         <div className="login-ordiv">
                             <div className="divide-left"></div>
@@ -75,8 +84,8 @@ const Login = () => {
                     </div>
 
                     <div className="loginpage-option">
-                         <img className="loginpage-dwimg" src={appstore} width="136px"/>
-                         <img className="loginpage-dwimg" src={playstore} width="136px"/>
+                         <img className="loginpage-dwimg" src={playstore} onClick={googleClick} width="136px"/>
+                         <img className="loginpage-dwimg" src={appstore} onClick={appleClick} width="136px"/>
                     </div>
          </Grid>
       </Grid>
