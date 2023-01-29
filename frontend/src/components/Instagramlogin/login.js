@@ -6,12 +6,28 @@ import instagram_logo from '../../images/logoinsta.png';
 import facebook_img from '../../images/fb.png';
 import appstore from '../../images/app.png';
 import playstore from '../../images/play.png';
+import axios from 'axios';
+import {useNavigate,useParams} from 'react-router-dom';
 
 const Login = () => {
 
-  const [clicked, setClicked] = useState(false);
-  const [googleStoreUrl, setGoogleStoreUrl] = useState("");
-  const [appleStoreUrl, setAppleStoreUrl] = useState("");
+  const navigate = useNavigate();
+  const [user, setUser] = useState({
+        email:'',
+        password:'',
+  });
+
+  const {email,password} = user;
+
+  const onInputChange = (e) => {
+      setUser({...user,[e.target.name]:e.target.value});
+  }
+
+  const onLogIn = async (e) => {
+     e.preventDefault();
+     await axios.post(`http://localhost:8080/users/${email}`,user, { withCredentials: true });
+     navigate("/home");
+  }
 
   const googleClick = () => {
     window.open('https://play.google.com/store/apps/details?id=com.instagram.android&hl=ko&gl=US','_blank');
@@ -43,17 +59,22 @@ const Login = () => {
          <div className="loginpage-rightcomponent">
                         <img className="loginpage-logo" src={instagram_logo} />
 
-                        <form>
+                        <form onSubmit = {(e) => onLogIn(e)}>
                         <div className="loginpage-signin">
                              <input
                                 type="text"
+                                name="email"
                                 className="loginpage-text"
-                                placeholder="핸드폰 번호,이메일을 입력하세요" />
+                                placeholder="이메일을 입력하세요"
+                                onChange={(e) => onInputChange(e)}/>
+
                              <input
                                 type="password"
+                                name="password"
                                 className="loginpage-text"
-                                placeholder="비밀번호를 입력하세요" />
-                             <button className="login-button">로그인</button>
+                                placeholder="비밀번호를 입력하세요"
+                                onChange={(e) => onInputChange(e)}/>
+                             <button type="submit" className="login-button">로그인</button>
                         </div>
                         </form>
 

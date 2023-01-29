@@ -38,3 +38,7 @@
         }
     }
 }
+
+b:hover{
+    cursor: pointer;
+}
