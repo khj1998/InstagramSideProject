@@ -1,0 +1,43 @@
+.profile {
+  position: absolute;
+  top: 70px;
+  right: 10%;
+  width: 150px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 5px;
+  justify-content: center;
+  gap: 20px;
+  background-color: white;
+  -webkit-box-shadow: 4px 3px 21px 0px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 4px 3px 21px 0px rgba(0, 0, 0, 0.75);
+  box-shadow: 4px 3px 21px 0px rgba(0, 0, 0, 0.75);
+
+  .top {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+
+    span {
+      font-size: 18px;
+      color: black;
+    }
+  }
+
+  .bottom {
+    display: block;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+
+    span {
+      font-size: 18px;
+      color: black;
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import React,{useState} from 'react';
 import Grid  from '@material-ui/core/Grid';
+import './login.css';
 import instagram_img from '../../images/9364675fb26a.svg';
 import instagram_logo from '../../images/logoinsta.png';
 import facebook_img from '../../images/fb.png';
