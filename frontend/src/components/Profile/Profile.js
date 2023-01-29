@@ -10,7 +10,7 @@ const Profile = () => {
     const navigate = useNavigate();
 
     const onLogOut = async () => {
-        await axios.get('http://localhost:3000/users/signout');
+        await axios.get('http://localhost:3000/users/signout', { withCredentials: true });
         navigate('/');
     }
 
