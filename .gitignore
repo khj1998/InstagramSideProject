@@ -35,4 +35,4 @@ out/
 
 ### VS Code ###
 .vscode/
-./frontend/node_modules/.cache/.eslintcache
+./frontend/node_modules
