@@ -1,5 +1,5 @@
 import React from "react";
-import './Profile.css';
+import './Profile.scss';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import {useNavigate} from 'react-router-dom';

@@ -1,5 +1,5 @@
 import React from 'react';
-import './Post.css';
+import './Post.scss';
 import MoreVertOutlinedIcon from "@mui/icons-material/MoreVertOutlined";
 import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
 import ModeCommentOutlinedIcon from "@mui/icons-material/ModeCommentOutlined";
