@@ -1,24 +1,41 @@
 import React,{useState} from 'react';
 import Grid  from '@material-ui/core/Grid';
+import './login.css';
 import instagram_img from '../../images/9364675fb26a.svg';
 import instagram_logo from '../../images/logoinsta.png';
 import facebook_img from '../../images/fb.png';
 import appstore from '../../images/app.png';
 import playstore from '../../images/play.png';
+import axios from 'axios';
+import {useNavigate,useParams} from 'react-router-dom';
 
 const Login = () => {
 
-  const [clicked, setClicked] = useState(false);
+  const navigate = useNavigate();
+  const [user, setUser] = useState({
+        email:'',
+        password:'',
+  });
 
-  function googleStore() {
-    setClicked(false);
-    window.open('https://play.google.com/store/apps/details?id=com.instagram.android&hl=ko&gl=US&pli=1','_self');
+  const {email,password} = user;
+
+  const onInputChange = (e) => {
+      setUser({...user,[e.target.name]:e.target.value});
   }
 
-  function appleStore() {
-    setClicked(false);
-    window.open('https://apps.apple.com/kr/app/instagram/id389801252','_self')
+  const onLogIn = async (e) => {
+     e.preventDefault();
+     await axios.post(`http://localhost:8080/users/${email}`,user, { withCredentials: true });
+     navigate("/home");
   }
+
+  const googleClick = () => {
+    window.open('https://play.google.com/store/apps/details?id=com.instagram.android&hl=ko&gl=US','_blank');
+  };
+
+  const appleClick = () => {
+    window.open('https://apps.apple.com/kr/app/instagram/id389801252','_blank')
+  };
 
   return (
     <div className="container">
@@ -41,11 +58,25 @@ const Login = () => {
          <Grid item xs={3}>
          <div className="loginpage-rightcomponent">
                         <img className="loginpage-logo" src={instagram_logo} />
+
+                        <form onSubmit = {(e) => onLogIn(e)}>
                         <div className="loginpage-signin">
-                             <input type="text" className="loginpage-text" placeholder="핸드폰 번호,이메일을 입력하세요" />
-                             <input type="password" className="loginpage-text" placeholder="비밀번호를 입력하세요" />
-                             <button className="login-button">로그인</button>
+                             <input
+                                type="text"
+                                name="email"
+                                className="loginpage-text"
+                                placeholder="이메일을 입력하세요"
+                                onChange={(e) => onInputChange(e)}/>
+
+                             <input
+                                type="password"
+                                name="password"
+                                className="loginpage-text"
+                                placeholder="비밀번호를 입력하세요"
+                                onChange={(e) => onInputChange(e)}/>
+                             <button type="submit" className="login-button">로그인</button>
                         </div>
+                        </form>
 
                         <div className="login-ordiv">
                             <div className="divide-left"></div>
@@ -74,8 +105,8 @@ const Login = () => {
                     </div>
 
                     <div className="loginpage-option">
-                         <img className="loginpage-dwimg" src={appstore} width="136px"/>
-                         <img className="loginpage-dwimg" src={playstore} width="136px"/>
+                         <img className="loginpage-dwimg" src={playstore} onClick={googleClick} width="136px"/>
+                         <img className="loginpage-dwimg" src={appstore} onClick={appleClick} width="136px"/>
                     </div>
          </Grid>
       </Grid>

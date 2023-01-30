@@ -1,0 +1,124 @@
+.post {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    border: 1px solid #lightgray;
+
+    .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+
+        .left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+
+            img {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                border: 2px solid coral;
+                object-fit: cover;
+            }
+
+            span {
+                font-size: 1rem;
+                color: black;
+                font-weight: bold;
+            }
+        }
+
+        .right {
+            text-align: end;
+            color: black;
+            cursor: pointer;
+        }
+    }
+
+    .postImg {
+        width: 100%;
+        height: 500px;
+        padding: 0;
+
+        img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .bottom{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 10px;
+
+        .left {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            color: black;
+            cursor: pointer;
+        }
+
+        .right {
+            text-align: end;
+            color: black;
+            cursor: pointer;
+        }
+    }
+
+    .commentTxt {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        gap: 5px;
+        padding: 10px;
+
+        span {
+            font-size: 1rem;
+            font-weight: bold;
+            color: black;
+        }
+
+        p {
+            font-size: 14px;
+            font-weight: normal;
+            color: gray;
+        }
+    }
+
+    .comment {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 10px;
+        input {
+          border: none;
+          outline: none;
+          padding: 10px;
+          width: 80%;
+          background-color: transparent;
+
+          &::placeholder {
+            color: lightgray;
+            font-weight: bold;
+          }
+        }
+
+        span {
+          color: #05b1f6;
+          font-size: 14px;
+          font-weight: bold;
+          cursor: pointer;
+        }
+    }
+}
