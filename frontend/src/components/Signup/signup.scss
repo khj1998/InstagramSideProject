@@ -1,0 +1,145 @@
+body {
+    background-color: #FAFAFA;
+}
+
+.container {
+    position: relative;
+}
+
+.loginpage-main {
+    display: flex;
+    margin: 25px;
+}
+
+.loginpage-logo {
+    width: 175px;
+    margin-top: 25px;
+}
+
+.loginpage-component {
+    height: 550px;
+    width: 350px;
+    border: 1px solid #DBDBDB;
+    margin-top: 50px;
+    text-align: center;
+    background-color: white;
+}
+
+.signuppage-signup {
+    margin-top: 25px;
+}
+
+.signuppage-text {
+    width: 250px;
+    height: 36px;
+    margin: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    border: 1px solid #DBDBDB;
+    background-color: #FAFAFA;
+    padding-left: 10px;
+    border-radius: 5px;
+}
+
+.signup-button {
+    cursor: pointer;
+    width: 270px;
+    height: 42px;
+    font-size: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 20px;
+    border: 2px solid #0395A6;
+    background-color: #0395F6;
+    color: white;
+    text-align: center;
+}
+
+.login-ordiv {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.divide-left {
+    width: 120px;
+    height: 0px;
+    margin-right: 10px;
+    margin-top: 20px;
+    border: 1px solid #DBDBDB;
+}
+
+.divide-right {
+    width: 120px;
+    height: 0px;
+    margin-left: 10px;
+    margin-top: 20px;
+    border: 1px solid #DBDBDB;
+}
+
+.instagram-intro {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #8E8E8E;
+}
+
+.login-or {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #8E8E8E;
+}
+
+.login-fb {
+    color: #395185;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.login-fb2 {
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    margin-bottom: 50px;
+}
+
+.login-forgot {
+    color: rgba(var(--fe0,0,55,107),1);
+    font-size: 12px;
+    line-height: 14px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.loginpage-signupoption {
+    margin-top: 25px;
+    height: 56px;
+    width: 350px;
+    background-color: white;
+    border: 1px solid #DBDBDB;
+    text-align: center;
+}
+
+.loginpage-signin {
+    margin-top: 20px;
+}
+
+.loginpage-signup {
+    margin-top: 30px;
+}
+
+.loginpage-downloadSection {
+    height: 105px;
+    width: 350px;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.loginpage-option {
+    margin-top: 40px;
+    margin-left: 30px;
+}
+
+.loginpage-dwimg {
+    margin-top: 20px;
+    margin: 5px;
+}

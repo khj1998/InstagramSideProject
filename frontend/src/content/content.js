@@ -1,5 +1,5 @@
 import react from 'react';
-import './content.css';
+import './content.scss';
 import Header from '../components/Header/Header.js';
 import Posts from '../components/Posts/Posts.js';
 import Sidebar from '../components/Sidebar/Sidebar.js';
