@@ -1,6 +1,6 @@
 import React, {useState,useEffect} from 'react';
-import './Navbar.css';
-import Logo from '../../images/logo.png';
+import './Navbar.scss';
+import Logo from '../../images/logoinsta.png';
 import ProfileImg from '../../images/profile.jpg';
 import ProfileInfo from '../ProfileInfo/ProfileInfo.js';
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";

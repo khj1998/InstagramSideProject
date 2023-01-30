@@ -1,6 +1,7 @@
 import React,{useState} from 'react';
 import Grid  from '@material-ui/core/Grid';
-import './login.css';
+import {Link} from 'react-router-dom';
+import './login.scss';
 import instagram_img from '../../images/9364675fb26a.svg';
 import instagram_logo from '../../images/logoinsta.png';
 import facebook_img from '../../images/fb.png';
@@ -28,6 +29,11 @@ const Login = () => {
      await axios.post(`http://localhost:8080/users/${email}`,user, { withCredentials: true });
      navigate("/home");
   }
+
+  const onSignUp = (e) => {
+          e.preventDefault();
+          window.open("http://localhost:3000/signup","_self");
+  };
 
   const googleClick = () => {
     window.open('https://play.google.com/store/apps/details?id=com.instagram.android&hl=ko&gl=US','_blank');
@@ -95,7 +101,7 @@ const Login = () => {
 
                     <div className="loginpage-signupoption">
                          <div className="loginpage-signin">
-                             회원이 아니신가요? <a href="#">계정을 생성하세요!</a>
+                             회원이 아니신가요? <Link to="/signup">계정을 생성하세요!</Link>
                          </div>
                          <div className="loginpage-downloadSection">
                              <div>

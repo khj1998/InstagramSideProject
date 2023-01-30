@@ -1,5 +1,5 @@
 import React from "react";
-import "./ProfileInfo.css";
+import "./ProfileInfo.scss";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 
 const ProfileInfo = () => {
