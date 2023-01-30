@@ -18,7 +18,7 @@ const Signup = () => {
              </Grid>
 
              <Grid item xs={3}>
-             <div className="loginpage-component">
+             <div className="signuppage-component">
                             <img className="loginpage-logo" src={instagram_logo} />
 
                             <div className="instagram-intro">
@@ -70,10 +70,15 @@ const Signup = () => {
                             </div>
                             </form>
 
-                            <div className="login-forgot">
-                                 <a href="#">비밀번호를 잊으셨나요?</a>
+                            <div className="instagram-intro">
+                                가입하면 Instagram의 약관, 데이터<br/>정책 및 쿠키 정책에 동의하게 됩니<br/>다.
                             </div>
                         </div>
+             <div className="signuppage-bottom">
+                <div className="login-account">
+                     계정이 있으신가요? <Link to ="/">로그인</Link>
+                </div>
+             </div>
              </Grid>
           </Grid>
         </div>

@@ -16,11 +16,20 @@ body {
     margin-top: 25px;
 }
 
-.loginpage-component {
-    height: 550px;
+.signuppage-component {
+    height: 600px;
     width: 350px;
     border: 1px solid #DBDBDB;
     margin-top: 50px;
+    text-align: center;
+    background-color: white;
+}
+
+.signuppage-bottom {
+    height: 65px;
+    width: 350px;
+    border: 1px solid #DBDBDB;
+    margin-top: 20px;
     text-align: center;
     background-color: white;
 }
@@ -142,4 +151,9 @@ body {
 .loginpage-dwimg {
     margin-top: 20px;
     margin: 5px;
+}
+
+.login-account {
+    margin-top: 20px;
+    text-align: center;
 }
