@@ -1,7 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
 import CloneProject.InstagramClone.InstagramService.config.SessionConst;
-import CloneProject.InstagramClone.InstagramService.domain.User;
+import CloneProject.InstagramClone.InstagramService.vo.User;
 import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
 import CloneProject.InstagramClone.InstagramService.service.InstagramService;
 import jakarta.servlet.http.HttpServletRequest;
