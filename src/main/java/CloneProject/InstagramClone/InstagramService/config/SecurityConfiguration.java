@@ -51,6 +51,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 )
                 .formLogin()
                 .loginPage("/")
+                .usernameParameter("email")
+                .passwordParameter("password")
                 .failureUrl("/")
                 .defaultSuccessUrl("/home")
                 .and()

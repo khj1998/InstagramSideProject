@@ -1,14 +1,12 @@
 package CloneProject.InstagramClone.InstagramService.vo;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @Entity(name="users")
 public class UserEntity {
 
