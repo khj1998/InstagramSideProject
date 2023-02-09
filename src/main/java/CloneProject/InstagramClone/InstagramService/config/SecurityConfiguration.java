@@ -3,6 +3,7 @@ package CloneProject.InstagramClone.InstagramService.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.Arrays;
 import java.util.List;
 
+@EnableWebSecurity
 @Configuration
 public class SecurityConfiguration implements WebMvcConfigurer {
 
@@ -37,7 +39,31 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         return source;
     }
 
-   @Bean
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.cors()
+                .configurationSource(corsConfigurationSource())
+                .and()
+                .csrf().disable()
+                .authorizeHttpRequests((req) ->
+                    req.requestMatchers("/").permitAll()
+                            .requestMatchers("/signup").permitAll()
+                )
+                .formLogin()
+                .loginPage("/")
+                .failureUrl("/")
+                .defaultSuccessUrl("/home")
+                .and()
+                .logout()
+                .logoutUrl("/logout")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessUrl("/");
+
+        return http.build();
+    }
+
+   /*@Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
        http.cors()
                .configurationSource(corsConfigurationSource())
@@ -45,5 +71,5 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                .csrf().disable();
 
        return http.build();
-   }
+   } */
 }

@@ -66,6 +66,14 @@ const Signup = () => {
                                     className="signuppage-text"
                                     placeholder="비밀번호"
                                     onChange={(e) => onInputChange(e)}/>
+
+                                 <input
+                                    type=""passwordChecker
+                                    name="passwordChecker"
+                                    className="signuppage-text"
+                                    placeholder="비밀번호 확인"
+                                    onChange={(e) => onInputChange(e)}/>
+
                                  <button type="submit" className="signup-button">가입</button>
                             </div>
                             </form>
