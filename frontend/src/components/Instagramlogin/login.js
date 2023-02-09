@@ -59,7 +59,7 @@ const Login = () => {
          <div className="loginpage-rightcomponent">
                         <img className="loginpage-logo" src={instagram_logo} />
 
-                        <form action="/login/auth">
+                        <form action="/">
                         <div className="loginpage-signin">
                              <input
                                 type="text"
