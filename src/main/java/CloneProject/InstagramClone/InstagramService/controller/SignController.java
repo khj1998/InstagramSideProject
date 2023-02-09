@@ -25,7 +25,7 @@ public class SignController {
     private final UserService userService;
 
     /*로그인 성공하면 세션 생성, 세션에 유저 객체를 담는다.*/
-    @PostMapping("/{email}")
+    /*@PostMapping("/{email}")
     public ResponseEntity<UserDto> SignInUser(@RequestBody @Validated UserDto signInDto, BindingResult bindingResult,
                                               HttpServletRequest req) {
 
@@ -45,6 +45,19 @@ public class SignController {
                .ok()
                .body(signInDto);
     }
+
+   @GetMapping("/signout")
+    public ResponseEntity SignOutUser(HttpServletRequest req){
+
+        HttpSession session = req.getSession(false);
+        UserDto signInUser = (UserDto) session.getAttribute(SessionConst.SessionName);
+        session.invalidate();
+
+        return ResponseEntity
+                .ok()
+                .body(signInUser);
+    }
+    */
 
     @PostMapping("/add")
     public ResponseEntity<SignUpDto> SignUpUser(@RequestBody @Validated SignUpDto signUpDto, BindingResult bindingResult) {
@@ -67,19 +80,6 @@ public class SignController {
         return ResponseEntity
                 .ok()
                 .body(signUpDto);
-    }
-
-    /*로그아웃 시 세션 객체 삭제*/
-    @GetMapping("/signout")
-    public ResponseEntity SignOutUser(HttpServletRequest req){
-
-        HttpSession session = req.getSession(false);
-        UserDto signInUser = (UserDto) session.getAttribute(SessionConst.SessionName);
-        session.invalidate();
-
-        return ResponseEntity
-                .ok()
-                .body(signInUser);
     }
 
     @PutMapping("/{email}")

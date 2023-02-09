@@ -24,12 +24,6 @@ const Login = () => {
       setUser({...user,[e.target.name]:e.target.value});
   }
 
-  const onLogIn = async (e) => {
-     e.preventDefault();
-     await axios.post(`http://localhost:8080/users/${email}`,user, { withCredentials: true });
-     navigate("/home");
-  }
-
   const onSignUp = (e) => {
           e.preventDefault();
           window.open("http://localhost:3000/signup","_self");
@@ -65,7 +59,7 @@ const Login = () => {
          <div className="loginpage-rightcomponent">
                         <img className="loginpage-logo" src={instagram_logo} />
 
-                        <form onSubmit = {(e) => onLogIn(e)}>
+                        <form action="/login/auth">
                         <div className="loginpage-signin">
                              <input
                                 type="text"

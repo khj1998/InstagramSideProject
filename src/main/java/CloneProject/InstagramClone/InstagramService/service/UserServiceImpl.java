@@ -7,12 +7,14 @@ import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
 import CloneProject.InstagramClone.InstagramService.exception.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
@@ -26,6 +28,8 @@ public class UserServiceImpl implements UserService{
 
         if (findUser(signUpDto.getEmail())) {
             UserEntity user = setRoleToUser(signUpDto);
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            log.info("encoded password : {}",user.getPassword());
             userRepository.save(user);
         } else {
             throw new EmailAlreadyExistsException("이미 존재하는 이메일입니다!");

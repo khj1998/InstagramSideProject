@@ -1,9 +1,13 @@
 package CloneProject.InstagramClone.InstagramService.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -13,11 +17,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
-import java.util.List;
 
-@EnableWebSecurity
 @Configuration
+@EnableWebSecurity
 public class SecurityConfiguration implements WebMvcConfigurer {
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -53,6 +59,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .loginPage("/")
                 .usernameParameter("email")
                 .passwordParameter("password")
+                .loginProcessingUrl("/login/auth")
                 .failureUrl("/")
                 .defaultSuccessUrl("/home")
                 .and()
@@ -65,13 +72,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         return http.build();
     }
 
-   /*@Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-       http.cors()
-               .configurationSource(corsConfigurationSource())
-               .and()
-               .csrf().disable();
-
-       return http.build();
-   } */
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 }
