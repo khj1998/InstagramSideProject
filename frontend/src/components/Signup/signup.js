@@ -7,8 +7,34 @@ import instagram_img from '../../images/9364675fb26a.svg';
 import instagram_logo from '../../images/logoinsta.png';
 import facebook_img from '../../images/fb.png';
 import './signup.scss'
+import { async } from 'q';
 
 const Signup = () => {
+
+    const [user, setUser] = useState({
+            nickname:'',
+            email:'',
+            password:'',
+            passwordChecker:''
+      });
+
+      const {nickname,email,password,passwordChecker} = user;
+
+      const onInputChange = (e) => {
+          setUser({...user,[e.target.name]:e.target.value});
+      }
+
+      const onSignUp = async (e) => {
+              e.preventDefault();
+              await axios.post(`http://localhost:8080/users/add`,user
+                ,{
+                    withCredentials : true,
+                    headers : {'Content-Type': 'application/json'}
+                })
+                .then((response) => {
+                    console.log(response);
+                });
+      };
 
     return (
     <div className="container">
@@ -37,28 +63,22 @@ const Signup = () => {
                                 <div className="divide-right"></div>
                             </div>
 
-                            <form onSubmit = {(e) => onLogIn(e)}>
+                            <form>
                             <div className="signuppage-signup">
+
+                                <input
+                                   type="text"
+                                   name="nickname"
+                                   className="signuppage-text"
+                                   placeholder="사용할 닉네임"
+                                   onChange={(e) => onInputChange(e)}/>
+
                                  <input
                                     type="text"
                                     name="email"
                                     className="signuppage-text"
                                     placeholder="이메일 주소"
                                     onChange={(e) => onInputChange(e)}/>
-
-                                 <input
-                                  type="text"
-                                  name="email"
-                                  className="signuppage-text"
-                                  placeholder="성명"
-                                  onChange={(e) => onInputChange(e)}/>
-
-                                 <input
-                                  type="text"
-                                  name="email"
-                                  className="signuppage-text"
-                                  placeholder="사용자 이름"
-                                  onChange={(e) => onInputChange(e)}/>
 
                                  <input
                                     type="password"
@@ -68,13 +88,13 @@ const Signup = () => {
                                     onChange={(e) => onInputChange(e)}/>
 
                                  <input
-                                    type=""passwordChecker
+                                    type="password"
                                     name="passwordChecker"
                                     className="signuppage-text"
                                     placeholder="비밀번호 확인"
                                     onChange={(e) => onInputChange(e)}/>
 
-                                 <button type="submit" className="signup-button">가입</button>
+                                 <button type="button" onClick = {(e) => onSignUp(e)} className="signup-button">가입</button>
                             </div>
                             </form>
 

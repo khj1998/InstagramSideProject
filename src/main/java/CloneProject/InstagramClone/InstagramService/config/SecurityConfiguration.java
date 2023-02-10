@@ -51,8 +51,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .configurationSource(corsConfigurationSource())
                 .and()
                 .csrf().disable()
-                .authorizeHttpRequests()
-                .and()
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/users/add").permitAll())
                 .formLogin()
                 .loginPage("/")
                 .permitAll()

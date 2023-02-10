@@ -2,6 +2,7 @@ package CloneProject.InstagramClone.InstagramService.vo;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.List;

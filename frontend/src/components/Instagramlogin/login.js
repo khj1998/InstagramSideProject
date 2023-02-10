@@ -24,11 +24,6 @@ const Login = () => {
       setUser({...user,[e.target.name]:e.target.value});
   }
 
-  const onSignUp = (e) => {
-          e.preventDefault();
-          window.open("http://localhost:3000/signup","_self");
-  };
-
   const googleClick = () => {
     window.open('https://play.google.com/store/apps/details?id=com.instagram.android&hl=ko&gl=US','_blank');
   };

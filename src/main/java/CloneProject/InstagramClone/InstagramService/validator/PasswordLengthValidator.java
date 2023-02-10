@@ -13,6 +13,6 @@ public class PasswordLengthValidator implements ConstraintValidator<PasswordLeng
 
     @Override
     public boolean isValid(SignUpDto value, ConstraintValidatorContext context) {
-        return false;
+        return value.getPassword().length() >= 8;
     }
 }

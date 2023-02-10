@@ -1,13 +1,9 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
-import CloneProject.InstagramClone.InstagramService.config.SessionConst;
-import CloneProject.InstagramClone.InstagramService.dto.UserDto;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.exception.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -61,6 +57,9 @@ public class SignController {
 
     @PostMapping("/add")
     public ResponseEntity<SignUpDto> SignUpUser(@RequestBody @Validated SignUpDto signUpDto, BindingResult bindingResult) {
+
+        log.info("{} 회원가입 객체를 받아옴!!",signUpDto);
+
         if (bindingResult.hasErrors()) {
             log.info("유효하지 않은 회원가입 정보입니다!");
 
