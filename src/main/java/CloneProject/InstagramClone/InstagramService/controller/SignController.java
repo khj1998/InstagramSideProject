@@ -3,6 +3,7 @@ package CloneProject.InstagramClone.InstagramService.controller;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.exception.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
+import CloneProject.InstagramClone.InstagramService.vo.SignUpResponse;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,33 +57,17 @@ public class SignController {
     */
 
     @PostMapping("/add")
-    public ResponseEntity<SignUpDto> SignUpUser(@RequestBody @Validated SignUpDto signUpDto, BindingResult bindingResult) {
+    public ResponseEntity<SignUpResponse> SignUpUser(@RequestBody @Validated SignUpDto signUpDto) {
+        SignUpResponse res = new SignUpResponse();
+        userService.createUser(signUpDto);
+        res.setMessage("SUCCESS");
 
-        log.info("{} 회원가입 객체를 받아옴!!",signUpDto);
-
-        if (bindingResult.hasErrors()) {
-            log.info("유효하지 않은 회원가입 정보입니다!");
-
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(signUpDto);
-        }
-
-        try{
-            userService.createUser(signUpDto);
-        }catch (EmailAlreadyExistsException e){
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(signUpDto);
-        }
-
-        return ResponseEntity
-                .ok()
-                .body(signUpDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(res);
     }
 
     @PutMapping("/{email}")
-    public ResponseEntity<UserEntity> UpdateUser(@RequestBody @Validated UserEntity user, BindingResult bindingResult) {
+    public ResponseEntity<UserEntity> UpdateUser(@RequestBody @Validated UserEntity user) {
         return ResponseEntity
                 .ok()
                 .body(null);
