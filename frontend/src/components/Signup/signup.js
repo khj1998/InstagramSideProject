@@ -1,9 +1,8 @@
 import React,{useState,useEffect} from 'react';
 import Grid  from '@material-ui/core/Grid';
-import {Link} from 'react-router-dom';
+import {Link,useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import Logo from '../../images/logo.png'
-import instagram_img from '../../images/9364675fb26a.svg';
 import instagram_logo from '../../images/logoinsta.png';
 import facebook_img from '../../images/fb.png';
 import './signup.scss'
@@ -11,13 +10,14 @@ import { async } from 'q';
 
 const Signup = () => {
 
+    const navigate = useNavigate();
+
     const [user, setUser] = useState({
             nickname:'',
             email:'',
             password:'',
             passwordChecker:''
       });
-
       const {nickname,email,password,passwordChecker} = user;
 
       const onInputChange = (e) => {
@@ -32,7 +32,12 @@ const Signup = () => {
                     headers : {'Content-Type': 'application/json'}
                 })
                 .then((response) => {
-                    console.log(response);
+                    if (response.status.valueOf(200)){
+                        alert("회원가입에 성공하였습니다! 홈에서 로그인을 진행하세요.");
+                        navigate(`/`);
+                    } else {
+                        alert("회원가입에 실패하였습니다! 아이디 혹은 비밀번호를 확인하세요!");
+                    }
                 });
       };
 
