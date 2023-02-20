@@ -1,7 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
-import CloneProject.InstagramClone.InstagramService.exception.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
 import CloneProject.InstagramClone.InstagramService.vo.SignUpResponse;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
@@ -9,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

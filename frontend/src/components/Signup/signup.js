@@ -32,12 +32,12 @@ const Signup = () => {
                     withCredentials : true,
                     headers : {'Content-Type': 'application/json'}
                 })
-                .then((response) => {
-                    console.log(response.data.message);
-                    if (response.data.message == "SUCCESS"){
+                .then((res) => {
+                    console.log(res.data.message);
+                    if (res.data.message == "SUCCESS"){
                         alert("회원가입에 성공하였습니다! 홈에서 로그인을 진행하세요.");
                         navigate(`/`);
-                    } else if (response.data.message == "Email Exists"){
+                    } else if (res.data.message == "Email Exists"){
                         alert("이미 등록된 이메일 입니다!");
                     } else {
                         alert("회원가입에 실패하였습니다! 이메일 혹은 비밀번호를 확인하세요!");
