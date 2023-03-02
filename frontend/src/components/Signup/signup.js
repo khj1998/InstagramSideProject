@@ -34,7 +34,7 @@ const Signup = () => {
                 })
                 .then((res) => {
                     console.log(res.data.message);
-                    if (res.data.message == "SUCCESS"){
+                    if (res.data.message == "Sign Up Success"){
                         alert("회원가입에 성공하였습니다! 홈에서 로그인을 진행하세요.");
                         navigate(`/`);
                     } else if (res.data.message == "Email Exists"){

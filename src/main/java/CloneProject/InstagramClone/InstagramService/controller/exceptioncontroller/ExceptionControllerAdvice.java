@@ -2,6 +2,7 @@ package CloneProject.InstagramClone.InstagramService.controller.exceptioncontrol
 
 import CloneProject.InstagramClone.InstagramService.exception.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.vo.SignUpResponse;
+import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,18 +15,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExceptionControllerAdvice {
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<SignUpResponse> handle() {
-        SignUpResponse res = new SignUpResponse();
-        res.setMessage("Email Exists");
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(res);
+    public ResponseEntity<ApiResponse> handle() {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(false)
+                .message("Email Exists")
+                .build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<SignUpResponse> handleAnnotationException(){
-        SignUpResponse res = new SignUpResponse();
-        res.setMessage("FAILED");
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(res);
+    public ResponseEntity<ApiResponse> handleAnnotationException(){
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(false)
+                .message("FAILED")
+                .build();
     }
 }

@@ -4,6 +4,7 @@ import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
 import CloneProject.InstagramClone.InstagramService.vo.SignUpResponse;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
+import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,60 +20,25 @@ public class SignController {
 
     private final UserService userService;
 
-    /*로그인 성공하면 세션 생성, 세션에 유저 객체를 담는다.*/
-    /*@PostMapping("/{email}")
-    public ResponseEntity<UserDto> SignInUser(@RequestBody @Validated UserDto signInDto, BindingResult bindingResult,
-                                              HttpServletRequest req) {
-
-        if (bindingResult.hasErrors()) {
-            log.info("유효하지 않은 로그인 정보입니다!");
-
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(signInDto);
-        }
-
-        HttpSession session = req.getSession(true);
-        session.setAttribute(SessionConst.SessionName,signInDto);
-        UserDto signInUser = (UserDto) session.getAttribute(SessionConst.SessionName);
-
-        return ResponseEntity
-               .ok()
-               .body(signInDto);
-    }
-
-   @GetMapping("/signout")
-    public ResponseEntity SignOutUser(HttpServletRequest req){
-
-        HttpSession session = req.getSession(false);
-        UserDto signInUser = (UserDto) session.getAttribute(SessionConst.SessionName);
-        session.invalidate();
-
-        return ResponseEntity
-                .ok()
-                .body(signInUser);
-    }
-    */
-
     @PostMapping("/add")
-    public ResponseEntity<SignUpResponse> SignUpUser(@RequestBody @Validated SignUpDto signUpDto) {
-        SignUpResponse res = new SignUpResponse();
+    public ResponseEntity<ApiResponse> SignUpUser(@RequestBody SignUpDto signUpDto) {
         userService.createUser(signUpDto);
-        res.setMessage("SUCCESS");
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(res);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Sign Up Success")
+                .data(signUpDto)
+                .build();
     }
 
     @PutMapping("/{email}")
-    public ResponseEntity<UserEntity> UpdateUser(@RequestBody @Validated UserEntity user) {
-        return ResponseEntity
-                .ok()
-                .body(null);
+    public ResponseEntity<ApiResponse> UpdateUser(@RequestBody @Validated UserEntity user) {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .build();
     }
 
     @DeleteMapping("/{email}")
-    public String DeleteUser(@RequestBody UserEntity user) {
-        return "Delete Process Complete!!";
+    public ResponseEntity<ApiResponse> DeleteUser(@RequestBody UserEntity user) {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .build();
     }
 }
