@@ -1,7 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
-import CloneProject.InstagramClone.InstagramService.repository.RoleRepository;
 import CloneProject.InstagramClone.InstagramService.vo.Role;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
 import CloneProject.InstagramClone.InstagramService.exception.EmailAlreadyExistsException;
@@ -21,7 +20,6 @@ import java.util.Arrays;
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -45,19 +43,13 @@ public class UserServiceImpl implements UserService{
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         UserEntity user = modelMapper.map(signUpDto, UserEntity.class);
-        Role role = roleRepository.findByName("ROLE_USER");
+        createRole(user);
 
-        if (role == null) {
-            role = createRole();
-        }
-
-        user.setRoles(Arrays.asList(role));
+        //user.setRoles(Arrays.asList(role));
         return user;
     }
 
-    private Role createRole() {
-        Role role = new Role();
-        role.setName("ROLE_USER");
-        return roleRepository.save(role);
+    private void createRole(UserEntity user) {
+        user.setRole(Role.ROLE_USER);
     }
 }

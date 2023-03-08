@@ -1,10 +1,8 @@
 package CloneProject.InstagramClone.InstagramService.controller.exceptioncontroller;
 
 import CloneProject.InstagramClone.InstagramService.exception.EmailAlreadyExistsException;
-import CloneProject.InstagramClone.InstagramService.vo.SignUpResponse;
 import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
