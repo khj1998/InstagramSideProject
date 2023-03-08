@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.userdetails;
+package CloneProject.InstagramClone.InstagramService.securitycustom;
 
 import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
