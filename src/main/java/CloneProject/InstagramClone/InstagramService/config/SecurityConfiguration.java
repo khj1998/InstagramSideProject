@@ -87,12 +87,12 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         return http.build();
     }
 
-    @Bean
+    /*@Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder, UserDetailsService userDetailsService) throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class)
                 .userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder())
                 .and()
                 .build();
-    }
+    }*/
 }

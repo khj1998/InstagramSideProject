@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class jwtAuthenticationFilter extends OncePerRequestFilter {
@@ -36,6 +38,7 @@ public class jwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        log.info("jwt token : {}",authHeader);
         //extract token from authHeader
         jwt = authHeader.substring(AFTER_BEARER);
         //extract userEmail from jwt token
@@ -53,6 +56,10 @@ public class jwtAuthenticationFilter extends OncePerRequestFilter {
                         null,
                         userDetails.getAuthorities()
                 );
+
+                /*
+                https://stackoverflow.com/questions/69816689/what-does-webauthenticationdetailssource - what does WebAuthenticationDetailsSource()?
+                 */
                 authToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );

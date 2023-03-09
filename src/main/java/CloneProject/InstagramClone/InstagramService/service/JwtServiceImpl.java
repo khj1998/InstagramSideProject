@@ -41,6 +41,9 @@ public class JwtServiceImpl implements JwtService {
         return generateToken(new HashMap<>(),userDetails);
     }
 
+    /**
+     * create jwt token by using secret_key - signature can only be made with secret_key
+     */
     public String generateToken(Map<String,Object> extraClaims, UserDetails userDetails) {
         return Jwts
                 .builder()
@@ -66,6 +69,7 @@ public class JwtServiceImpl implements JwtService {
         return extractClaim(token,Claims::getExpiration);
     }
 
+    // encoding token Base64 decoding
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
