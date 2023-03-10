@@ -17,6 +17,8 @@ import java.util.function.Function;
 @Service
 public class JwtServiceImpl implements JwtService {
     private static final String SECRET_KEY = "472B4B6250655368566D597133743677397A244326462948404D635166546A57";
+    private static final int EXPIRATION_TIME = 1000*60*24;
+
     @Override
     public String extractUsername(String token) {
         return extractClaim(token,Claims::getSubject);
@@ -37,22 +39,20 @@ public class JwtServiceImpl implements JwtService {
                 .getBody();
     }
 
-    @Override
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(),userDetails);
-    }
-
     /**
      * create jwt token by using secret_key - signature can only be made with secret_key
      */
-    private String generateToken(Map<String,Object> extraClaims, UserDetails userDetails) {
+    @Override
+    public String generateToken(String username) {
+        Date currentDate = new Date();
+        Date expireDate = new Date(currentDate.getTime() + EXPIRATION_TIME);
+
         return Jwts
                 .builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*24))
-                .signWith(getSignInKey(), SignatureAlgorithm.ES256)
+                .setSubject(username)
+                .setIssuedAt(currentDate)
+                .setExpiration(expireDate)
+                .signWith(getSignInKey())
                 .compact();
     }
 

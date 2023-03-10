@@ -37,3 +37,4 @@ out/
 .vscode/
 /frontend/node_modules/
 /src/main/resources/application
+/src/main/java/CloneProject/InstagramClone/InstagramService/config/SpringConst.java

@@ -1,5 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.securitycustom;
 
+import CloneProject.InstagramClone.InstagramService.config.SpringConst;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,12 +19,11 @@ import java.util.stream.Collectors;
 
 @Component
 public class TokenProvider implements InitializingBean {
-    private static final String SECRET_KEY = "472B4B6250655368566D597133743677397A244326462948404D635166546A57";
     private Key key;
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        byte[] keyBytes = Base64.getDecoder().decode(SECRET_KEY);
+    public void afterPropertiesSet() {
+        byte[] keyBytes = Base64.getDecoder().decode(SpringConst.SECRET_KEY);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 

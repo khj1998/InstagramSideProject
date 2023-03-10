@@ -3,20 +3,26 @@ package CloneProject.InstagramClone.InstagramService.service;
 import CloneProject.InstagramClone.InstagramService.dto.SignInDto;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.exception.EmailNotExistsException;
+import CloneProject.InstagramClone.InstagramService.exception.UserNotAuthenticated;
 import CloneProject.InstagramClone.InstagramService.vo.AuthenticationResponse;
 import CloneProject.InstagramClone.InstagramService.vo.Role;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
 import CloneProject.InstagramClone.InstagramService.exception.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 
 @Slf4j
 @Service
@@ -41,20 +47,15 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public AuthenticationResponse authentication(SignInDto signInDto) {
-        UserEntity user = findUser(signInDto.getEmail());
-        if (user == null) {
-            throw new EmailNotExistsException("존재하지 않는 이메일입니다!");
+    public AuthenticationResponse createJwtToken(HttpServletResponse res) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+
+        if (username.equals("anonymousUser")) {
+            throw new UserNotAuthenticated("인증되지 않은 유저입니다.");
         }
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        user.getEmail(),
-                        user.getPassword()
-                )
-        );
+        String jwtToken = jwtService.generateToken(username);
 
-        String jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();

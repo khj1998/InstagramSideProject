@@ -6,11 +6,15 @@ import CloneProject.InstagramClone.InstagramService.service.UserService;
 import CloneProject.InstagramClone.InstagramService.vo.AuthenticationResponse;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
 import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 
 @Slf4j
 @RestController
@@ -31,12 +35,12 @@ public class AuthController {
     }
 
     @PostMapping("/sign")
-    public ResponseEntity<ApiResponse> SignInUser(@RequestBody SignInDto signInDto) {
-        AuthenticationResponse res = userService.authentication(signInDto);
+    public ResponseEntity<ApiResponse> SignInUser(HttpServletResponse res) {
+        AuthenticationResponse authResponse = userService.createJwtToken(res);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Sign In Success")
-                .data(res)
+                .data(authResponse)
                 .build();
     }
 
