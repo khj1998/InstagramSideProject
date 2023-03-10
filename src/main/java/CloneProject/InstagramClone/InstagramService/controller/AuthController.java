@@ -1,7 +1,9 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
+import CloneProject.InstagramClone.InstagramService.dto.SignInDto;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
+import CloneProject.InstagramClone.InstagramService.vo.AuthenticationResponse;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
 import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class SignController {
+public class AuthController {
 
     private final UserService userService;
 
@@ -25,6 +27,16 @@ public class SignController {
                 .success(true)
                 .message("Sign Up Success")
                 .data(signUpDto)
+                .build();
+    }
+
+    @PostMapping("/sign")
+    public ResponseEntity<ApiResponse> SignInUser(@RequestBody SignInDto signInDto) {
+        AuthenticationResponse res = userService.authentication(signInDto);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Sign In Success")
+                .data(res)
                 .build();
     }
 

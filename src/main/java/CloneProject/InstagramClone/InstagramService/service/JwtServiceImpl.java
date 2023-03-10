@@ -37,6 +37,7 @@ public class JwtServiceImpl implements JwtService {
                 .getBody();
     }
 
+    @Override
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(),userDetails);
     }
@@ -44,7 +45,7 @@ public class JwtServiceImpl implements JwtService {
     /**
      * create jwt token by using secret_key - signature can only be made with secret_key
      */
-    public String generateToken(Map<String,Object> extraClaims, UserDetails userDetails) {
+    private String generateToken(Map<String,Object> extraClaims, UserDetails userDetails) {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)

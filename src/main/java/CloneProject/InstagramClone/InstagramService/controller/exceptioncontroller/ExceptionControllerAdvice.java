@@ -1,6 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.controller.exceptioncontroller;
 
 import CloneProject.InstagramClone.InstagramService.exception.EmailAlreadyExistsException;
+import CloneProject.InstagramClone.InstagramService.exception.EmailNotExistsException;
 import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,14 @@ public class ExceptionControllerAdvice {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(false)
                 .message("Email Exists")
+                .build();
+    }
+
+    @ExceptionHandler(EmailNotExistsException.class)
+    public ResponseEntity<ApiResponse> handleEmailNotExistsException() {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(false)
+                .message("Email Not Exists")
                 .build();
     }
 

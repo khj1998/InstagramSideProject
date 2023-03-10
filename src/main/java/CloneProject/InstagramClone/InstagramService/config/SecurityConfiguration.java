@@ -1,8 +1,9 @@
 package CloneProject.InstagramClone.InstagramService.config;
 
+import CloneProject.InstagramClone.InstagramService.securitycustom.CustomJwtFilter;
+import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import CloneProject.InstagramClone.InstagramService.securitycustom.jwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,8 +31,8 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfiguration implements WebMvcConfigurer {
 
-    private final UserDetailsService userDetailsService;
-    private final jwtAuthenticationFilter jwtAuthFilter;
+    private final AuthenticationProvider customAuthenticationProvider;
+    private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -54,16 +55,16 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.authenticationProvider(customAuthenticationProvider);
+        return authenticationManagerBuilder.build();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
+    public TokenProvider tokenProvider() {
+        return new TokenProvider();
     }
 
     @Bean
@@ -72,27 +73,18 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .configurationSource(corsConfigurationSource())
                 .and()
                 .csrf().disable()
+
                 .authorizeHttpRequests()
-                .requestMatchers("")
+                .requestMatchers("/api/auth/**")
                 .permitAll()
-                .anyRequest()
-                .authenticated()
+
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
                 .and()
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new CustomJwtFilter(authenticationConfiguration.getAuthenticationManager(),tokenProvider()), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-    /*@Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder bCryptPasswordEncoder, UserDetailsService userDetailsService) throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder())
-                .and()
-                .build();
-    }*/
 }
