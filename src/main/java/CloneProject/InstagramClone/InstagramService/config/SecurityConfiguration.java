@@ -2,7 +2,6 @@ package CloneProject.InstagramClone.InstagramService.config;
 
 import CloneProject.InstagramClone.InstagramService.securitycustom.CustomJwtFilter;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
-import CloneProject.InstagramClone.InstagramService.securitycustom.jwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

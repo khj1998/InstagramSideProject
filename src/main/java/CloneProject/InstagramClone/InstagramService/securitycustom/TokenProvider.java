@@ -1,13 +1,12 @@
 package CloneProject.InstagramClone.InstagramService.securitycustom;
 
 import CloneProject.InstagramClone.InstagramService.config.SpringConst;
+import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -15,16 +14,18 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Component
 public class TokenProvider implements InitializingBean {
-    private Key key;
+    private Key access_key;
+    private Key refresh_key;
 
     @Override
     public void afterPropertiesSet() {
-        byte[] keyBytes = Base64.getDecoder().decode(SpringConst.SECRET_KEY);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+        byte[] accessKeyBytes = Base64.getDecoder().decode(SpringConst.ACCESS_SECRET_KEY);
+        byte[] refreshKeyBytes = Base64.getDecoder().decode(SpringConst.REFRESH_SECRET_KEY);
+        this.access_key = Keys.hmacShaKeyFor(accessKeyBytes);
+        this.refresh_key = Keys.hmacShaKeyFor(refreshKeyBytes);
     }
 
     public String extractUsername(String token) {
@@ -34,7 +35,7 @@ public class TokenProvider implements InitializingBean {
     public <T> T extractClaim(String token, Function<Claims,T> claimsResolver) {
         final Claims claims = Jwts
                 .parserBuilder()
-                .setSigningKey(this.key)
+                .setSigningKey(this.access_key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -45,17 +46,29 @@ public class TokenProvider implements InitializingBean {
     /**
      * Generate jwt token
      */
-    public String generateToken(UserDetails userDetails) {
-
-        Claims claims = Jwts.claims().setSubject(userDetails.getUsername());
-        claims.put("roles",userDetails.getAuthorities());
+    public String generateAccessToken(UserEntity userEntity) {
+        Claims claims = Jwts.claims().setSubject(userEntity.getUsername());
+        claims.put("roles",userEntity.getAuthorities());
 
         return Jwts
                 .builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000*60*24))
-                .signWith(this.key, SignatureAlgorithm.ES256)
+                .setExpiration(new Date(System.currentTimeMillis() + SpringConst.ACCESS_TOKEN_EXPIRATION_TIME))
+                .signWith(this.access_key, SignatureAlgorithm.ES256)
+                .compact();
+    }
+
+    public String generateRefreshToken(UserEntity userEntity) {
+        Claims claims = Jwts.claims().setSubject(userEntity.getUsername());
+        claims.put("roles",userEntity.getAuthorities());
+
+        return Jwts
+                .builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + SpringConst.REFRESH_TOKEN_EXPIRATION_TIME))
+                .signWith(this.refresh_key,SignatureAlgorithm.ES256)
                 .compact();
     }
 
