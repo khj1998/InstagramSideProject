@@ -1,14 +1,49 @@
 import React,{useState,useEffect} from 'react';
 import Grid  from '@material-ui/core/Grid';
-import {Link} from 'react-router-dom';
+import {Link,useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import Logo from '../../images/logo.png'
-import instagram_img from '../../images/9364675fb26a.svg';
 import instagram_logo from '../../images/logoinsta.png';
 import facebook_img from '../../images/fb.png';
 import './signup.scss'
+import { async } from 'q';
+import { typeOf } from 'react-is';
 
 const Signup = () => {
+
+    const navigate = useNavigate();
+
+    const [user, setUser] = useState({
+            nickname:'',
+            email:'',
+            password:'',
+            passwordChecker:''
+      });
+      const {nickname,email,password,passwordChecker} = user;
+
+      const onInputChange = (e) => {
+          setUser({...user,[e.target.name]:e.target.value});
+      }
+
+      const onSignUp = async (e) => {
+              e.preventDefault();
+              await axios.post(`http://localhost:8080/users/add`,user
+                ,{
+                    withCredentials : true,
+                    headers : {'Content-Type': 'application/json'}
+                })
+                .then((res) => {
+                    console.log(res.data.message);
+                    if (res.data.message == "Sign Up Success"){
+                        alert("회원가입에 성공하였습니다! 홈에서 로그인을 진행하세요.");
+                        navigate(`/`);
+                    } else if (res.data.message == "Email Exists"){
+                        alert("이미 등록된 이메일 입니다!");
+                    } else {
+                        alert("회원가입에 실패하였습니다! 이메일 혹은 비밀번호를 확인하세요!");
+                    }
+                });
+      };
 
     return (
     <div className="container">
@@ -37,8 +72,16 @@ const Signup = () => {
                                 <div className="divide-right"></div>
                             </div>
 
-                            <form onSubmit = {(e) => onLogIn(e)}>
+                            <form>
                             <div className="signuppage-signup">
+
+                                <input
+                                   type="text"
+                                   name="nickname"
+                                   className="signuppage-text"
+                                   placeholder="사용할 닉네임"
+                                   onChange={(e) => onInputChange(e)}/>
+
                                  <input
                                     type="text"
                                     name="email"
@@ -47,26 +90,20 @@ const Signup = () => {
                                     onChange={(e) => onInputChange(e)}/>
 
                                  <input
-                                  type="text"
-                                  name="email"
-                                  className="signuppage-text"
-                                  placeholder="성명"
-                                  onChange={(e) => onInputChange(e)}/>
-
-                                 <input
-                                  type="text"
-                                  name="email"
-                                  className="signuppage-text"
-                                  placeholder="사용자 이름"
-                                  onChange={(e) => onInputChange(e)}/>
-
-                                 <input
                                     type="password"
                                     name="password"
                                     className="signuppage-text"
                                     placeholder="비밀번호"
                                     onChange={(e) => onInputChange(e)}/>
-                                 <button type="submit" className="signup-button">가입</button>
+
+                                 <input
+                                    type="password"
+                                    name="passwordChecker"
+                                    className="signuppage-text"
+                                    placeholder="비밀번호 확인"
+                                    onChange={(e) => onInputChange(e)}/>
+
+                                 <button type="button" onClick = {(e) => onSignUp(e)} className="signup-button">가입</button>
                             </div>
                             </form>
 
