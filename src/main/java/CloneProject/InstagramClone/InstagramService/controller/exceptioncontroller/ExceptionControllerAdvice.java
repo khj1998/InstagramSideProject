@@ -18,6 +18,7 @@ public class ExceptionControllerAdvice {
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ApiResponse> handle() {
+        log.info("user already exists");
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(false)
                 .message("Email Exists")

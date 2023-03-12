@@ -10,5 +10,5 @@ import java.nio.file.attribute.UserPrincipalNotFoundException;
 
 public interface UserService {
     void createUser(SignUpDto signUpDto);
-    AuthenticationResponse createJwtToken(HttpServletResponse res);
+    AuthenticationResponse createJwtToken(String username,HttpServletResponse res);
 }

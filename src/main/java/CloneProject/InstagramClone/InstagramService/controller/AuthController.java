@@ -1,12 +1,10 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
-import CloneProject.InstagramClone.InstagramService.dto.SignInDto;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
 import CloneProject.InstagramClone.InstagramService.vo.AuthenticationResponse;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
 import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,17 +12,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.attribute.UserPrincipalNotFoundException;
-
 @Slf4j
 @RestController
-@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
 
-    @PostMapping("/add")
+    @PostMapping("/users/register")
     public ResponseEntity<ApiResponse> SignUpUser(@RequestBody SignUpDto signUpDto) {
         userService.createUser(signUpDto);
         return new ApiResponse.ApiResponseBuilder<>()
@@ -34,13 +29,21 @@ public class AuthController {
                 .build();
     }
 
-    @PostMapping("/sign")
-    public ResponseEntity<ApiResponse> SignInUser(HttpServletResponse res) {
-        AuthenticationResponse authResponse = userService.createJwtToken(res);
+    @GetMapping("/login/success")
+    public ResponseEntity<ApiResponse> login(@RequestParam String username,HttpServletResponse res) {
+        AuthenticationResponse authResponse = userService.createJwtToken(username,res);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
-                .message("Sign In Success")
+                .message("Login Success")
                 .data(authResponse)
+                .build();
+    }
+
+    @GetMapping("/login/failure")
+    public ResponseEntity<ApiResponse> loginFailure() {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(false)
+                .message("Login Failure")
                 .build();
     }
 

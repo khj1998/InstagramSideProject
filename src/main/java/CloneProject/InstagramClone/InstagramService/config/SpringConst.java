@@ -1,6 +1,11 @@
 package CloneProject.InstagramClone.InstagramService.config;
 
+import org.springframework.security.core.Authentication;
+
+import java.util.concurrent.ConcurrentHashMap;
+
 public class SpringConst {
+    public static final ConcurrentHashMap<String, Authentication> AUTH_REPOSITORY = new ConcurrentHashMap<>();
     public static final int ACCESS_TOKEN_EXPIRATION_TIME = 1000*60;
     public static final int REFRESH_TOKEN_EXPIRATION_TIME = 1000*60*2;
     public static final String ACCESS_SECRET_KEY = "472B4B6250655368566D597133743677397A244326462948404D635166546A57";

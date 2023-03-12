@@ -1,5 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
+import CloneProject.InstagramClone.InstagramService.config.SpringConst;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.exception.UserNotAuthenticated;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
@@ -13,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,15 +25,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public void createUser(SignUpDto signUpDto) {
         if (findUser(signUpDto.getEmail()) == null) {
             UserEntity user = setRoleToUser(signUpDto);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            log.info("encoded password : {}",user.getPassword());
             userRepository.save(user);
         } else {
             throw new EmailAlreadyExistsException("이미 존재하는 이메일입니다!");
@@ -38,16 +40,19 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public AuthenticationResponse createJwtToken(HttpServletResponse res) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        UserEntity userEntity = userRepository.findByEmail(username);
+    public AuthenticationResponse createJwtToken(String username,HttpServletResponse res) {
+        Authentication authentication = SpringConst.AUTH_REPOSITORY.get(username);
+        log.info("{}", authentication);
 
-        if (username.equals("anonymousUser")) {
+        if (authentication == null) {
             throw new UserNotAuthenticated("인증되지 않은 유저입니다.");
         }
 
+        UserEntity userEntity = userRepository.findByEmail(username);
         String accessToken = tokenProvider.generateAccessToken(userEntity);
         String refreshToken = tokenProvider.generateRefreshToken(userEntity);
+        res.setHeader("Authorization", "Bearer " + accessToken);
+        res.setHeader("Authorization", "Bearer " + refreshToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)

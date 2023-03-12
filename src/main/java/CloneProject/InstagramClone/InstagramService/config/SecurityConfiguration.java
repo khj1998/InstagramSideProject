@@ -1,22 +1,23 @@
 package CloneProject.InstagramClone.InstagramService.config;
 
-import CloneProject.InstagramClone.InstagramService.securitycustom.CustomJwtFilter;
-import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
+import CloneProject.InstagramClone.InstagramService.securitycustom.CustomAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -30,13 +31,10 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfiguration implements WebMvcConfigurer {
 
-    private final AuthenticationProvider customAuthenticationProvider;
     private final AuthenticationConfiguration authenticationConfiguration;
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    private final AuthenticationProvider customAuthenticationProvider;
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final AuthenticationFailureHandler authenticationFailureHandler;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -62,11 +60,6 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public TokenProvider tokenProvider() {
-        return new TokenProvider();
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors()
                 .configurationSource(corsConfigurationSource())
@@ -74,15 +67,19 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .csrf().disable()
 
                 .authorizeHttpRequests()
-                .requestMatchers("/api/auth/**")
+                .requestMatchers("/users/register","/login/success","/login/failure")
                 .permitAll()
 
                 .and()
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-                .and()
-                .addFilterBefore(new CustomJwtFilter(authenticationConfiguration.getAuthenticationManager(),tokenProvider()), UsernamePasswordAuthenticationFilter.class);
+                AbstractAuthenticationProcessingFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationConfiguration.getAuthenticationManager());
+                customAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+                customAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+
+                http
+                .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

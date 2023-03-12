@@ -10,7 +10,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
+import java.security.PrivateKey;
 import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
@@ -55,7 +57,7 @@ public class TokenProvider implements InitializingBean {
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + SpringConst.ACCESS_TOKEN_EXPIRATION_TIME))
-                .signWith(this.access_key, SignatureAlgorithm.ES256)
+                .signWith(this.access_key)
                 .compact();
     }
 
@@ -68,7 +70,7 @@ public class TokenProvider implements InitializingBean {
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + SpringConst.REFRESH_TOKEN_EXPIRATION_TIME))
-                .signWith(this.refresh_key,SignatureAlgorithm.ES256)
+                .signWith(this.refresh_key)
                 .compact();
     }
 
