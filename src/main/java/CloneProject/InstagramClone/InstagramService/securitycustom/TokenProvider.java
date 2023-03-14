@@ -6,8 +6,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -18,9 +20,11 @@ import java.util.Date;
 import java.util.function.Function;
 
 @Component
+@RequiredArgsConstructor
 public class TokenProvider implements InitializingBean {
     private Key access_key;
     private Key refresh_key;
+    private final UserDetailsService userDetailsService;
 
     @Override
     public void afterPropertiesSet() {
@@ -74,8 +78,9 @@ public class TokenProvider implements InitializingBean {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token) {
         final String username = extractUsername(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
