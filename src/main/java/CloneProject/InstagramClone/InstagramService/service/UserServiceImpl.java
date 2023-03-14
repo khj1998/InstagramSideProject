@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public AuthenticationResponse createJwtToken(String username,HttpServletResponse res) {
+    public AuthenticationResponse createJwtToken(String username) {
         Authentication authentication = SpringConst.AUTH_REPOSITORY.get(username);
         log.info("{}", authentication);
 
@@ -51,8 +50,6 @@ public class UserServiceImpl implements UserService{
         UserEntity userEntity = userRepository.findByEmail(username);
         String accessToken = tokenProvider.generateAccessToken(userEntity);
         String refreshToken = tokenProvider.generateRefreshToken(userEntity);
-        res.setHeader("Authorization", "Bearer " + accessToken);
-        res.setHeader("Authorization", "Bearer " + refreshToken);
 
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)

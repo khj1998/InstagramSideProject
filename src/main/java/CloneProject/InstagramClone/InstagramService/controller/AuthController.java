@@ -30,8 +30,8 @@ public class AuthController {
     }
 
     @GetMapping("/login/success")
-    public ResponseEntity<ApiResponse> login(@RequestParam String username,HttpServletResponse res) {
-        AuthenticationResponse authResponse = userService.createJwtToken(username,res);
+    public ResponseEntity<ApiResponse> login(@RequestParam String username) {
+        AuthenticationResponse authResponse = userService.createJwtToken(username);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Login Success")
