@@ -54,7 +54,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         try{
             tokenProvider.isTokenValid(tokenDto.getAccessToken());
         } catch(ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰 재발급 필요!!");
+            log.info("만료된 access 토큰 재발급 필요!!");
         }
 
         filterChain.doFilter(request, response);

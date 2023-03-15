@@ -49,6 +49,28 @@ public class TokenProvider implements InitializingBean {
         return claimsResolver.apply(claims);
     }
 
+    public <T> T extractRefreshClaim(String token, Function<Claims,T> claimsResolver) {
+        final Claims claims = Jwts
+                .parserBuilder()
+                .setSigningKey(this.refresh_key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claimsResolver.apply(claims);
+    }
+
+    public <T> T extractClaimByRefresh(String token, Function<Claims,T> claimsResolver) {
+        final Claims claims = Jwts
+                .parserBuilder()
+                .setSigningKey(this.refresh_key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claimsResolver.apply(claims);
+    }
+
     /**
      * Generate jwt token
      */
@@ -88,7 +110,15 @@ public class TokenProvider implements InitializingBean {
         return extractExpiration(token).before(new Date());
     }
 
+    public boolean isRefreshTokenExpired(String refreshToken) {
+        return extractRefreshExpiration(refreshToken).before(new Date());
+    }
+
     private Date extractExpiration(String token) {
         return extractClaim(token,Claims::getExpiration);
+    }
+
+    private Date extractRefreshExpiration(String refreshToken) {
+        return extractRefreshClaim(refreshToken,Claims::getExpiration);
     }
 }

@@ -3,9 +3,7 @@ package CloneProject.InstagramClone.InstagramService.service;
 import CloneProject.InstagramClone.InstagramService.config.SpringConst;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.exception.UserNotAuthenticated;
-import CloneProject.InstagramClone.InstagramService.repository.RefreshTokenRepository;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
-import CloneProject.InstagramClone.InstagramService.vo.RefreshTokenEntity;
 import CloneProject.InstagramClone.InstagramService.vo.TokenResponse;
 import CloneProject.InstagramClone.InstagramService.vo.Role;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
@@ -15,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,8 +24,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final TokenProvider tokenProvider;
+    private final RedisTemplate redisTemplate;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
@@ -52,14 +51,18 @@ public class UserServiceImpl implements UserService{
         UserEntity userEntity = userRepository.findByEmail(username);
         String accessToken = tokenProvider.generateAccessToken(userEntity);
         String refreshToken = tokenProvider.generateRefreshToken(userEntity);
-        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByUserId(userEntity.getId());
+        String findRefreshToken = (String) redisTemplate.opsForValue().get(username);
+        log.info("{}",findRefreshToken);
 
-        if (refreshTokenEntity == null) {
-            RefreshTokenEntity saveToken = new RefreshTokenEntity(userEntity.getId(),refreshToken);
-            refreshTokenRepository.save(saveToken);
-        } else {
-            log.info("userId : {}, refreshToken : {}"
-                    , refreshTokenEntity.getRefreshToken(), refreshTokenEntity.getRefreshToken());
+        /**
+         * 유저 로그인시 유저 아이디에 해당하는 Key에 해당하는 RefreshToken 있는지 확인
+         * 없으면 set하고, 있다면 유효기간 확인.
+         */
+        if (findRefreshToken == null) {
+            redisTemplate.opsForValue().set(username,refreshToken);
+        } else if (!tokenProvider.isRefreshTokenExpired(findRefreshToken)) {
+            String newRefreshToken = tokenProvider.generateRefreshToken(userEntity);
+            redisTemplate.opsForValue().set(username,newRefreshToken);
         }
 
         return TokenResponse.builder()
