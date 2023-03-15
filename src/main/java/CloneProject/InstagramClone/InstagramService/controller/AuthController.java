@@ -1,11 +1,11 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
+import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
-import CloneProject.InstagramClone.InstagramService.vo.AuthenticationResponse;
+import CloneProject.InstagramClone.InstagramService.vo.TokenResponse;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
 import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
+    private final UserRepository userRepository;
 
     private final UserService userService;
 
@@ -31,7 +32,7 @@ public class AuthController {
 
     @GetMapping("/login/success")
     public ResponseEntity<ApiResponse> login(@RequestParam String username) {
-        AuthenticationResponse authResponse = userService.createJwtToken(username);
+        TokenResponse authResponse = userService.createJwtToken(username);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Login Success")
