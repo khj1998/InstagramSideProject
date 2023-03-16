@@ -1,14 +1,16 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.config.SpringConst;
+import CloneProject.InstagramClone.InstagramService.dto.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
-import CloneProject.InstagramClone.InstagramService.exception.UserNotAuthenticated;
+import CloneProject.InstagramClone.InstagramService.exception.*;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
-import CloneProject.InstagramClone.InstagramService.vo.TokenResponse;
+import CloneProject.InstagramClone.InstagramService.vo.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.vo.Role;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
-import CloneProject.InstagramClone.InstagramService.exception.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -29,7 +31,7 @@ public class UserServiceImpl implements UserService{
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public void createUser(SignUpDto signUpDto) {
+    public void CreateUser(SignUpDto signUpDto) {
         if (findUser(signUpDto.getEmail()) == null) {
             UserEntity user = setRoleToUser(signUpDto);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -40,7 +42,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public TokenResponse createJwtToken(String username) {
+    public AuthResponse CreateJwtToken(String username) {
         Authentication authentication = SpringConst.AUTH_REPOSITORY.get(username);
         log.info("{}", authentication);
 
@@ -49,27 +51,57 @@ public class UserServiceImpl implements UserService{
         }
 
         UserEntity userEntity = userRepository.findByEmail(username);
+        // 로그인 성공시, accessToken,refreshToken 발급.
+        Long userId = userEntity.getId();
         String accessToken = tokenProvider.generateAccessToken(userEntity);
         String refreshToken = tokenProvider.generateRefreshToken(userEntity);
-        String findRefreshToken = (String) redisTemplate.opsForValue().get(username);
-        log.info("{}",findRefreshToken);
+        redisTemplate.opsForValue().set(userEntity.getId().toString(),refreshToken);
 
-        /**
-         * 유저 로그인시 유저 아이디에 해당하는 Key에 해당하는 RefreshToken 있는지 확인
-         * 없으면 set하고, 있다면 유효기간 확인.
-         */
-        if (findRefreshToken == null) {
-            redisTemplate.opsForValue().set(username,refreshToken);
-        } else if (!tokenProvider.isRefreshTokenExpired(findRefreshToken)) {
-            String newRefreshToken = tokenProvider.generateRefreshToken(userEntity);
-            redisTemplate.opsForValue().set(username,newRefreshToken);
-        }
-
-        return TokenResponse.builder()
+        return AuthResponse.builder()
+                .userId(userId)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
     }
+
+    /**
+     * Refresh 토큰 유효시, Access Token,Refresh Token 재발급 후 응답 - RTR 방식 채택
+     */
+    @Override
+    public AuthResponse ReallocateAccessToken(AuthDto authDto) {
+        Long userId = authDto.getUserId();
+        UserEntity userEntity = userRepository.findById(userId).get();
+        String refreshToken = (String) redisTemplate.opsForValue().get(userId.toString());
+        String accessToken = null;
+
+        Authentication authentication = SpringConst.AUTH_REPOSITORY.get(userEntity.getUsername());
+        if (authentication == null) {
+            throw new UserNotAuthenticated("인증되지 않은 유저입니다.");
+        }
+
+        try {
+            //RefreshToken가 유효하지 않으면, 예외 발생
+            tokenProvider.isRefreshTokenValid(refreshToken);
+            accessToken = tokenProvider.generateAccessToken(userEntity);
+            refreshToken = tokenProvider.generateRefreshToken(userEntity);
+            redisTemplate.opsForValue().set(userId.toString(),refreshToken);
+        } catch (ExpiredJwtException e) {
+            throw new JwtExpiredException("RefreshToken Expired");
+        } catch (IllegalArgumentException e) {
+            throw new JwtIllegalException("Illegal Token");
+        } catch (SignatureException e) {
+            throw new JwtSignatureException("Illegal Signature");
+        }
+
+        return AuthResponse.builder()
+                .userId(userId)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    @Override
+    public void ChangePassword() {}
 
     private UserEntity findUser(String email) {
         return userRepository.findByEmail(email);
@@ -85,5 +117,13 @@ public class UserServiceImpl implements UserService{
 
     private void createRole(UserEntity user) {
         user.setRole(Role.ROLE_USER);
+    }
+
+    @Override
+    public void logoutProcess(Long userId) {
+        UserEntity userEntity = userRepository.findById(userId).get();
+        String username = userEntity.getUsername();
+        SpringConst.AUTH_REPOSITORY.remove(username);
+        redisTemplate.delete(userId.toString());
     }
 }

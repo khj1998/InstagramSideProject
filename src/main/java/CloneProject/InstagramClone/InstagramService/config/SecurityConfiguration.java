@@ -2,6 +2,7 @@ package CloneProject.InstagramClone.InstagramService.config;
 
 import CloneProject.InstagramClone.InstagramService.securitycustom.CustomAuthenticationFilter;
 import CloneProject.InstagramClone.InstagramService.securitycustom.CustomAuthorizationFilter;
+import CloneProject.InstagramClone.InstagramService.securitycustom.CustomJwtExceptionFilter;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -42,6 +43,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
     private final CustomAuthorizationFilter customAuthorizationFilter;
+    private final CustomJwtExceptionFilter customJwtExceptionFilter;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -74,7 +76,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .csrf().disable()
 
                 .authorizeHttpRequests()
-                .requestMatchers("/users/register","/login/success","/login/failure")
+                .requestMatchers("/users/register","/login/success","/login/failure","/access-token/re-allocation","/users/logout")
                 .permitAll()
 
                 .and()
@@ -83,7 +85,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
 
                 http
                         .addFilterBefore(getCustomAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                        .addFilterAfter(customAuthorizationFilter, CustomAuthenticationFilter.class);
+                        .addFilterAfter(customAuthorizationFilter, CustomAuthenticationFilter.class)
+                        .addFilterBefore(customJwtExceptionFilter, CustomAuthorizationFilter.class);
 
         return http.build();
     }

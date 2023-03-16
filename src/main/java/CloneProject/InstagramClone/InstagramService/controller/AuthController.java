@@ -1,9 +1,10 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
+import CloneProject.InstagramClone.InstagramService.dto.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
-import CloneProject.InstagramClone.InstagramService.vo.TokenResponse;
+import CloneProject.InstagramClone.InstagramService.vo.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
 import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class AuthController {
 
     @PostMapping("/users/register")
     public ResponseEntity<ApiResponse> SignUpUser(@RequestBody SignUpDto signUpDto) {
-        userService.createUser(signUpDto);
+        userService.CreateUser(signUpDto);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Sign Up Success")
@@ -32,7 +33,7 @@ public class AuthController {
 
     @GetMapping("/login/success")
     public ResponseEntity<ApiResponse> login(@RequestParam String username) {
-        TokenResponse authResponse = userService.createJwtToken(username);
+        AuthResponse authResponse = userService.CreateJwtToken(username);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Login Success")
@@ -45,6 +46,25 @@ public class AuthController {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(false)
                 .message("Login Failure")
+                .build();
+    }
+
+    @PostMapping("/access-token/re-allocation")
+    public ResponseEntity<ApiResponse> allocateAccessToken(@RequestBody AuthDto authDto) {
+        AuthResponse authResponse = userService.ReallocateAccessToken(authDto);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Reallocate Access Token")
+                .data(authResponse)
+                .build();
+    }
+
+    @GetMapping("/users/logout")
+    public ResponseEntity<ApiResponse> logout(@RequestParam Long userId) {
+        userService.logoutProcess(userId);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Logout Success")
                 .build();
     }
 

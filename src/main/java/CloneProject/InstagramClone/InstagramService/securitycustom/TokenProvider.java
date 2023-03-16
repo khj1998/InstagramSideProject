@@ -34,11 +34,15 @@ public class TokenProvider implements InitializingBean {
         this.refresh_key = Keys.hmacShaKeyFor(refreshKeyBytes);
     }
 
-    public String extractUsername(String token) {
+    private String extractUsername(String token) {
         return extractClaim(token,Claims::getSubject);
     }
 
-    public <T> T extractClaim(String token, Function<Claims,T> claimsResolver) {
+    private String extractUsernameByRefresh(String token) {
+        return extractRefreshClaim(token,Claims::getSubject);
+    }
+
+    private <T> T extractClaim(String token, Function<Claims,T> claimsResolver) {
         final Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(this.access_key)
@@ -49,18 +53,7 @@ public class TokenProvider implements InitializingBean {
         return claimsResolver.apply(claims);
     }
 
-    public <T> T extractRefreshClaim(String token, Function<Claims,T> claimsResolver) {
-        final Claims claims = Jwts
-                .parserBuilder()
-                .setSigningKey(this.refresh_key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        return claimsResolver.apply(claims);
-    }
-
-    public <T> T extractClaimByRefresh(String token, Function<Claims,T> claimsResolver) {
+    private <T> T extractRefreshClaim(String token, Function<Claims,T> claimsResolver) {
         final Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(this.refresh_key)
@@ -106,11 +99,17 @@ public class TokenProvider implements InitializingBean {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    public boolean isRefreshTokenValid(String token) {
+        final String username = extractUsernameByRefresh(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return (username.equals(userDetails.getUsername()) && !isRefreshTokenExpired(token));
+    }
+
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    public boolean isRefreshTokenExpired(String refreshToken) {
+    private boolean isRefreshTokenExpired(String refreshToken) {
         return extractRefreshExpiration(refreshToken).before(new Date());
     }
 

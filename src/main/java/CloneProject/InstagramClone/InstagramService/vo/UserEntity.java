@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class UserEntity implements UserDetails {
 
     @Id
-    @Column(name = "user_id")
+    @Column(name = "userId")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
