@@ -59,6 +59,16 @@ public class AuthController {
                 .build();
     }
 
+    @PostMapping("/api/authorization/service")
+    public ResponseEntity<ApiResponse> serviceTest(@RequestBody AuthDto authDto) {
+        log.info("access token이 유효하여 서비스 로직을 실행합니다.");
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Service Api Response")
+                .data(null)
+                .build();
+    }
+
     @GetMapping("/users/logout")
     public ResponseEntity<ApiResponse> logout(@RequestParam Long userId) {
         userService.logoutProcess(userId);

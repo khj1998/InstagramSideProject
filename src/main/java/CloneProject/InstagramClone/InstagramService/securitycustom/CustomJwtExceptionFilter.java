@@ -50,12 +50,12 @@ public class CustomJwtExceptionFilter extends OncePerRequestFilter {
     private void setIllegalExceptionResponse(HttpServletResponse res) throws IOException {
         res.setStatus(HttpStatus.OK.value());
         res.setContentType("application/json; charset=UTF-8");
-        res.getWriter().write("Expired Access Token");
+        res.getWriter().write("Illegal Token");
     }
 
     private void setSignatureExceptionResponse(HttpServletResponse res) throws IOException {
         res.setStatus(HttpStatus.OK.value());
         res.setContentType("application/json; charset=UTF-8");
-        res.getWriter().write("Expired Access Token");
+        res.getWriter().write("Invalid Signature");
     }
 }
