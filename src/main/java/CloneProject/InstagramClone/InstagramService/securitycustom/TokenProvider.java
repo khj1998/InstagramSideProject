@@ -6,8 +6,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -18,9 +20,11 @@ import java.util.Date;
 import java.util.function.Function;
 
 @Component
+@RequiredArgsConstructor
 public class TokenProvider implements InitializingBean {
     private Key access_key;
     private Key refresh_key;
+    private final UserDetailsService userDetailsService;
 
     @Override
     public void afterPropertiesSet() {
@@ -30,14 +34,29 @@ public class TokenProvider implements InitializingBean {
         this.refresh_key = Keys.hmacShaKeyFor(refreshKeyBytes);
     }
 
-    public String extractUsername(String token) {
+    private String extractUsername(String token) {
         return extractClaim(token,Claims::getSubject);
     }
 
-    public <T> T extractClaim(String token, Function<Claims,T> claimsResolver) {
+    private String extractUsernameByRefresh(String token) {
+        return extractRefreshClaim(token,Claims::getSubject);
+    }
+
+    private <T> T extractClaim(String token, Function<Claims,T> claimsResolver) {
         final Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(this.access_key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claimsResolver.apply(claims);
+    }
+
+    private <T> T extractRefreshClaim(String token, Function<Claims,T> claimsResolver) {
+        final Claims claims = Jwts
+                .parserBuilder()
+                .setSigningKey(this.refresh_key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -74,16 +93,31 @@ public class TokenProvider implements InitializingBean {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(String token) {
         final String username = extractUsername(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public boolean isRefreshTokenValid(String token) {
+        final String username = extractUsernameByRefresh(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return (username.equals(userDetails.getUsername()) && !isRefreshTokenExpired(token));
     }
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
+    private boolean isRefreshTokenExpired(String refreshToken) {
+        return extractRefreshExpiration(refreshToken).before(new Date());
+    }
+
     private Date extractExpiration(String token) {
         return extractClaim(token,Claims::getExpiration);
+    }
+
+    private Date extractRefreshExpiration(String refreshToken) {
+        return extractRefreshClaim(refreshToken,Claims::getExpiration);
     }
 }

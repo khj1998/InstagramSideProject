@@ -1,7 +1,11 @@
 package CloneProject.InstagramClone.InstagramService.config;
 
 import CloneProject.InstagramClone.InstagramService.securitycustom.CustomAuthenticationFilter;
+import CloneProject.InstagramClone.InstagramService.securitycustom.CustomAuthorizationFilter;
+import CloneProject.InstagramClone.InstagramService.securitycustom.CustomJwtExceptionFilter;
+import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -22,9 +26,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -35,6 +42,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     private final AuthenticationProvider customAuthenticationProvider;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
+    private final CustomAuthorizationFilter customAuthorizationFilter;
+    private final CustomJwtExceptionFilter customJwtExceptionFilter;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -67,20 +76,26 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .csrf().disable()
 
                 .authorizeHttpRequests()
-                .requestMatchers("/users/register","/login/success","/login/failure")
+                .requestMatchers("/users/register","/login/success","/login/failure","/access-token/re-allocation","/users/logout")
                 .permitAll()
 
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-                AbstractAuthenticationProcessingFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationConfiguration.getAuthenticationManager());
-                customAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
-                customAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
-
                 http
-                .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .addFilterBefore(getCustomAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                        .addFilterAfter(customAuthorizationFilter, CustomAuthenticationFilter.class)
+                        .addFilterBefore(customJwtExceptionFilter, CustomAuthorizationFilter.class);
 
         return http.build();
     }
+
+    private AbstractAuthenticationProcessingFilter getCustomAuthenticationFilter() throws Exception {
+        AbstractAuthenticationProcessingFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationConfiguration.getAuthenticationManager());
+        customAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        customAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+        return customAuthenticationFilter;
+    }
+
 }

@@ -1,14 +1,14 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
-import CloneProject.InstagramClone.InstagramService.dto.SignInDto;
+import CloneProject.InstagramClone.InstagramService.dto.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
-import CloneProject.InstagramClone.InstagramService.vo.AuthenticationResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
-import java.nio.file.attribute.UserPrincipalNotFoundException;
+import CloneProject.InstagramClone.InstagramService.vo.AuthResponse;
 
 public interface UserService {
-    void createUser(SignUpDto signUpDto);
-    AuthenticationResponse createJwtToken(String username,HttpServletResponse res);
+    void CreateUser(SignUpDto signUpDto);
+    void ChangePassword();
+    void logoutProcess(Long userId);
+    AuthResponse ReallocateAccessToken(AuthDto authDto);
+    AuthResponse CreateJwtToken(String username);
+
 }

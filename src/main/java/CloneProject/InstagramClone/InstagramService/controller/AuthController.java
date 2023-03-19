@@ -1,11 +1,12 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
+import CloneProject.InstagramClone.InstagramService.dto.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
+import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
-import CloneProject.InstagramClone.InstagramService.vo.AuthenticationResponse;
+import CloneProject.InstagramClone.InstagramService.vo.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
 import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +17,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
+    private final UserRepository userRepository;
 
     private final UserService userService;
 
     @PostMapping("/users/register")
     public ResponseEntity<ApiResponse> SignUpUser(@RequestBody SignUpDto signUpDto) {
-        userService.createUser(signUpDto);
+        userService.CreateUser(signUpDto);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Sign Up Success")
@@ -30,8 +32,8 @@ public class AuthController {
     }
 
     @GetMapping("/login/success")
-    public ResponseEntity<ApiResponse> login(@RequestParam String username,HttpServletResponse res) {
-        AuthenticationResponse authResponse = userService.createJwtToken(username,res);
+    public ResponseEntity<ApiResponse> login(@RequestParam String username) {
+        AuthResponse authResponse = userService.CreateJwtToken(username);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Login Success")
@@ -44,6 +46,35 @@ public class AuthController {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(false)
                 .message("Login Failure")
+                .build();
+    }
+
+    @PostMapping("/access-token/re-allocation")
+    public ResponseEntity<ApiResponse> allocateAccessToken(@RequestBody AuthDto authDto) {
+        AuthResponse authResponse = userService.ReallocateAccessToken(authDto);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Reallocate Access Token")
+                .data(authResponse)
+                .build();
+    }
+
+    @PostMapping("/api/authorization/service")
+    public ResponseEntity<ApiResponse> serviceTest(@RequestBody AuthDto authDto) {
+        log.info("access token이 유효하여 서비스 로직을 실행합니다.");
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Service Api Response")
+                .data(null)
+                .build();
+    }
+
+    @GetMapping("/users/logout")
+    public ResponseEntity<ApiResponse> logout(@RequestParam Long userId) {
+        userService.logoutProcess(userId);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Logout Success")
                 .build();
     }
 
