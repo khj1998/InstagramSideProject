@@ -44,8 +44,8 @@ public class UserServiceImpl implements UserService{
     @Override
     public AuthResponse CreateJwtToken(String username) {
         UserEntity userEntity = userRepository.findByEmail(username);
+
         // 로그인 성공시, accessToken,refreshToken 발급.
-        Long userId = userEntity.getId();
         String accessToken = tokenProvider.generateAccessToken(userEntity);
         String refreshToken = tokenProvider.generateRefreshToken(userEntity);
         redisTemplate.opsForValue().set(accessToken,username);
@@ -63,6 +63,11 @@ public class UserServiceImpl implements UserService{
     public AuthResponse ReallocateAccessToken(AuthDto authDto) {
 
         String username = (String) redisTemplate.opsForValue().get(authDto.getAccessToken());
+
+        if (username == null) {
+            throw new JwtExpiredException("Invalid AccessToken");
+        }
+
         redisTemplate.delete(authDto.getAccessToken());
         UserEntity userEntity = userRepository.findByEmail(username);
         String refreshToken = (String) redisTemplate.opsForValue().get(username);
