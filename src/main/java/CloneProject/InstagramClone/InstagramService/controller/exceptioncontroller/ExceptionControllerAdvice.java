@@ -45,7 +45,7 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<ApiResponse> handleJwtExpiredException() {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(false)
-                .message("RefreshToken Expired")
+                .message("Token Expired")
                 .build();
     }
 

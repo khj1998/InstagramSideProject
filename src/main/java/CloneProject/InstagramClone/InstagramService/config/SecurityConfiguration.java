@@ -77,7 +77,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .csrf().disable()
 
                 .authorizeHttpRequests()
-                .requestMatchers("/users/register","/login/failure","/access-token/re-allocation","/users/logout","/login/success")
+                .requestMatchers(SpringConst.PERMITTED_URIS)
                 .permitAll()
 
                 .and()

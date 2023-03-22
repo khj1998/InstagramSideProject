@@ -48,6 +48,7 @@ public class UserServiceImpl implements UserService{
         Long userId = userEntity.getId();
         String accessToken = tokenProvider.generateAccessToken(userEntity);
         String refreshToken = tokenProvider.generateRefreshToken(userEntity);
+        redisTemplate.opsForValue().set(accessToken,username);
         redisTemplate.opsForValue().set(username,refreshToken);
 
         return AuthResponse.builder()
@@ -60,16 +61,19 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public AuthResponse ReallocateAccessToken(AuthDto authDto) {
-        String username = tokenProvider.extractUsername(authDto.getAccessToken());
+
+        String username = (String) redisTemplate.opsForValue().get(authDto.getAccessToken());
+        redisTemplate.delete(authDto.getAccessToken());
         UserEntity userEntity = userRepository.findByEmail(username);
         String refreshToken = (String) redisTemplate.opsForValue().get(username);
-        String accessToken = null;
+        String accessToken;
 
         try {
             //RefreshToken가 유효하지 않으면, 예외 발생
             tokenProvider.isRefreshTokenValid(refreshToken);
             accessToken = tokenProvider.generateAccessToken(userEntity);
             refreshToken = tokenProvider.generateRefreshToken(userEntity);
+            redisTemplate.opsForValue().set(accessToken,username);
             redisTemplate.opsForValue().set(username,refreshToken);
         } catch (ExpiredJwtException e) {
             throw new JwtExpiredException("RefreshToken Expired");

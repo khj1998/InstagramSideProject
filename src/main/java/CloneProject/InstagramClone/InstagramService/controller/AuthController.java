@@ -34,7 +34,6 @@ public class AuthController {
 
     @GetMapping("/login/success")
     public ResponseEntity<ApiResponse> login(@RequestParam String username) {
-        log.info("login success!!");
         AuthResponse authResponse = userService.CreateJwtToken(username);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
@@ -62,7 +61,7 @@ public class AuthController {
     }
 
     @PostMapping("/api/authorization/service")
-    public ResponseEntity<ApiResponse> serviceTest(@RequestBody AuthDto authDto) {
+    public ResponseEntity<ApiResponse> serviceTest() {
         log.info("access token이 유효하여 서비스 로직을 실행합니다.");
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
