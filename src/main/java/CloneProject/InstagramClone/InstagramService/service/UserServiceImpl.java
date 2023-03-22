@@ -43,24 +43,15 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public AuthResponse CreateJwtToken(String username) {
-        Authentication authentication = SpringConst.AUTH_REPOSITORY.get(username);
-        log.info("{}", authentication);
-
-        if (authentication == null) {
-            throw new UserNotAuthenticated("인증되지 않은 유저입니다.");
-        }
-
         UserEntity userEntity = userRepository.findByEmail(username);
         // 로그인 성공시, accessToken,refreshToken 발급.
         Long userId = userEntity.getId();
         String accessToken = tokenProvider.generateAccessToken(userEntity);
         String refreshToken = tokenProvider.generateRefreshToken(userEntity);
-        redisTemplate.opsForValue().set(userEntity.getId().toString(),refreshToken);
+        redisTemplate.opsForValue().set(username,refreshToken);
 
         return AuthResponse.builder()
-                .userId(userId)
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -69,22 +60,17 @@ public class UserServiceImpl implements UserService{
      */
     @Override
     public AuthResponse ReallocateAccessToken(AuthDto authDto) {
-        Long userId = authDto.getUserId();
-        UserEntity userEntity = userRepository.findById(userId).get();
-        String refreshToken = (String) redisTemplate.opsForValue().get(userId.toString());
+        String username = tokenProvider.extractUsername(authDto.getAccessToken());
+        UserEntity userEntity = userRepository.findByEmail(username);
+        String refreshToken = (String) redisTemplate.opsForValue().get(username);
         String accessToken = null;
-
-        Authentication authentication = SpringConst.AUTH_REPOSITORY.get(userEntity.getUsername());
-        if (authentication == null) {
-            throw new UserNotAuthenticated("인증되지 않은 유저입니다.");
-        }
 
         try {
             //RefreshToken가 유효하지 않으면, 예외 발생
             tokenProvider.isRefreshTokenValid(refreshToken);
             accessToken = tokenProvider.generateAccessToken(userEntity);
             refreshToken = tokenProvider.generateRefreshToken(userEntity);
-            redisTemplate.opsForValue().set(userId.toString(),refreshToken);
+            redisTemplate.opsForValue().set(username,refreshToken);
         } catch (ExpiredJwtException e) {
             throw new JwtExpiredException("RefreshToken Expired");
         } catch (IllegalArgumentException e) {
@@ -94,9 +80,7 @@ public class UserServiceImpl implements UserService{
         }
 
         return AuthResponse.builder()
-                .userId(userId)
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -123,7 +107,6 @@ public class UserServiceImpl implements UserService{
     public void logoutProcess(Long userId) {
         UserEntity userEntity = userRepository.findById(userId).get();
         String username = userEntity.getUsername();
-        SpringConst.AUTH_REPOSITORY.remove(username);
         redisTemplate.delete(userId.toString());
     }
 }

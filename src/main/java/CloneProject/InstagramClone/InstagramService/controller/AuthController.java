@@ -10,6 +10,7 @@ import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,7 @@ public class AuthController {
 
     @GetMapping("/login/success")
     public ResponseEntity<ApiResponse> login(@RequestParam String username) {
+        log.info("login success!!");
         AuthResponse authResponse = userService.CreateJwtToken(username);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
