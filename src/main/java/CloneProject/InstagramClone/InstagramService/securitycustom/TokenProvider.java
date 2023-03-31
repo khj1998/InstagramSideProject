@@ -34,11 +34,11 @@ public class TokenProvider implements InitializingBean {
         this.refresh_key = Keys.hmacShaKeyFor(refreshKeyBytes);
     }
 
-    private String extractUsername(String token) {
+    public String extractUsername(String token) {
         return extractClaim(token,Claims::getSubject);
     }
 
-    private String extractUsernameByRefresh(String token) {
+    public String extractUsernameByRefresh(String token) {
         return extractRefreshClaim(token,Claims::getSubject);
     }
 

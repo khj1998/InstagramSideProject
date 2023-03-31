@@ -10,6 +10,7 @@ import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,9 +60,9 @@ public class AuthController {
                 .build();
     }
 
-    @PostMapping("/api/authorization/service")
-    public ResponseEntity<ApiResponse> serviceTest(@RequestBody AuthDto authDto) {
-        log.info("access token이 유효하여 서비스 로직을 실행합니다.");
+    @PostMapping("/api/service")
+    public ResponseEntity<ApiResponse> serviceTest() {
+        log.info("api Service 도착");
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Service Api Response")

@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -66,7 +68,5 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         } catch (SignatureException e) {
             throw new SignatureException("올바르지 않은 인증입니다.");
         }
-
-        filterChain.doFilter(request, response);
     }
 }

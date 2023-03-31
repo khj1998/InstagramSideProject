@@ -70,13 +70,14 @@ public class SecurityConfiguration implements WebMvcConfigurer {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
         http.cors()
                 .configurationSource(corsConfigurationSource())
                 .and()
                 .csrf().disable()
 
                 .authorizeHttpRequests()
-                .requestMatchers("/users/register","/login/success","/login/failure","/access-token/re-allocation","/users/logout")
+                .requestMatchers(SpringConst.PERMITTED_URIS)
                 .permitAll()
 
                 .and()
