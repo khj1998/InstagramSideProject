@@ -1,19 +1,20 @@
-package CloneProject.InstagramClone.InstagramService.vo;
+package CloneProject.InstagramClone.InstagramService.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Data
+@Setter
+@Getter
 @Entity(name="users")
-public class UserEntity implements UserDetails {
+public class Member implements UserDetails {
 
     @Id
     @Column(name = "userId")

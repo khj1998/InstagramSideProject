@@ -2,7 +2,7 @@ package CloneProject.InstagramClone.InstagramService.securitycustom;
 
 import CloneProject.InstagramClone.InstagramService.exception.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.JwtIllegalException;
-import CloneProject.InstagramClone.InstagramService.vo.response.TokenMessage;
+import CloneProject.InstagramClone.InstagramService.dto.response.TokenMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;

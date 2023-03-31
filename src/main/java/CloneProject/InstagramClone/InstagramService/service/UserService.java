@@ -2,7 +2,7 @@ package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
-import CloneProject.InstagramClone.InstagramService.vo.AuthResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 
 public interface UserService {
     void CreateUser(SignUpDto signUpDto);

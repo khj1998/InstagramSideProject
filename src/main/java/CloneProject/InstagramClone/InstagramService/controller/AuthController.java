@@ -4,13 +4,12 @@ import CloneProject.InstagramClone.InstagramService.dto.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
-import CloneProject.InstagramClone.InstagramService.vo.AuthResponse;
-import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
-import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
+import CloneProject.InstagramClone.InstagramService.entity.Member;
+import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -80,13 +79,13 @@ public class AuthController {
     }
 
     @PutMapping("/{email}")
-    public ResponseEntity<ApiResponse> UpdateUser(@RequestBody @Validated UserEntity user) {
+    public ResponseEntity<ApiResponse> UpdateUser(@RequestBody @Validated Member user) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .build();
     }
 
     @DeleteMapping("/{email}")
-    public ResponseEntity<ApiResponse> DeleteUser(@RequestBody UserEntity user) {
+    public ResponseEntity<ApiResponse> DeleteUser(@RequestBody Member user) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .build();
     }

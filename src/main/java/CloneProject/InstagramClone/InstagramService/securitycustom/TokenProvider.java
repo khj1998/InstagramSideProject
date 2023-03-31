@@ -1,10 +1,9 @@
 package CloneProject.InstagramClone.InstagramService.securitycustom;
 
 import CloneProject.InstagramClone.InstagramService.config.SpringConst;
-import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
+import CloneProject.InstagramClone.InstagramService.entity.Member;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
@@ -12,9 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
 import java.security.Key;
-import java.security.PrivateKey;
 import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
@@ -67,9 +64,9 @@ public class TokenProvider implements InitializingBean {
     /**
      * Generate jwt token
      */
-    public String generateAccessToken(UserEntity userEntity) {
-        Claims claims = Jwts.claims().setSubject(userEntity.getUsername());
-        claims.put("roles",userEntity.getAuthorities());
+    public String generateAccessToken(Member member) {
+        Claims claims = Jwts.claims().setSubject(member.getUsername());
+        claims.put("roles", member.getAuthorities());
 
         return Jwts
                 .builder()
@@ -80,9 +77,9 @@ public class TokenProvider implements InitializingBean {
                 .compact();
     }
 
-    public String generateRefreshToken(UserEntity userEntity) {
-        Claims claims = Jwts.claims().setSubject(userEntity.getUsername());
-        claims.put("roles",userEntity.getAuthorities());
+    public String generateRefreshToken(Member member) {
+        Claims claims = Jwts.claims().setSubject(member.getUsername());
+        claims.put("roles", member.getAuthorities());
 
         return Jwts
                 .builder()
