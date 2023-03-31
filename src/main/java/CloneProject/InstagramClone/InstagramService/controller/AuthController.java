@@ -2,7 +2,7 @@ package CloneProject.InstagramClone.InstagramService.controller;
 
 import CloneProject.InstagramClone.InstagramService.dto.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
-import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
+import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     private final UserService userService;
 

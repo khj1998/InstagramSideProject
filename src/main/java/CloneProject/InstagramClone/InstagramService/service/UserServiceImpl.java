@@ -7,7 +7,7 @@ import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.entity.Role;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
-import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
+import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
     private final RedisTemplate redisTemplate;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService{
         if (findUser(signUpDto.getEmail()) == null) {
             Member user = setRoleToUser(signUpDto);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userRepository.save(user);
+            memberRepository.save(user);
         } else {
             throw new EmailAlreadyExistsException("이미 존재하는 이메일입니다!");
         }
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public AuthResponse CreateJwtToken(String username) {
-        Member member = userRepository.findByEmail(username);
+        Member member = memberRepository.findByEmail(username);
 
         // 로그인 성공시, accessToken,refreshToken 발급.
         String accessToken = tokenProvider.generateAccessToken(member);
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService{
         }
 
         redisTemplate.delete(authDto.getAccessToken());
-        Member member = userRepository.findByEmail(username);
+        Member member = memberRepository.findByEmail(username);
         String refreshToken = (String) redisTemplate.opsForValue().get(username);
         String accessToken;
 
@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService{
     public void ChangePassword() {}
 
     private Member findUser(String email) {
-        return userRepository.findByEmail(email);
+        return memberRepository.findByEmail(email);
     }
 
     private Member setRoleToUser(SignUpDto signUpDto) {
@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void logoutProcess(Long userId) {
-        Member member = userRepository.findById(userId).get();
+        Member member = memberRepository.findById(userId).get();
         String username = member.getUsername();
         redisTemplate.delete(userId.toString());
     }
