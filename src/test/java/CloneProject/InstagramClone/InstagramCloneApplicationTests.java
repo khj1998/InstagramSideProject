@@ -3,7 +3,7 @@ package CloneProject.InstagramClone;
 import CloneProject.InstagramClone.InstagramService.entity.PostLike;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
 import CloneProject.InstagramClone.InstagramService.entity.Post;
-import CloneProject.InstagramClone.InstagramService.repository.LikeRepository;
+import CloneProject.InstagramClone.InstagramService.repository.PostLikeRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.repository.PostRepository;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ class InstagramCloneApplicationTests {
 	@Autowired
 	PostRepository postRepository;
 	@Autowired
-	LikeRepository likeRepository;
+	PostLikeRepository postLikeRepository;
 
 	@Test
 	@Transactional
@@ -60,8 +60,8 @@ class InstagramCloneApplicationTests {
 		member2.getPostLikeList().add(postLike2);
 		post.getPostLikeList().add(postLike2);
 
-		likeRepository.save(postLike1);
-		likeRepository.save(postLike2);
+		postLikeRepository.save(postLike1);
+		postLikeRepository.save(postLike2);
 
 		Member m = memberRepository.findById(1L).get();
 		List<PostLike> postLikeList = m.getPostLikeList();
