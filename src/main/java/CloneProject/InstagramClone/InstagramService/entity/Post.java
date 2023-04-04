@@ -38,5 +38,5 @@ public class Post {
     private Member member;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Like> likeList = new ArrayList<>();
+    private List<PostLike> postLikeList = new ArrayList<>();
 }

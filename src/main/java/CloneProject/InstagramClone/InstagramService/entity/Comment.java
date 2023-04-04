@@ -28,5 +28,5 @@ public class Comment {
     private Date updatedAt;
 
     @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL)
-    private List<Like> likeList = new ArrayList<>();
+    private List<CommentLike> commentLikeList = new ArrayList<>();
 }

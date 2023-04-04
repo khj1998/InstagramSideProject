@@ -1,6 +1,6 @@
 package CloneProject.InstagramClone;
 
-import CloneProject.InstagramClone.InstagramService.entity.Like;
+import CloneProject.InstagramClone.InstagramService.entity.PostLike;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
 import CloneProject.InstagramClone.InstagramService.entity.Post;
 import CloneProject.InstagramClone.InstagramService.repository.LikeRepository;
@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @SpringBootTest
 class InstagramCloneApplicationTests {
@@ -49,29 +48,29 @@ class InstagramCloneApplicationTests {
 
 		postRepository.save(post);
 
-		Like like1 = new Like();
-		like1.setPost(post);
-		like1.setMember(member);
-		member.getLikeList().add(like1);
-		post.getLikeList().add(like1);
+		PostLike postLike1 = new PostLike();
+		postLike1.setPost(post);
+		postLike1.setMember(member);
+		member.getPostLikeList().add(postLike1);
+		post.getPostLikeList().add(postLike1);
 
-		Like like2 = new Like();
-		like2.setPost(post);
-		like2.setMember(member2);
-		member2.getLikeList().add(like2);
-		post.getLikeList().add(like2);
+		PostLike postLike2 = new PostLike();
+		postLike2.setPost(post);
+		postLike2.setMember(member2);
+		member2.getPostLikeList().add(postLike2);
+		post.getPostLikeList().add(postLike2);
 
-		likeRepository.save(like1);
-		likeRepository.save(like2);
+		likeRepository.save(postLike1);
+		likeRepository.save(postLike2);
 
 		Member m = memberRepository.findById(1L).get();
-		List<Like> likeList = m.getLikeList();
+		List<PostLike> postLikeList = m.getPostLikeList();
 
-		for (Like like : likeList) {
-			System.out.println("김호진이 좋아요를 누른 글 : "+like.getPost().getTitle());
+		for (PostLike postLike : postLikeList) {
+			System.out.println("김호진이 좋아요를 누른 글 : "+ postLike.getPost().getTitle());
 		}
 
 		Post p = postRepository.findById(1L).get();
-		System.out.println("게시글 p가 받은 좋아요 수 : "+p.getLikeList().size());
+		System.out.println("게시글 p가 받은 좋아요 수 : "+p.getPostLikeList().size());
 	}
 }
