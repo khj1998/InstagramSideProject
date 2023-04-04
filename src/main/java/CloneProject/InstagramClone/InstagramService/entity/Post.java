@@ -1,5 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.entity;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

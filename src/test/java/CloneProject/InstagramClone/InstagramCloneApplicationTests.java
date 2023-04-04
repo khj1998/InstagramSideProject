@@ -6,6 +6,7 @@ import CloneProject.InstagramClone.InstagramService.entity.Post;
 import CloneProject.InstagramClone.InstagramService.repository.PostLikeRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.repository.PostRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,9 @@ class InstagramCloneApplicationTests {
 	@Autowired
 	PostLikeRepository postLikeRepository;
 
+	/**
+	 * 게시글 좋아요 테스트
+	 */
 	@Test
 	@Transactional
 	void postLikeTest() {
@@ -51,12 +55,14 @@ class InstagramCloneApplicationTests {
 		PostLike postLike1 = new PostLike();
 		postLike1.setPost(post);
 		postLike1.setMember(member);
+		postLike1.setContent("요지가 안보여요 똑바로 쓰세요!");
 		member.getPostLikeList().add(postLike1);
 		post.getPostLikeList().add(postLike1);
 
 		PostLike postLike2 = new PostLike();
 		postLike2.setPost(post);
 		postLike2.setMember(member2);
+		postLike2.setContent("정리가 잘됐네요!");
 		member2.getPostLikeList().add(postLike2);
 		post.getPostLikeList().add(postLike2);
 
@@ -71,6 +77,6 @@ class InstagramCloneApplicationTests {
 		}
 
 		Post p = postRepository.findById(1L).get();
-		System.out.println("게시글 p가 받은 좋아요 수 : "+p.getPostLikeList().size());
+		Assertions.assertThat(p.getPostLikeList().size()).isEqualTo(2);
 	}
 }

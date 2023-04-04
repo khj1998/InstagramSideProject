@@ -25,7 +25,7 @@ public class CustomJwtExceptionFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         ObjectMapper objectMapper = new ObjectMapper();
 
-        if (!requestURI.contains("/api/authorization")) {
+        if (!requestURI.contains("/api/token/validation")) {
             filterChain.doFilter(request,response);
             return;
         }

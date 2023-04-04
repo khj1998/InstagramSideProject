@@ -1,7 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
-import CloneProject.InstagramClone.InstagramService.entity.Post;
+import CloneProject.InstagramClone.InstagramService.dto.PostDto;
 
 public interface PostService {
-    void AddPost(Post post);
+    PostDto AddPost(PostDto postDto);
 }

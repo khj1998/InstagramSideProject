@@ -12,8 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
-import org.springframework.security.web.server.authorization.AuthorizationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -37,7 +35,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
 
-        if (!requestURI.contains("/api/authorization")) {
+        if (!requestURI.contains("/api/token/validation")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -61,6 +59,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
         try{
             tokenProvider.isTokenValid(authDto.getAccessToken());
+            //String redirectURI = requestURI.split("validation")[1];
+            //response.sendRedirect(redirectURI+"?token="+authDto.getAccessToken());
         } catch(IllegalArgumentException e) {
             throw new JwtIllegalException("유효하지 않은 토큰입니다.");
         } catch (ExpiredJwtException e) {

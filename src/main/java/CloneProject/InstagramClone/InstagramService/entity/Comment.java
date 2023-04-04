@@ -27,6 +27,9 @@ public class Comment {
     @UpdateTimestamp
     private Date updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member member;
+
     @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL)
     private List<CommentLike> commentLikeList = new ArrayList<>();
 }

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
-    private final MemberRepository memberRepository;
 
     private final UserService userService;
 
@@ -59,9 +58,8 @@ public class AuthController {
                 .build();
     }
 
-    @PostMapping("/api/service")
-    public ResponseEntity<ApiResponse> serviceTest() {
-        log.info("api Service 도착");
+    @GetMapping("/service")
+    public ResponseEntity<ApiResponse> serviceTest(@RequestParam("token") String accessToken) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Service Api Response")
