@@ -1,11 +1,13 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
+import CloneProject.InstagramClone.InstagramService.dto.CommentDto;
 import CloneProject.InstagramClone.InstagramService.dto.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.entity.Post;
 import CloneProject.InstagramClone.InstagramService.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,16 @@ public class PostController {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Post")
+                .data(resDto)
+                .build();
+    }
+
+    @PostMapping("/comments/add")
+    public ResponseEntity<ApiResponse> addComment(@RequestBody CommentDto commentDto) {
+        CommentDto resDto = postService.AddComment(commentDto);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Add Comment")
                 .data(resDto)
                 .build();
     }

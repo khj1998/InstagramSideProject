@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "commentlike")
 public class CommentLike {
@@ -20,4 +19,8 @@ public class CommentLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
     private Comment comment;
+
+    public void setComment(Comment comment) {
+        this.comment = comment;
+    }
 }

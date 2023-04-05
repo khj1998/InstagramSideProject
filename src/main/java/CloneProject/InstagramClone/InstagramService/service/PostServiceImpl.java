@@ -1,6 +1,8 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
+import CloneProject.InstagramClone.InstagramService.dto.CommentDto;
 import CloneProject.InstagramClone.InstagramService.dto.PostDto;
+import CloneProject.InstagramClone.InstagramService.entity.Comment;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
 import CloneProject.InstagramClone.InstagramService.entity.Post;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
@@ -39,8 +41,30 @@ public class PostServiceImpl implements PostService{
         return response;
     }
 
+    /**
+     * 댓글 쓴 Member, 댓글 - Member, 글 - 댓글 연관관계 매핑
+     */
+    @Override
+    public CommentDto AddComment(CommentDto commentDto) {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+
+        Post postEntity = findPost(commentDto.getPostId());
+        Member member = findMember(commentDto.getAccessToken());
+        Comment commentEntity = modelMapper.map(commentDto, Comment.class);
+
+        postEntity.getCommentList().add(commentEntity);
+
+
+        return null;
+    }
+
     private Member findMember(String accessToken) {
         String email = tokenProvider.extractUsername(accessToken);
         return memberRepository.findByEmail(email);
+    }
+
+    private Post findPost(Long postId) {
+        return postRepository.findById(postId).orElse(null);
     }
 }

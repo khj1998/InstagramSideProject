@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Setter
 @Getter
 @Entity
 @Table(name="members")

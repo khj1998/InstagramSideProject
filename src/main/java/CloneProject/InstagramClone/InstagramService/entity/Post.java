@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Setter
 @Getter
 @Entity
 @Table(name = "posts")
@@ -38,6 +37,13 @@ public class Post {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
+    private List<Comment> commentList = new ArrayList<>();
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostLike> postLikeList = new ArrayList<>();
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
 }

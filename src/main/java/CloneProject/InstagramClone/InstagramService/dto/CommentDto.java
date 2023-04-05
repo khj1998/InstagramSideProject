@@ -1,6 +1,5 @@
 package CloneProject.InstagramClone.InstagramService.dto;
 
-import CloneProject.InstagramClone.InstagramService.entity.Member;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
@@ -8,10 +7,9 @@ import java.util.Date;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PostDto {
-    private Long id;
+public class CommentDto {
     private String accessToken;
-    private String title;
+    private Long postId;
     private String content;
     private Date createdAt;
     private Date updatedAt;
