@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
+
+    private final ModelMapper modelMapper;
     private final MemberRepository memberRepository;
     private final TokenProvider tokenProvider;
     private final RedisTemplate redisTemplate;
@@ -100,12 +102,6 @@ public class UserServiceImpl implements UserService{
     }
 
     private Member setRoleToUser(SignUpDto signUpDto) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration()
-                .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
-                .setMatchingStrategy(MatchingStrategies.STRICT)
-                .setFieldMatchingEnabled(true);
-
         Member user = modelMapper.map(signUpDto, Member.class);
         createRole(user);
         return user;

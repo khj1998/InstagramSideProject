@@ -12,8 +12,6 @@ import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.config.Configuration;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -21,6 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService{
 
+    private final ModelMapper modelMapper;
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
@@ -28,12 +27,6 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public PostDto AddPost(PostDto postDto) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration()
-                .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
-                .setMatchingStrategy(MatchingStrategies.STRICT)
-                .setFieldMatchingEnabled(true);
-
         Post postEntity = modelMapper.map(postDto,Post.class);
         Member memberEntity = findMember(postDto.getAccessToken());
         postEntity.setMember(memberEntity);
@@ -52,12 +45,6 @@ public class PostServiceImpl implements PostService{
      */
     @Override
     public CommentDto AddComment(CommentDto commentDto) {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration()
-                .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
-                .setMatchingStrategy(MatchingStrategies.STRICT)
-                .setFieldMatchingEnabled(true);
-
         Post postEntity = findPost(commentDto.getPostId());
         Member memberEntity = findMember(commentDto.getAccessToken());
         Comment commentEntity = modelMapper.map(commentDto, Comment.class);
