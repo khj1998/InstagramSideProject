@@ -14,11 +14,15 @@ import java.util.List;
 @Entity
 @Table(name = "comments")
 public class Comment {
+
+    public Comment() {}
+
     @Id
     @Column(name = "comment_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String content;
 
     @CreationTimestamp
@@ -39,5 +43,9 @@ public class Comment {
 
     public void setMember(Member member) {
         this.member = member;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
     }
 }

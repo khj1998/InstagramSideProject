@@ -1,6 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,6 +16,8 @@ import java.util.List;
 @Entity
 @Table(name="members")
 public class Member implements UserDetails {
+
+    public Member() {}
 
     @Id
     @Column(name = "member_id")
@@ -41,6 +44,14 @@ public class Member implements UserDetails {
 
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     private List<PostLike> postLikeList = new ArrayList<>();
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -13,6 +13,7 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -100,7 +101,11 @@ public class UserServiceImpl implements UserService{
 
     private Member setRoleToUser(SignUpDto signUpDto) {
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.getConfiguration()
+                .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
+                .setMatchingStrategy(MatchingStrategies.STRICT)
+                .setFieldMatchingEnabled(true);
+
         Member user = modelMapper.map(signUpDto, Member.class);
         createRole(user);
         return user;

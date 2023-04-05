@@ -5,12 +5,14 @@ import CloneProject.InstagramClone.InstagramService.dto.PostDto;
 import CloneProject.InstagramClone.InstagramService.entity.Comment;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
 import CloneProject.InstagramClone.InstagramService.entity.Post;
+import CloneProject.InstagramClone.InstagramService.repository.CommentRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.repository.PostRepository;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.config.Configuration;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +24,15 @@ public class PostServiceImpl implements PostService{
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public PostDto AddPost(PostDto postDto) {
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.getConfiguration()
+                .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
+                .setMatchingStrategy(MatchingStrategies.STRICT)
+                .setFieldMatchingEnabled(true);
 
         Post postEntity = modelMapper.map(postDto,Post.class);
         Member memberEntity = findMember(postDto.getAccessToken());
@@ -47,16 +53,25 @@ public class PostServiceImpl implements PostService{
     @Override
     public CommentDto AddComment(CommentDto commentDto) {
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        modelMapper.getConfiguration()
+                .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
+                .setMatchingStrategy(MatchingStrategies.STRICT)
+                .setFieldMatchingEnabled(true);
 
         Post postEntity = findPost(commentDto.getPostId());
-        Member member = findMember(commentDto.getAccessToken());
+        Member memberEntity = findMember(commentDto.getAccessToken());
         Comment commentEntity = modelMapper.map(commentDto, Comment.class);
 
+        commentEntity.setPost(postEntity);
+        commentEntity.setMember(memberEntity);
         postEntity.getCommentList().add(commentEntity);
+        memberEntity.getCommentList().add(commentEntity);
 
+        commentRepository.save(commentEntity);
+        postRepository.save(postEntity);
+        memberRepository.save(memberEntity);
 
-        return null;
+        return modelMapper.map(commentEntity, CommentDto.class);
     }
 
     private Member findMember(String accessToken) {

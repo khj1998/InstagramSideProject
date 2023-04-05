@@ -15,6 +15,9 @@ import java.util.List;
 @Entity
 @Table(name = "posts")
 public class Post {
+
+    public Post() {}
+
     @Id
     @Column(name = "post_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
