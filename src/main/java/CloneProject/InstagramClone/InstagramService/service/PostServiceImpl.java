@@ -1,17 +1,12 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
+import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
-import CloneProject.InstagramClone.InstagramService.entity.Comment;
-import CloneProject.InstagramClone.InstagramService.entity.Member;
-import CloneProject.InstagramClone.InstagramService.entity.Post;
-import CloneProject.InstagramClone.InstagramService.entity.PostLike;
+import CloneProject.InstagramClone.InstagramService.entity.*;
 import CloneProject.InstagramClone.InstagramService.exception.JwtIllegalException;
-import CloneProject.InstagramClone.InstagramService.repository.CommentRepository;
-import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
-import CloneProject.InstagramClone.InstagramService.repository.PostLikeRepository;
-import CloneProject.InstagramClone.InstagramService.repository.PostRepository;
+import CloneProject.InstagramClone.InstagramService.repository.*;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +21,8 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PostServiceImpl implements PostService{
+public class PostServiceImpl implements PostService {
+    private final CommentLikeRepository commentLikeRepository;
 
     private final ModelMapper modelMapper;
     private final TokenProvider tokenProvider;
@@ -71,6 +67,9 @@ public class PostServiceImpl implements PostService{
         return modelMapper.map(commentEntity, CommentDto.class);
     }
 
+    /**
+     * 이미 좋아요를 추가한 상태라면 좋아요 취소
+     */
     @Override
     public PostLikeDto AddPostLike(PostLikeDto postLikeDto) {
         Member memberEntity = findMember(postLikeDto.getAccessToken());
@@ -91,7 +90,26 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public List<PostDto> getMyPosts(HttpServletRequest req) {
+    public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) {
+        Long commentId = commentLikeDto.getCommentId();
+        CommentLike commentLike = new CommentLike();
+        Comment commentEntity = findComment(commentId);
+        Member memberEntity = findMember(commentLikeDto.getAccessToken());
+
+        commentLike.setComment(commentEntity);
+        commentLike.setMember(memberEntity);
+        commentEntity.getCommentLikeList().add(commentLike);
+
+        commentLikeRepository.save(commentLike);
+        commentRepository.save(commentEntity);
+
+        Comment testComment = findComment(commentLikeDto.getCommentId());
+        log.info("댓글에 달린 좋아요 수 : {}",testComment.getCommentLikeList().size());
+        return commentLikeDto;
+    }
+
+    @Override
+    public List<PostDto> GetMyPosts(HttpServletRequest req) {
         List<PostDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
         Member memberEntity = findMember(accessToken);
@@ -105,7 +123,7 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public List<PostDto> getPostLikeList(HttpServletRequest req) {
+    public List<PostDto> GetPostLikeList(HttpServletRequest req) {
         List<PostDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
         Member memberEntity = findMember(accessToken);
@@ -125,6 +143,10 @@ public class PostServiceImpl implements PostService{
 
     private Post findPost(Long postId) {
         return postRepository.findById(postId).orElse(null);
+    }
+
+    private Comment findComment(Long commentId) {
+        return commentRepository.findById(commentId).orElse(null);
     }
 
     private String extractToken(HttpServletRequest req) {

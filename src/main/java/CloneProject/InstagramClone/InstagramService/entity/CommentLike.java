@@ -8,13 +8,17 @@ import lombok.Setter;
 @Entity
 @Table(name = "commentlike")
 public class CommentLike {
+
+    public CommentLike() {}
+
     @Id
     @Column(name = "comment_like_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String content;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
@@ -22,5 +26,9 @@ public class CommentLike {
 
     public void setComment(Comment comment) {
         this.comment = comment;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
     }
 }

@@ -24,7 +24,7 @@ public class PostController {
 
     @GetMapping("/myposts")
     public ResponseEntity<ApiResponse> getMyPost(HttpServletRequest req) {
-        List<PostDto> resDtoList = postService.getMyPosts(req);
+        List<PostDto> resDtoList = postService.GetMyPosts(req);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("내가 작성한 게시물")
@@ -54,7 +54,7 @@ public class PostController {
 
     @GetMapping("/likes/list")
     public ResponseEntity<ApiResponse> getLikeList(HttpServletRequest req) {
-        List<PostDto> resDtoList = postService.getPostLikeList(req);
+        List<PostDto> resDtoList = postService.GetPostLikeList(req);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("내가 좋아요를 누른 글 리스트")
@@ -74,6 +74,11 @@ public class PostController {
 
     @PostMapping("/comments/likes/add")
     public ResponseEntity<ApiResponse> addCommentLike(@RequestBody CommentLikeDto commentLikeDto) {
-        
+        CommentLikeDto resDto = postService.AddCommentLike(commentLikeDto);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("댓글에 좋아요를 누르셨습니다.")
+                .data(resDto)
+                .build();
     }
 }
