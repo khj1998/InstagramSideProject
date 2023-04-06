@@ -1,7 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
-import CloneProject.InstagramClone.InstagramService.dto.AuthDto;
-import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
+import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
+import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 
 public interface UserService {

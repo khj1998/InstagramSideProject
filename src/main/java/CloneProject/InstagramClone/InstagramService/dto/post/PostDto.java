@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.dto;
+package CloneProject.InstagramClone.InstagramService.dto.post;
 
 import CloneProject.InstagramClone.InstagramService.entity.Member;
 import com.fasterxml.jackson.annotation.JsonInclude;

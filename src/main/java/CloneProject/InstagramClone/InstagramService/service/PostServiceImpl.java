@@ -1,18 +1,27 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
-import CloneProject.InstagramClone.InstagramService.dto.CommentDto;
-import CloneProject.InstagramClone.InstagramService.dto.PostDto;
+import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
+import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
+import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
 import CloneProject.InstagramClone.InstagramService.entity.Comment;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
 import CloneProject.InstagramClone.InstagramService.entity.Post;
+import CloneProject.InstagramClone.InstagramService.entity.PostLike;
+import CloneProject.InstagramClone.InstagramService.exception.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.repository.CommentRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
+import CloneProject.InstagramClone.InstagramService.repository.PostLikeRepository;
 import CloneProject.InstagramClone.InstagramService.repository.PostRepository;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -24,6 +33,7 @@ public class PostServiceImpl implements PostService{
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final PostLikeRepository postLikeRepository;
 
     @Override
     public PostDto AddPost(PostDto postDto) {
@@ -61,6 +71,40 @@ public class PostServiceImpl implements PostService{
         return modelMapper.map(commentEntity, CommentDto.class);
     }
 
+    @Override
+    public PostLikeDto AddPostLike(PostLikeDto postLikeDto) {
+        Member memberEntity = findMember(postLikeDto.getAccessToken());
+        Post postEntity = findPost(postLikeDto.getPostId());
+        PostLike postLikeEntity = new PostLike();
+
+        postLikeEntity.setMember(memberEntity);
+        postLikeEntity.setPost(postEntity);
+        memberEntity.getPostLikeList().add(postLikeEntity);
+        postEntity.getPostLikeList().add(postLikeEntity);
+
+        postLikeRepository.save(postLikeEntity);
+        postRepository.save(postEntity);
+        memberRepository.save(memberEntity);
+
+        postLikeDto.setPostTitle(postEntity.getTitle());
+        return postLikeDto;
+    }
+
+    @Override
+    public List<PostDto> getPostLikeList(HttpServletRequest req) {
+        List<PostDto> result = new ArrayList<>();
+        String authorizationHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
+        String accessToken = extractToken(authorizationHeader);
+        Member memberEntity = findMember(accessToken);
+
+        List<PostLike> postLikeList = memberEntity.getPostLikeList();
+        for (PostLike postLike : postLikeList) {
+            result.add(modelMapper.map(postLike.getPost(), PostDto.class));
+        }
+
+        return result;
+    }
+
     private Member findMember(String accessToken) {
         String email = tokenProvider.extractUsername(accessToken);
         return memberRepository.findByEmail(email);
@@ -68,5 +112,13 @@ public class PostServiceImpl implements PostService{
 
     private Post findPost(Long postId) {
         return postRepository.findById(postId).orElse(null);
+    }
+
+    private String extractToken(String authorizationHeader) {
+        if (authorizationHeader.isBlank() || !authorizationHeader.startsWith("Bearer ")) {
+            throw new JwtIllegalException("인증 토큰이 유효하지 않습니다.");
+        }
+
+        return authorizationHeader.substring(7);
     }
 }

@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.dto;
+package CloneProject.InstagramClone.InstagramService.dto.post;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;

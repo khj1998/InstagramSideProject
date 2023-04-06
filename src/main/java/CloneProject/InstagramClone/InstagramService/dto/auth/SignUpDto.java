@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.dto;
+package CloneProject.InstagramClone.InstagramService.dto.auth;
 
 import CloneProject.InstagramClone.InstagramService.validator.PasswordLengthChecker;
 import CloneProject.InstagramClone.InstagramService.validator.PasswordMatcher;

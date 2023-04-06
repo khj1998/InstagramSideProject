@@ -1,7 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
-import CloneProject.InstagramClone.InstagramService.dto.AuthDto;
-import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
+import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
+import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.exception.*;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
@@ -13,8 +13,6 @@ import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.config.Configuration;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
