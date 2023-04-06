@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.dto;
+package CloneProject.InstagramClone.InstagramService.dto.auth;
 
 import lombok.Data;
 

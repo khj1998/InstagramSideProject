@@ -26,7 +26,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation group: 'org.modelmapper', name: 'modelmapper', version: '2.3.8'
 	implementation 'mysql:mysql-connector-java'
-	implementation 'org.jetbrains:annotations:20.1.0'
+	implementation 'org.jetbrains:annotations:24.0.1'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	runtimeOnly 'mysql:mysql-connector-java'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'

@@ -1,6 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.validator;
 
-import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
+import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

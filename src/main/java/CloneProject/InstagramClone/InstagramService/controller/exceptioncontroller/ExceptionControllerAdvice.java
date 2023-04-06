@@ -1,14 +1,11 @@
 package CloneProject.InstagramClone.InstagramService.controller.exceptioncontroller;
 
-import CloneProject.InstagramClone.InstagramService.dto.AuthDto;
 import CloneProject.InstagramClone.InstagramService.exception.*;
-import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
-import io.jsonwebtoken.ExpiredJwtException;
+import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 

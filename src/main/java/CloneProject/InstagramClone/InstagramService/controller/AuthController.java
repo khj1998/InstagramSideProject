@@ -1,16 +1,14 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
-import CloneProject.InstagramClone.InstagramService.dto.AuthDto;
-import CloneProject.InstagramClone.InstagramService.dto.SignUpDto;
-import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
+import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
+import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
-import CloneProject.InstagramClone.InstagramService.vo.AuthResponse;
-import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
-import CloneProject.InstagramClone.InstagramService.vo.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
+import CloneProject.InstagramClone.InstagramService.entity.Member;
+import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
-    private final UserRepository userRepository;
 
     private final UserService userService;
 
@@ -60,9 +57,8 @@ public class AuthController {
                 .build();
     }
 
-    @PostMapping("/api/service")
-    public ResponseEntity<ApiResponse> serviceTest() {
-        log.info("api Service 도착");
+    @GetMapping("/service")
+    public ResponseEntity<ApiResponse> serviceTest(@RequestParam("token") String accessToken) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Service Api Response")
@@ -80,13 +76,13 @@ public class AuthController {
     }
 
     @PutMapping("/{email}")
-    public ResponseEntity<ApiResponse> UpdateUser(@RequestBody @Validated UserEntity user) {
+    public ResponseEntity<ApiResponse> UpdateUser(@RequestBody @Validated Member user) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .build();
     }
 
     @DeleteMapping("/{email}")
-    public ResponseEntity<ApiResponse> DeleteUser(@RequestBody UserEntity user) {
+    public ResponseEntity<ApiResponse> DeleteUser(@RequestBody Member user) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .build();
     }
