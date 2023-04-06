@@ -1,6 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
+import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
@@ -20,6 +21,16 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+
+    @GetMapping("/myposts")
+    public ResponseEntity<ApiResponse> getMyPost(HttpServletRequest req) {
+        List<PostDto> resDtoList = postService.getMyPosts(req);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("내가 작성한 게시물")
+                .data(resDtoList)
+                .build();
+    }
 
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addPost(@RequestBody PostDto postDto) {
@@ -41,16 +52,6 @@ public class PostController {
                 .build();
     }
 
-    @PostMapping("/likes/add")
-    public ResponseEntity<ApiResponse> addLikes(@RequestBody PostLikeDto postLikeDto) {
-        PostLikeDto resDto = postService.AddPostLike(postLikeDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message(resDto.getPostTitle()+" 글에 좋아요를 등록하였습니다.")
-                .data(resDto)
-                .build();
-    }
-
     @GetMapping("/likes/list")
     public ResponseEntity<ApiResponse> getLikeList(HttpServletRequest req) {
         List<PostDto> resDtoList = postService.getPostLikeList(req);
@@ -61,8 +62,18 @@ public class PostController {
                 .build();
     }
 
-    @GetMapping("/myposts")
-    public ResponseEntity<ApiResponse> getMyPosts() {
-        return null;
+    @PostMapping("/likes/add")
+    public ResponseEntity<ApiResponse> addLikes(@RequestBody PostLikeDto postLikeDto) {
+        PostLikeDto resDto = postService.AddPostLike(postLikeDto);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message(resDto.getPostTitle()+" 글에 좋아요를 등록하였습니다.")
+                .data(resDto)
+                .build();
+    }
+
+    @PostMapping("/comments/likes/add")
+    public ResponseEntity<ApiResponse> addCommentLike(@RequestBody CommentLikeDto commentLikeDto) {
+        
     }
 }

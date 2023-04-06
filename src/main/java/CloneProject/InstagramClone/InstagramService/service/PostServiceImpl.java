@@ -91,10 +91,23 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
+    public List<PostDto> getMyPosts(HttpServletRequest req) {
+        List<PostDto> result = new ArrayList<>();
+        String accessToken = extractToken(req);
+        Member memberEntity = findMember(accessToken);
+        List<Post> postList = memberEntity.getPostList();
+
+        for (Post post : postList) {
+            result.add(modelMapper.map(post, PostDto.class));
+        }
+
+        return result;
+    }
+
+    @Override
     public List<PostDto> getPostLikeList(HttpServletRequest req) {
         List<PostDto> result = new ArrayList<>();
-        String authorizationHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-        String accessToken = extractToken(authorizationHeader);
+        String accessToken = extractToken(req);
         Member memberEntity = findMember(accessToken);
 
         List<PostLike> postLikeList = memberEntity.getPostLikeList();
@@ -114,7 +127,8 @@ public class PostServiceImpl implements PostService{
         return postRepository.findById(postId).orElse(null);
     }
 
-    private String extractToken(String authorizationHeader) {
+    private String extractToken(HttpServletRequest req) {
+        String authorizationHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
         if (authorizationHeader.isBlank() || !authorizationHeader.startsWith("Bearer ")) {
             throw new JwtIllegalException("인증 토큰이 유효하지 않습니다.");
         }
