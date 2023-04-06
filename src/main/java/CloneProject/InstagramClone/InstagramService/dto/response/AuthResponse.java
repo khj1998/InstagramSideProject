@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.vo;
+package CloneProject.InstagramClone.InstagramService.dto.response;
 
 import lombok.Builder;
 import lombok.Data;

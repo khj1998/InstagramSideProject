@@ -2,7 +2,7 @@ package CloneProject.InstagramClone.InstagramService.securitycustom;
 
 import CloneProject.InstagramClone.InstagramService.exception.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.JwtIllegalException;
-import CloneProject.InstagramClone.InstagramService.vo.response.TokenMessage;
+import CloneProject.InstagramClone.InstagramService.dto.response.TokenMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
@@ -25,7 +25,7 @@ public class CustomJwtExceptionFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         ObjectMapper objectMapper = new ObjectMapper();
 
-        if (!requestURI.contains("/api/authorization")) {
+        if (!requestURI.contains("/api/token/validation")) {
             filterChain.doFilter(request,response);
             return;
         }

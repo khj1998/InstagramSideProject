@@ -1,7 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.securitycustom;
 
-import CloneProject.InstagramClone.InstagramService.repository.UserRepository;
-import CloneProject.InstagramClone.InstagramService.vo.UserEntity;
+import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
+import CloneProject.InstagramClone.InstagramService.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,11 +12,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserEntity user = userRepository.findByEmail(email);
+        Member user = memberRepository.findByEmail(email);
         if (user == null) {
             throw new UsernameNotFoundException("가입되지 않은 유저입니다.");
         }
