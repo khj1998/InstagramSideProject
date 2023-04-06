@@ -1,11 +1,5 @@
 package CloneProject.InstagramClone.InstagramService.config;
 
-import org.springframework.security.core.Authentication;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class SpringConst {
     public static final int ACCESS_TOKEN_EXPIRATION_TIME = 1000*30;
     public static final int REFRESH_TOKEN_EXPIRATION_TIME = 1000*60*10;
