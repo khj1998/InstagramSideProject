@@ -46,6 +46,17 @@ public class PostServiceImpl implements PostService {
         return response;
     }
 
+    @Override
+    public PostDto EditPost(PostDto postDto) {
+        Post postEntity = postRepository.findById(postDto.getId()).get();
+        postEntity.setTitle(postDto.getTitle());
+        postEntity.setContent(postDto.getContent());
+        postEntity.setImageUrl(postDto.getImageUrl());
+        postRepository.save(postEntity);
+
+        return modelMapper.map(postEntity,PostDto.class);
+    }
+
     /**
      * 댓글 쓴 Member, 댓글 - Member, 글 - 댓글 연관관계 매핑
      */

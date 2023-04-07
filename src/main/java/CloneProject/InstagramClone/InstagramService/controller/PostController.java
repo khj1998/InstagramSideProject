@@ -23,11 +23,11 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping("/myposts")
-    public ResponseEntity<ApiResponse> getMyPost(HttpServletRequest req) {
+    public ResponseEntity<ApiResponse> getMyPosts(HttpServletRequest req) {
         List<PostDto> resDtoList = postService.GetMyPosts(req);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
-                .message("내가 작성한 게시물")
+                .message("내가 작성한 게시물들 리스트")
                 .data(resDtoList)
                 .build();
     }
@@ -38,6 +38,16 @@ public class PostController {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Post")
+                .data(resDto)
+                .build();
+    }
+
+    @PostMapping("/edit")
+    public ResponseEntity<ApiResponse> getPost(@RequestBody PostDto postDto) {
+        PostDto resDto = postService.EditPost(postDto);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("edited post number : "+postDto.getId())
                 .data(resDto)
                 .build();
     }

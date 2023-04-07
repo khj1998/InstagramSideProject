@@ -13,6 +13,7 @@ public class PostDto {
     private String accessToken;
     private String title;
     private String content;
+    private String imageUrl;
     private Date createdAt;
     private Date updatedAt;
 }
