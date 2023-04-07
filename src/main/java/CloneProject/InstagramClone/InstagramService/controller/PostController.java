@@ -62,16 +62,6 @@ public class PostController {
                 .build();
     }
 
-    @PostMapping("/comments/add")
-    public ResponseEntity<ApiResponse> addComment(@RequestBody CommentDto commentDto) {
-        CommentDto resDto = postService.AddComment(commentDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Add Comment")
-                .data(resDto)
-                .build();
-    }
-
     @GetMapping("/likes/list")
     public ResponseEntity<ApiResponse> getLikeList(HttpServletRequest req) {
         List<PostDto> resDtoList = postService.GetPostLikeList(req);
@@ -88,16 +78,6 @@ public class PostController {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message(resDto.getPostTitle()+" 글에 좋아요를 등록하였습니다.")
-                .data(resDto)
-                .build();
-    }
-
-    @PostMapping("/comments/likes/add")
-    public ResponseEntity<ApiResponse> addCommentLike(@RequestBody CommentLikeDto commentLikeDto) {
-        CommentLikeDto resDto = postService.AddCommentLike(commentLikeDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("댓글에 좋아요를 누르셨습니다.")
                 .data(resDto)
                 .build();
     }

@@ -59,6 +59,7 @@ public class PostServiceImpl implements PostService {
         postEntity.setTitle(postDto.getTitle());
         postEntity.setContent(postDto.getContent());
         postEntity.setImageUrl(postDto.getImageUrl());
+
         postRepository.save(postEntity);
 
         return modelMapper.map(postEntity,PostDto.class);
@@ -84,6 +85,16 @@ public class PostServiceImpl implements PostService {
 
         return modelMapper.map(commentEntity, CommentDto.class);
     }
+
+    @Override
+    public CommentDto EditComment(CommentDto commentDto) {
+        Comment commentEntity = commentRepository.findById(commentDto.getCommentId()).get();
+        commentEntity.setContent(commentDto.getContent());
+        commentRepository.save(commentEntity);
+
+        return modelMapper.map(commentEntity,CommentDto.class);
+    }
+
 
     /**
      * 이미 좋아요를 추가한 상태라면 좋아요 취소
@@ -132,6 +143,20 @@ public class PostServiceImpl implements PostService {
 
         for (Post post : postList) {
             result.add(modelMapper.map(post, PostDto.class));
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<CommentDto> GetMyComments(HttpServletRequest req) {
+        List<CommentDto> result = new ArrayList<>();
+        String accessToken = extractToken(req);
+        Member memberEntity = findMember(accessToken);
+        List<Comment> commentList = memberEntity.getCommentList();
+
+        for (Comment comment : commentList) {
+            result.add(modelMapper.map(comment, CommentDto.class));
         }
 
         return result;
