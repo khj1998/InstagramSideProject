@@ -17,8 +17,6 @@ public interface PostService {
     PostDto FindPost(String postId);
     PostDto EditPost(PostDto postDto);
     PostLikeDto AddPostLike(PostLikeDto postLikeDto);
-    CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto);
     List<PostDto> GetMyPosts(HttpServletRequest req);
-    List<CommentDto> GetMyComments(HttpServletRequest req);
     List<PostDto> GetPostLikeList(HttpServletRequest req);
 }

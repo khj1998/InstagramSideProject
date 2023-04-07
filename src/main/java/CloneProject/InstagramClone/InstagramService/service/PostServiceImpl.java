@@ -22,6 +22,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
+
     private final CommentLikeRepository commentLikeRepository;
 
     private final ModelMapper modelMapper;
@@ -66,37 +67,6 @@ public class PostServiceImpl implements PostService {
     }
 
     /**
-     * 댓글 쓴 Member, 댓글 - Member, 글 - 댓글 연관관계 매핑
-     */
-    @Override
-    public CommentDto AddComment(CommentDto commentDto) {
-        Post postEntity = postRepository.findById(commentDto.getPostId()).get();
-        Member memberEntity = findMember(commentDto.getAccessToken());
-        Comment commentEntity = modelMapper.map(commentDto, Comment.class);
-
-        commentEntity.setPost(postEntity);
-        commentEntity.setMember(memberEntity);
-        postEntity.getCommentList().add(commentEntity);
-        memberEntity.getCommentList().add(commentEntity);
-
-        commentRepository.save(commentEntity);
-        postRepository.save(postEntity);
-        memberRepository.save(memberEntity);
-
-        return modelMapper.map(commentEntity, CommentDto.class);
-    }
-
-    @Override
-    public CommentDto EditComment(CommentDto commentDto) {
-        Comment commentEntity = commentRepository.findById(commentDto.getCommentId()).get();
-        commentEntity.setContent(commentDto.getContent());
-        commentRepository.save(commentEntity);
-
-        return modelMapper.map(commentEntity,CommentDto.class);
-    }
-
-
-    /**
      * 이미 좋아요를 추가한 상태라면 좋아요 취소
      */
     @Override
@@ -119,22 +89,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) {
-        Long commentId = commentLikeDto.getCommentId();
-        CommentLike commentLike = new CommentLike();
-        Comment commentEntity = commentRepository.findById(commentId).get();
-        Member memberEntity = findMember(commentLikeDto.getAccessToken());
-
-        commentLike.setComment(commentEntity);
-        commentLike.setMember(memberEntity);
-        commentEntity.getCommentLikeList().add(commentLike);
-
-        commentLikeRepository.save(commentLike);
-        commentRepository.save(commentEntity);
-        return commentLikeDto;
-    }
-
-    @Override
     public List<PostDto> GetMyPosts(HttpServletRequest req) {
         List<PostDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
@@ -143,20 +97,6 @@ public class PostServiceImpl implements PostService {
 
         for (Post post : postList) {
             result.add(modelMapper.map(post, PostDto.class));
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<CommentDto> GetMyComments(HttpServletRequest req) {
-        List<CommentDto> result = new ArrayList<>();
-        String accessToken = extractToken(req);
-        Member memberEntity = findMember(accessToken);
-        List<Comment> commentList = memberEntity.getCommentList();
-
-        for (Comment comment : commentList) {
-            result.add(modelMapper.map(comment, CommentDto.class));
         }
 
         return result;

@@ -3,6 +3,7 @@ package CloneProject.InstagramClone.InstagramService.controller;
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +50,7 @@ public class CommentController {
                 .build();
     }
 
-    @PostMapping("/comments/likes/add")
+    @PostMapping("/likes/add")
     public ResponseEntity<ApiResponse> addCommentLike(@RequestBody CommentLikeDto commentLikeDto) {
         CommentLikeDto resDto = commentService.AddCommentLike(commentLikeDto);
         return new ApiResponse.ApiResponseBuilder<>()
