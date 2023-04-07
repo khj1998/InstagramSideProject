@@ -13,6 +13,7 @@ import java.util.List;
  */
 public interface PostService {
     PostDto AddPost(PostDto postDto);
+    PostDto FindPost(String postId);
     PostDto EditPost(PostDto postDto);
     CommentDto AddComment(CommentDto commentDto);
     PostLikeDto AddPostLike(PostLikeDto postLikeDto);

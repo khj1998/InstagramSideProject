@@ -22,6 +22,16 @@ public class PostController {
 
     private final PostService postService;
 
+    @GetMapping
+    public ResponseEntity<ApiResponse> getPost(@RequestParam String postId) {
+        PostDto resDto = postService.FindPost(postId);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("get post Id : "+postId)
+                .data(resDto)
+                .build();
+    }
+
     @GetMapping("/myposts")
     public ResponseEntity<ApiResponse> getMyPosts(HttpServletRequest req) {
         List<PostDto> resDtoList = postService.GetMyPosts(req);

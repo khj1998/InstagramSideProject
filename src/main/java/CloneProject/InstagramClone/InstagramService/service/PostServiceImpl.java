@@ -47,6 +47,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public PostDto FindPost(String postId) {
+        Long id = Long.parseLong(postId);
+        Post postEntity = postRepository.findById(id).get();
+        return modelMapper.map(postEntity,PostDto.class);
+    }
+
+    @Override
     public PostDto EditPost(PostDto postDto) {
         Post postEntity = postRepository.findById(postDto.getId()).get();
         postEntity.setTitle(postDto.getTitle());
@@ -62,7 +69,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     public CommentDto AddComment(CommentDto commentDto) {
-        Post postEntity = findPost(commentDto.getPostId());
+        Post postEntity = postRepository.findById(commentDto.getPostId()).get();
         Member memberEntity = findMember(commentDto.getAccessToken());
         Comment commentEntity = modelMapper.map(commentDto, Comment.class);
 
@@ -84,7 +91,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostLikeDto AddPostLike(PostLikeDto postLikeDto) {
         Member memberEntity = findMember(postLikeDto.getAccessToken());
-        Post postEntity = findPost(postLikeDto.getPostId());
+        Post postEntity = postRepository.findById(postLikeDto.getPostId()).get();
         PostLike postLikeEntity = new PostLike();
 
         postLikeEntity.setMember(memberEntity);
@@ -104,7 +111,7 @@ public class PostServiceImpl implements PostService {
     public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) {
         Long commentId = commentLikeDto.getCommentId();
         CommentLike commentLike = new CommentLike();
-        Comment commentEntity = findComment(commentId);
+        Comment commentEntity = commentRepository.findById(commentId).get();
         Member memberEntity = findMember(commentLikeDto.getAccessToken());
 
         commentLike.setComment(commentEntity);
@@ -113,9 +120,6 @@ public class PostServiceImpl implements PostService {
 
         commentLikeRepository.save(commentLike);
         commentRepository.save(commentEntity);
-
-        Comment testComment = findComment(commentLikeDto.getCommentId());
-        log.info("댓글에 달린 좋아요 수 : {}",testComment.getCommentLikeList().size());
         return commentLikeDto;
     }
 
@@ -150,14 +154,6 @@ public class PostServiceImpl implements PostService {
     private Member findMember(String accessToken) {
         String email = tokenProvider.extractUsername(accessToken);
         return memberRepository.findByEmail(email);
-    }
-
-    private Post findPost(Long postId) {
-        return postRepository.findById(postId).orElse(null);
-    }
-
-    private Comment findComment(Long commentId) {
-        return commentRepository.findById(commentId).orElse(null);
     }
 
     private String extractToken(HttpServletRequest req) {
