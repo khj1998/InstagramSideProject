@@ -5,9 +5,11 @@ import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
 import CloneProject.InstagramClone.InstagramService.entity.*;
+import CloneProject.InstagramClone.InstagramService.exception.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.repository.*;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
+
     private final CommentLikeRepository commentLikeRepository;
 
     private final ModelMapper modelMapper;
@@ -32,7 +35,7 @@ public class PostServiceImpl implements PostService {
     private final PostLikeRepository postLikeRepository;
 
     @Override
-    public PostDto AddPost(PostDto postDto) {
+    public PostDto AddPost(PostDto postDto) throws JwtExpiredException {
         Post postEntity = modelMapper.map(postDto,Post.class);
         Member memberEntity = findMember(postDto.getAccessToken());
         postEntity.setMember(memberEntity);
@@ -46,34 +49,37 @@ public class PostServiceImpl implements PostService {
         return response;
     }
 
-    /**
-     * 댓글 쓴 Member, 댓글 - Member, 글 - 댓글 연관관계 매핑
-     */
     @Override
-    public CommentDto AddComment(CommentDto commentDto) {
-        Post postEntity = findPost(commentDto.getPostId());
-        Member memberEntity = findMember(commentDto.getAccessToken());
-        Comment commentEntity = modelMapper.map(commentDto, Comment.class);
+    public PostDto FindPost(String postId) {
+        Long id = Long.parseLong(postId);
+        Post postEntity = postRepository.findById(id).get();
+        return modelMapper.map(postEntity,PostDto.class);
+    }
 
-        commentEntity.setPost(postEntity);
-        commentEntity.setMember(memberEntity);
-        postEntity.getCommentList().add(commentEntity);
-        memberEntity.getCommentList().add(commentEntity);
+    @Override
+    public PostDto EditPost(PostDto postDto) {
+        Post postEntity = postRepository.findById(postDto.getId()).get();
+        postEntity.setTitle(postDto.getTitle());
+        postEntity.setContent(postDto.getContent());
+        postEntity.setImageUrl(postDto.getImageUrl());
 
-        commentRepository.save(commentEntity);
         postRepository.save(postEntity);
-        memberRepository.save(memberEntity);
+        return modelMapper.map(postEntity,PostDto.class);
+    }
 
-        return modelMapper.map(commentEntity, CommentDto.class);
+    @Override
+    public void DeletePost(String postId) {
+        Long id = Long.parseLong(postId);
+        postRepository.deleteById(id);
     }
 
     /**
      * 이미 좋아요를 추가한 상태라면 좋아요 취소
      */
     @Override
-    public PostLikeDto AddPostLike(PostLikeDto postLikeDto) {
+    public PostLikeDto AddPostLike(PostLikeDto postLikeDto) throws JwtExpiredException {
         Member memberEntity = findMember(postLikeDto.getAccessToken());
-        Post postEntity = findPost(postLikeDto.getPostId());
+        Post postEntity = postRepository.findById(postLikeDto.getPostId()).get();
         PostLike postLikeEntity = new PostLike();
 
         postLikeEntity.setMember(memberEntity);
@@ -84,32 +90,12 @@ public class PostServiceImpl implements PostService {
         postLikeRepository.save(postLikeEntity);
         postRepository.save(postEntity);
         memberRepository.save(memberEntity);
-
         postLikeDto.setPostTitle(postEntity.getTitle());
         return postLikeDto;
     }
 
     @Override
-    public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) {
-        Long commentId = commentLikeDto.getCommentId();
-        CommentLike commentLike = new CommentLike();
-        Comment commentEntity = findComment(commentId);
-        Member memberEntity = findMember(commentLikeDto.getAccessToken());
-
-        commentLike.setComment(commentEntity);
-        commentLike.setMember(memberEntity);
-        commentEntity.getCommentLikeList().add(commentLike);
-
-        commentLikeRepository.save(commentLike);
-        commentRepository.save(commentEntity);
-
-        Comment testComment = findComment(commentLikeDto.getCommentId());
-        log.info("댓글에 달린 좋아요 수 : {}",testComment.getCommentLikeList().size());
-        return commentLikeDto;
-    }
-
-    @Override
-    public List<PostDto> GetMyPosts(HttpServletRequest req) {
+    public List<PostDto> GetMyPosts(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
         Member memberEntity = findMember(accessToken);
@@ -123,7 +109,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> GetPostLikeList(HttpServletRequest req) {
+    public List<PostDto> GetPostLikeList(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
         Member memberEntity = findMember(accessToken);
@@ -137,16 +123,12 @@ public class PostServiceImpl implements PostService {
     }
 
     private Member findMember(String accessToken) {
-        String email = tokenProvider.extractUsername(accessToken);
-        return memberRepository.findByEmail(email);
-    }
-
-    private Post findPost(Long postId) {
-        return postRepository.findById(postId).orElse(null);
-    }
-
-    private Comment findComment(Long commentId) {
-        return commentRepository.findById(commentId).orElse(null);
+        try {
+            String email = tokenProvider.extractUsername(accessToken);
+            return memberRepository.findByEmail(email);
+        } catch (ExpiredJwtException e) {
+            throw new JwtExpiredException("AccessToken Expired");
+        }
     }
 
     private String extractToken(HttpServletRequest req) {

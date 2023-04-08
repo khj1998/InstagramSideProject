@@ -4,6 +4,7 @@ import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
+import CloneProject.InstagramClone.InstagramService.entity.Comment;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -13,9 +14,10 @@ import java.util.List;
  */
 public interface PostService {
     PostDto AddPost(PostDto postDto);
-    CommentDto AddComment(CommentDto commentDto);
+    PostDto FindPost(String postId);
+    PostDto EditPost(PostDto postDto);
+    void DeletePost(String postId);
     PostLikeDto AddPostLike(PostLikeDto postLikeDto);
-    CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto);
     List<PostDto> GetMyPosts(HttpServletRequest req);
     List<PostDto> GetPostLikeList(HttpServletRequest req);
 }

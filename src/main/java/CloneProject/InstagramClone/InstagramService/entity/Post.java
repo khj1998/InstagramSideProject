@@ -29,7 +29,7 @@ public class Post {
     @Column(nullable = false,length = 3000)
     private String content;
 
-    private String image_url;
+    private String imageUrl;
 
     @CreationTimestamp
     private Date createdAt;
@@ -48,5 +48,17 @@ public class Post {
 
     public void setMember(Member member) {
         this.member = member;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 }
