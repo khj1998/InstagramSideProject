@@ -3,6 +3,7 @@ package CloneProject.InstagramClone.InstagramService.controller;
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.repository.CommentRepository;
 import CloneProject.InstagramClone.InstagramService.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -17,6 +20,7 @@ import java.util.List;
 @RequestMapping("/comments")
 @RequiredArgsConstructor
 public class CommentController {
+    private final CommentRepository commentRepository;
 
     private final CommentService commentService;
 
@@ -57,6 +61,18 @@ public class CommentController {
                 .success(true)
                 .message("댓글에 좋아요를 누르셨습니다.")
                 .data(resDto)
+                .build();
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<ApiResponse> deleteComment(@RequestParam("commentId") String commentId) {
+        commentService.DeleteComment(commentId);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+        Date date = new Date(System.currentTimeMillis());
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Delete CommentId : "+commentId)
+                .data(formatter.format(date))
                 .build();
     }
 }

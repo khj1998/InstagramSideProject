@@ -1,7 +1,5 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
-import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
-import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
@@ -9,9 +7,12 @@ import CloneProject.InstagramClone.InstagramService.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -79,6 +80,18 @@ public class PostController {
                 .success(true)
                 .message(resDto.getPostTitle()+" 글에 좋아요를 등록하였습니다.")
                 .data(resDto)
+                .build();
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<ApiResponse> deletePost(@RequestParam("postId") String postId) {
+        postService.DeletePost(postId);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+        Date date = new Date(System.currentTimeMillis());
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Delete postId : "+postId)
+                .data(formatter.format(date))
                 .build();
     }
 }

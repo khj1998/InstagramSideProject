@@ -66,6 +66,12 @@ public class PostServiceImpl implements PostService {
         return modelMapper.map(postEntity,PostDto.class);
     }
 
+    @Override
+    public void DeletePost(String postId) {
+        Long id = Long.parseLong(postId);
+        postRepository.deleteById(id);
+    }
+
     /**
      * 이미 좋아요를 추가한 상태라면 좋아요 취소
      */

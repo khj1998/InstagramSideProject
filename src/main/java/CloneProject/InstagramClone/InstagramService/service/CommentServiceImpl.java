@@ -65,6 +65,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public void DeleteComment(String commentId) {
+        Long id = Long.parseLong(commentId);
+        commentRepository.deleteById(id);
+    }
+
+    @Override
     public List<CommentDto> GetMyComments(HttpServletRequest req) {
         List<CommentDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
