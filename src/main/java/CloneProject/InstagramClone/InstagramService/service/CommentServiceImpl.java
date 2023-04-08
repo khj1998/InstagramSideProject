@@ -6,12 +6,14 @@ import CloneProject.InstagramClone.InstagramService.entity.Comment;
 import CloneProject.InstagramClone.InstagramService.entity.CommentLike;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
 import CloneProject.InstagramClone.InstagramService.entity.Post;
+import CloneProject.InstagramClone.InstagramService.exception.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.repository.CommentLikeRepository;
 import CloneProject.InstagramClone.InstagramService.repository.CommentRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.repository.PostRepository;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +49,7 @@ public class CommentServiceImpl implements CommentService {
      * 댓글 쓴 Member, 댓글 - Member, 글 - 댓글 연관관계 매핑
      */
     @Override
-    public CommentDto AddComment(CommentDto commentDto) {
+    public CommentDto AddComment(CommentDto commentDto) throws JwtExpiredException {
         Post postEntity = postRepository.findById(commentDto.getPostId()).get();
         Member memberEntity = findMember(commentDto.getAccessToken());
         Comment commentEntity = modelMapper.map(commentDto, Comment.class);
@@ -71,7 +73,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentDto> GetMyComments(HttpServletRequest req) {
+    public List<CommentDto> GetMyComments(HttpServletRequest req) throws JwtExpiredException {
         List<CommentDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
         Member memberEntity = findMember(accessToken);
@@ -85,7 +87,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) {
+    public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) throws JwtExpiredException {
         Long commentId = commentLikeDto.getCommentId();
         CommentLike commentLike = new CommentLike();
         Comment commentEntity = commentRepository.findById(commentId).get();
@@ -101,8 +103,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private Member findMember(String accessToken) {
-        String email = tokenProvider.extractUsername(accessToken);
-        return memberRepository.findByEmail(email);
+        try {
+            String email = tokenProvider.extractUsername(accessToken);
+            return memberRepository.findByEmail(email);
+        } catch (ExpiredJwtException e) {
+            throw new JwtExpiredException("AccessToken Expired");
+        }
     }
 
     private String extractToken(HttpServletRequest req) {
