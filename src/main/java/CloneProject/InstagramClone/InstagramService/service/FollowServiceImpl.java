@@ -2,7 +2,6 @@ package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowerDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowingDto;
-import CloneProject.InstagramClone.InstagramService.entity.Follow;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
 import CloneProject.InstagramClone.InstagramService.exception.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.repository.FollowRepository;
@@ -34,9 +33,6 @@ public class FollowServiceImpl implements FollowService {
         String accessToken = followingDto.getAccessToken();
         Member fromMember = findMemberByToken(accessToken);
         Member toMember = memberRepository.findById(followingDto.getFollowingId()).get();
-
-        Follow followingEntity = modelMapper.map(followingDto,Follow.class);
-        followingEntity.setFollowing(toMember);
 
         return null;
     }

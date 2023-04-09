@@ -8,8 +8,8 @@ import java.util.Date;
 
 @Getter
 @Entity
-@Table(name = "follows")
-public class Follow {
+@Table(name = "followers")
+public class Follower {
     @Id
     @Column(name = "follower_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,15 +22,7 @@ public class Follow {
     @JoinColumn(name = "member_id")
     private Member follower;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member following;
-
-    public void setFollowing(Member following) {
-        this.following = following;
-    }
-
-    public void setFollower(Member follower) {
+    public void setFollowing(Member follower) {
         this.follower = follower;
     }
 }
