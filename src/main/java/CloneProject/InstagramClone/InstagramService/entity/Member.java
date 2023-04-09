@@ -1,9 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -44,6 +42,12 @@ public class Member implements UserDetails {
 
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     private List<PostLike> postLikeList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
+    private List<follower> followers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
+    private List<following> followings = new ArrayList<>();
 
     public void setPassword(String password) {
         this.password = password;
