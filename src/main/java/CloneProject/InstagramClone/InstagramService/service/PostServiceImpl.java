@@ -37,7 +37,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto AddPost(PostDto postDto) throws JwtExpiredException {
         Post postEntity = modelMapper.map(postDto,Post.class);
-        Member memberEntity = findMember(postDto.getAccessToken());
+        Member memberEntity = findMemberByToken(postDto.getAccessToken());
         postEntity.setMember(memberEntity);
         memberEntity.getPostList().add(postEntity);
 
@@ -78,7 +78,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     public PostLikeDto AddPostLike(PostLikeDto postLikeDto) throws JwtExpiredException {
-        Member memberEntity = findMember(postLikeDto.getAccessToken());
+        Member memberEntity = findMemberByToken(postLikeDto.getAccessToken());
         Post postEntity = postRepository.findById(postLikeDto.getPostId()).get();
         PostLike postLikeEntity = new PostLike();
 
@@ -98,7 +98,7 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> GetMyPosts(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
-        Member memberEntity = findMember(accessToken);
+        Member memberEntity = findMemberByToken(accessToken);
         List<Post> postList = memberEntity.getPostList();
 
         for (Post post : postList) {
@@ -112,7 +112,7 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> GetPostLikeList(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
-        Member memberEntity = findMember(accessToken);
+        Member memberEntity = findMemberByToken(accessToken);
 
         List<PostLike> postLikeList = memberEntity.getPostLikeList();
         for (PostLike postLike : postLikeList) {
@@ -122,7 +122,7 @@ public class PostServiceImpl implements PostService {
         return result;
     }
 
-    private Member findMember(String accessToken) {
+    private Member findMemberByToken(String accessToken) {
         try {
             String email = tokenProvider.extractUsername(accessToken);
             return memberRepository.findByEmail(email);

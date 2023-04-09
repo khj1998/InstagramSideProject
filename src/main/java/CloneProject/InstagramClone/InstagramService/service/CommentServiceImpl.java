@@ -51,7 +51,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto AddComment(CommentDto commentDto) throws JwtExpiredException {
         Post postEntity = postRepository.findById(commentDto.getPostId()).get();
-        Member memberEntity = findMember(commentDto.getAccessToken());
+        Member memberEntity = findMemberByToken(commentDto.getAccessToken());
         Comment commentEntity = modelMapper.map(commentDto, Comment.class);
 
         commentEntity.setPost(postEntity);
@@ -76,7 +76,7 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentDto> GetMyComments(HttpServletRequest req) throws JwtExpiredException {
         List<CommentDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
-        Member memberEntity = findMember(accessToken);
+        Member memberEntity = findMemberByToken(accessToken);
         List<Comment> commentList = memberEntity.getCommentList();
 
         for (Comment comment : commentList) {
@@ -91,7 +91,7 @@ public class CommentServiceImpl implements CommentService {
         Long commentId = commentLikeDto.getCommentId();
         CommentLike commentLike = new CommentLike();
         Comment commentEntity = commentRepository.findById(commentId).get();
-        Member memberEntity = findMember(commentLikeDto.getAccessToken());
+        Member memberEntity = findMemberByToken(commentLikeDto.getAccessToken());
 
         commentLike.setComment(commentEntity);
         commentLike.setMember(memberEntity);
@@ -102,7 +102,7 @@ public class CommentServiceImpl implements CommentService {
         return commentLikeDto;
     }
 
-    private Member findMember(String accessToken) {
+    private Member findMemberByToken(String accessToken) {
         try {
             String email = tokenProvider.extractUsername(accessToken);
             return memberRepository.findByEmail(email);

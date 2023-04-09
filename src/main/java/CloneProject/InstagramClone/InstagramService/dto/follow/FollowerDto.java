@@ -7,10 +7,10 @@ import java.util.Date;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FollowDto {
+public class FollowerDto {
     private String accessToken;
-    private Long memberId;
+    private Long followerId;
     private String email;
     private String nickname;
-    private Date createdAt;
+    private Date followerAt;
 }

@@ -43,11 +43,11 @@ public class Member implements UserDetails {
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     private List<PostLike> postLikeList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
-    private List<follower> followers = new ArrayList<>();
+    @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL)
+    private List<Follow> followerList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
-    private List<following> followings = new ArrayList<>();
+    @OneToMany(mappedBy = "following",cascade = CascadeType.ALL)
+    private List<Follow> followingList = new ArrayList<>();
 
     public void setPassword(String password) {
         this.password = password;
