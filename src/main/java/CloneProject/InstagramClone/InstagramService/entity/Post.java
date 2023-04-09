@@ -3,6 +3,7 @@ package CloneProject.InstagramClone.InstagramService.entity;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -14,10 +15,8 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "posts")
+@NoArgsConstructor
 public class Post {
-
-    public Post() {}
-
     @Id
     @Column(name = "post_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

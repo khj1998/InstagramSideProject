@@ -2,14 +2,13 @@ package CloneProject.InstagramClone.InstagramService.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
 @Table(name = "postlike")
+@NoArgsConstructor
 public class PostLike {
-
-    public PostLike() {}
-
     @Id
     @Column(name = "post_like_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

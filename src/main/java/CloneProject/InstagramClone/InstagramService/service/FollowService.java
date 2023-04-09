@@ -1,9 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
-import CloneProject.InstagramClone.InstagramService.dto.follow.FollowerDto;
-import CloneProject.InstagramClone.InstagramService.dto.follow.FollowingDto;
+import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
 
 public interface FollowService {
-    FollowerDto addFollower(FollowerDto followerDto);
-    FollowerDto addFollowing(FollowingDto followerDto);
+    FollowDto addFollow(FollowDto followDto);
 }

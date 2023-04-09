@@ -2,6 +2,7 @@ package CloneProject.InstagramClone.InstagramService.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -13,10 +14,8 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "comments")
+@NoArgsConstructor
 public class Comment {
-
-    public Comment() {}
-
     @Id
     @Column(name = "comment_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
