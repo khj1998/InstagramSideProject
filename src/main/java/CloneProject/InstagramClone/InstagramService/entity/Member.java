@@ -42,10 +42,10 @@ public class Member implements UserDetails {
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     private List<PostLike> postLikeList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     private List<Follower> followerList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "following",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     private List<Following> followingList = new ArrayList<>();
 
     public void setPassword(String password) {

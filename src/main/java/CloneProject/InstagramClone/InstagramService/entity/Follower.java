@@ -22,9 +22,9 @@ public class Follower {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member follower;
+    private Member member;
 
     public void setFollower(Member follower) {
-        this.follower = follower;
+        this.member = follower;
     }
 }

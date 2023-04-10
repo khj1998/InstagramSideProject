@@ -28,4 +28,14 @@ public class FollowController {
                 .data(resDto)
                 .build();
     }
+
+    @PostMapping("/unfollowing")
+    public ResponseEntity<ApiResponse> unFollowing(@RequestBody FollowDto followDto) {
+        FollowDto resDto = followService.unFollow(followDto);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Un Following Id : "+resDto.getId())
+                .data(resDto)
+                .build();
+    }
 }

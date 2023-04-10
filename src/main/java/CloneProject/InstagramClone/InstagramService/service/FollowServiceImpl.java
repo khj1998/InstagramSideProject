@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,7 +29,7 @@ public class FollowServiceImpl implements FollowService {
     private final ModelMapper modelMapper;
 
     @Override
-    public FollowDto addFollow(FollowDto followDto) {
+    public FollowDto addFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
         Member fromMember = findMemberByToken(accessToken); // 팔로우 거는 쪽
         Member toMember = memberRepository.findById(followDto.getId()).get(); // 팔로우 받는 쪽
@@ -46,6 +48,31 @@ public class FollowServiceImpl implements FollowService {
         memberRepository.save(toMember);
 
         return modelMapper.map(following,FollowDto.class);
+    }
+
+    @Override
+    public FollowDto unFollow(FollowDto followDto) throws JwtExpiredException {
+        String accessToken = followDto.getAccessToken();
+        Member fromMember = findMemberByToken(accessToken);
+        Member toMember = memberRepository.findById(followDto.getId()).get();
+
+        List<Following> followingList = fromMember.getFollowingList();
+        List<Follower> followerList = toMember.getFollowerList();
+
+        for (Following following : followingList) {
+            if (following.getMember().getId().equals(following.getId())) {
+                followingRepository.delete(following);
+                break;
+            }
+        }
+
+        for (Follower follower : followerList) {
+            if (follower.getMember().getId().equals(fromMember.getId())) {
+                followerRepository.delete(follower);
+                break;
+            }
+        }
+        return followDto;
     }
 
     private Member findMemberByToken(String accessToken) {
