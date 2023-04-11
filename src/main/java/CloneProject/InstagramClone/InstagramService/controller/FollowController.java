@@ -3,13 +3,13 @@ package CloneProject.InstagramClone.InstagramService.controller;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.service.FollowService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -36,6 +36,26 @@ public class FollowController {
                 .success(true)
                 .message("Un Following Id : "+resDto.getId())
                 .data(resDto)
+                .build();
+    }
+
+    @GetMapping("/followings/list")
+    public ResponseEntity<ApiResponse> getFollowings(HttpServletRequest req) {
+        List<FollowDto> followingList = followService.getFollowingList(req);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Get User Following List")
+                .data(followingList)
+                .build();
+    }
+
+    @GetMapping("/followers/list")
+    public ResponseEntity<ApiResponse> getFollowers(HttpServletRequest req) {
+        List<FollowDto> followerList = followService.getFollowerList(req);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Get User Following List")
+                .data(followerList)
                 .build();
     }
 }

@@ -25,13 +25,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
-    private final CommentLikeRepository commentLikeRepository;
-
     private final ModelMapper modelMapper;
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
     private final PostLikeRepository postLikeRepository;
 
     @Override
@@ -97,7 +94,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDto> GetMyPosts(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
-        String accessToken = extractToken(req);
+        String accessToken = tokenProvider.ExtractToken(req);
         Member memberEntity = findMemberByToken(accessToken);
         List<Post> postList = memberEntity.getPostList();
 
@@ -111,7 +108,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDto> GetPostLikeList(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
-        String accessToken = extractToken(req);
+        String accessToken = tokenProvider.ExtractToken(req);
         Member memberEntity = findMemberByToken(accessToken);
 
         List<PostLike> postLikeList = memberEntity.getPostLikeList();
@@ -129,14 +126,5 @@ public class PostServiceImpl implements PostService {
         } catch (ExpiredJwtException e) {
             throw new JwtExpiredException("AccessToken Expired");
         }
-    }
-
-    private String extractToken(HttpServletRequest req) {
-        String authorizationHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authorizationHeader.isBlank() || !authorizationHeader.startsWith("Bearer ")) {
-            throw new JwtIllegalException("인증 토큰이 유효하지 않습니다.");
-        }
-
-        return authorizationHeader.substring(7);
     }
 }

@@ -5,14 +5,17 @@ import CloneProject.InstagramClone.InstagramService.entity.Follower;
 import CloneProject.InstagramClone.InstagramService.entity.Following;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
 import CloneProject.InstagramClone.InstagramService.exception.JwtExpiredException;
+import CloneProject.InstagramClone.InstagramService.exception.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.repository.FollowerRepository;
 import CloneProject.InstagramClone.InstagramService.repository.FollowingRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,6 +76,18 @@ public class FollowServiceImpl implements FollowService {
             }
         }
         return followDto;
+    }
+
+    @Override
+    public List<FollowDto> getFollowingList(HttpServletRequest req) {
+        String accessToken = tokenProvider.ExtractToken(req);
+        return null;
+    }
+
+    @Override
+    public List<FollowDto> getFollowerList(HttpServletRequest req) {
+        String accessToken = tokenProvider.ExtractToken(req);
+        return null;
     }
 
     private Member findMemberByToken(String accessToken) {

@@ -2,11 +2,14 @@ package CloneProject.InstagramClone.InstagramService.securitycustom;
 
 import CloneProject.InstagramClone.InstagramService.config.SpringConst;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
+import CloneProject.InstagramClone.InstagramService.exception.JwtIllegalException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -29,6 +32,15 @@ public class TokenProvider implements InitializingBean {
         byte[] refreshKeyBytes = Base64.getDecoder().decode(SpringConst.REFRESH_SECRET_KEY);
         this.access_key = Keys.hmacShaKeyFor(accessKeyBytes);
         this.refresh_key = Keys.hmacShaKeyFor(refreshKeyBytes);
+    }
+
+    public String ExtractToken(HttpServletRequest req) {
+        String authorizationHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authorizationHeader.isBlank() || !authorizationHeader.startsWith("Bearer ")) {
+            throw new JwtIllegalException("인증 토큰이 유효하지 않습니다.");
+        }
+
+        return authorizationHeader.substring(7);
     }
 
     public String extractUsername(String token) {

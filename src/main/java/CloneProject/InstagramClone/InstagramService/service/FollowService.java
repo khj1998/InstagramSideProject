@@ -1,8 +1,13 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
 
 public interface FollowService {
     FollowDto addFollow(FollowDto followDto);
     FollowDto unFollow(FollowDto followDto);
+    List<FollowDto> getFollowingList(HttpServletRequest req);
+    List<FollowDto> getFollowerList(HttpServletRequest req);
 }
