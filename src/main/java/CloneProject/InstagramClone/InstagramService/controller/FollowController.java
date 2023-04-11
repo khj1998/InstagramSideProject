@@ -54,7 +54,7 @@ public class FollowController {
         List<FollowDto> followerList = followService.getFollowerList(req);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
-                .message("Get User Following List")
+                .message("Get User Follower List")
                 .data(followerList)
                 .build();
     }

@@ -7,7 +7,8 @@ public class SpringConst {
     public static final String REFRESH_SECRET_KEY = "28482B4D6251655468576D5A7134743677397A24432646294A404E635266556A";
     public static final String[] PERMITTED_URIS = {"/users/register","/login/failure","/access-token/re-allocation","/users/logout",
             "/comments/add","/login/success","/service","/posts/add","/posts/likes/add","/posts/likes/list","/posts/myposts","/comments/likes/add"
-    ,"/posts/edit","/posts","/comments/edit","/comments/mycomments","/comments/delete","/posts/delete","/follow/following","/follow/unfollowing"};
+    ,"/posts/edit","/posts","/comments/edit","/comments/mycomments","/comments/delete","/posts/delete","/follow/following","/follow/unfollowing",
+    "/follow/followings/list","/follow/followers/list"};
     /*public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final int AFTER_BEARER = 7;
     public static final String JWT_TOKEN_PREFIX = "Bearer ";*/
