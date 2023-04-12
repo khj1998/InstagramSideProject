@@ -22,7 +22,6 @@ import java.util.List;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class FollowServiceImpl implements FollowService {
 
@@ -33,6 +32,7 @@ public class FollowServiceImpl implements FollowService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Transactional
     public FollowDto addFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
         Member fromMember = findMemberByToken(accessToken); // 팔로우 거는 쪽
@@ -47,11 +47,13 @@ public class FollowServiceImpl implements FollowService {
         toMember.getFollowerList().add(follower);
 
         followingRepository.save(following);
-        followerRepository.save(follower);
         memberRepository.save(fromMember);
+        followerRepository.save(follower);
         memberRepository.save(toMember);
 
-        return modelMapper.map(following,FollowDto.class);
+        FollowDto result = modelMapper.map(following,FollowDto.class);
+        result.setId(followDto.getId());
+        return result;
     }
 
     @Override

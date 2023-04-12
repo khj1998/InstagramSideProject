@@ -51,4 +51,9 @@ public class Comment {
     public void setContent(String content) {
         this.content = content;
     }
+
+    public void AddCommentLike(CommentLike commentLike) {
+        commentLike.setComment(this);
+        this.getCommentLikeList().add(commentLike);
+    }
 }

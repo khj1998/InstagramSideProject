@@ -54,16 +54,27 @@ public class CommentServiceImpl implements CommentService {
         Member memberEntity = findMemberByToken(commentDto.getAccessToken());
         Comment commentEntity = modelMapper.map(commentDto, Comment.class);
 
-        commentEntity.setPost(postEntity);
-        commentEntity.setMember(memberEntity);
-        postEntity.getCommentList().add(commentEntity);
-        memberEntity.getCommentList().add(commentEntity);
+        memberEntity.AddComment(commentEntity);
+        postEntity.AddComment(commentEntity);
 
         commentRepository.save(commentEntity);
         postRepository.save(postEntity);
         memberRepository.save(memberEntity);
 
         return modelMapper.map(commentEntity, CommentDto.class);
+    }
+
+    @Override
+    public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) throws JwtExpiredException {
+        Long commentId = commentLikeDto.getCommentId();
+        CommentLike commentLike = new CommentLike();
+        Comment commentEntity = commentRepository.findById(commentId).get();
+
+        commentEntity.AddCommentLike(commentLike);
+
+        commentLikeRepository.save(commentLike);
+        commentRepository.save(commentEntity);
+        return commentLikeDto;
     }
 
     @Override
@@ -84,22 +95,6 @@ public class CommentServiceImpl implements CommentService {
         }
 
         return result;
-    }
-
-    @Override
-    public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) throws JwtExpiredException {
-        Long commentId = commentLikeDto.getCommentId();
-        CommentLike commentLike = new CommentLike();
-        Comment commentEntity = commentRepository.findById(commentId).get();
-        Member memberEntity = findMemberByToken(commentLikeDto.getAccessToken());
-
-        commentLike.setComment(commentEntity);
-        commentLike.setMember(memberEntity);
-        commentEntity.getCommentLikeList().add(commentLike);
-
-        commentLikeRepository.save(commentLike);
-        commentRepository.save(commentEntity);
-        return commentLikeDto;
     }
 
     private Member findMemberByToken(String accessToken) {

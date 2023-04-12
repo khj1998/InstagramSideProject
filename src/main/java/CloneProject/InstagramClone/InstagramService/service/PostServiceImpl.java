@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +32,7 @@ public class PostServiceImpl implements PostService {
     public PostDto AddPost(PostDto postDto) throws JwtExpiredException {
         Post postEntity = modelMapper.map(postDto,Post.class);
         Member memberEntity = findMemberByToken(postDto.getAccessToken());
-        postEntity.setMember(memberEntity);
-        memberEntity.getPostList().add(postEntity);
+        memberEntity.AddPost(postEntity);
 
         postRepository.save(postEntity);
         memberRepository.save(memberEntity);
@@ -75,10 +75,8 @@ public class PostServiceImpl implements PostService {
         Post postEntity = postRepository.findById(postLikeDto.getPostId()).get();
         PostLike postLikeEntity = new PostLike();
 
-        postLikeEntity.setMember(memberEntity);
-        postLikeEntity.setPost(postEntity);
-        memberEntity.getPostLikeList().add(postLikeEntity);
-        postEntity.getPostLikeList().add(postLikeEntity);
+        memberEntity.AddPostLike(postLikeEntity);
+        postEntity.AddPostLike(postLikeEntity);
 
         postLikeRepository.save(postLikeEntity);
         postRepository.save(postEntity);

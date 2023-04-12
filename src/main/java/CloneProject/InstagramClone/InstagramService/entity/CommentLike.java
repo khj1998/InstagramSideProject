@@ -26,8 +26,4 @@ public class CommentLike {
     public void setComment(Comment comment) {
         this.comment = comment;
     }
-
-    public void setMember(Member member) {
-        this.member = member;
-    }
 }
