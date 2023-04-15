@@ -1,12 +1,12 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
-import CloneProject.InstagramClone.InstagramService.entity.Follower;
-import CloneProject.InstagramClone.InstagramService.entity.Following;
+import CloneProject.InstagramClone.InstagramService.entity.Follow;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
+import CloneProject.InstagramClone.InstagramService.exception.FollowMySelfException;
 import CloneProject.InstagramClone.InstagramService.exception.JwtExpiredException;
-import CloneProject.InstagramClone.InstagramService.repository.FollowerRepository;
-import CloneProject.InstagramClone.InstagramService.repository.FollowingRepository;
+import CloneProject.InstagramClone.InstagramService.exception.UnfollowFailedException;
+import CloneProject.InstagramClone.InstagramService.repository.FollowRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +28,7 @@ public class FollowServiceImpl implements FollowService {
 
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
-    private final FollowingRepository followingRepository;
-    private final FollowerRepository followerRepository;
+    private final FollowRepository followRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -36,75 +36,67 @@ public class FollowServiceImpl implements FollowService {
     public FollowDto addFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
         Member fromMember = findMemberByToken(accessToken); // 팔로우 거는 쪽
-        Member toMember = memberRepository.findById(followDto.getId()).get(); // 팔로우 받는 쪽
+        Member toMember = memberRepository
+                .findById(followDto.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred")); // 팔로우 받는 쪽
 
-        Following following = new Following();
-        following.setFollowing(toMember);
-        Follower follower = new Follower();
-        follower.setFollower(fromMember);
+        if (fromMember.getId().equals(toMember.getId())) {
+            throw new FollowMySelfException("Cannot follow myself exception occurred");
+        }
 
-        fromMember.getFollowingList().add(following);
-        toMember.getFollowerList().add(follower);
+        Follow follow = Follow.builder()
+                .following(fromMember)
+                .follower(toMember)
+                .build();
 
-        followingRepository.save(following);
-        memberRepository.save(fromMember);
-        followerRepository.save(follower);
-        memberRepository.save(toMember);
-
-        FollowDto result = modelMapper.map(following,FollowDto.class);
-        result.setId(followDto.getId());
+        FollowDto result = modelMapper.map(follow,FollowDto.class);
+        result.setId(toMember.getId());
         return result;
     }
 
     @Override
+    @Transactional
     public FollowDto unFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
         Member fromMember = findMemberByToken(accessToken);
-        Member toMember = memberRepository.findById(followDto.getId()).get();
+        Member toMember = memberRepository
+                .findById(followDto.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred"));
 
-        List<Following> followingList = fromMember.getFollowingList();
-        List<Follower> followerList = toMember.getFollowerList();
+        Follow follow = followRepository
+                .findByFollowingIdAndFollowerId(fromMember.getId(), toMember.getId())
+                .orElseThrow(() -> new UnfollowFailedException("Unfollow failed exception occurred"));
 
-        for (Following following : followingList) {
-            if (following.getMember().getId().equals(following.getId())) {
-                followingRepository.delete(following);
-                break;
-            }
-        }
-
-        for (Follower follower : followerList) {
-            if (follower.getMember().getId().equals(fromMember.getId())) {
-                followerRepository.delete(follower);
-                break;
-            }
-        }
-        return followDto;
+        followRepository.delete(follow);
+        return modelMapper.map(follow,FollowDto.class);
     }
 
     @Override
-    public List<FollowDto> getFollowingList(HttpServletRequest req) throws JwtExpiredException {
+    @Transactional(readOnly = true)
+    public List<FollowDto> getFollowings(HttpServletRequest req) throws JwtExpiredException {
         String accessToken = tokenProvider.ExtractToken(req);
         Member memberEntity = findMemberByToken(accessToken);
 
         List<FollowDto> result = new ArrayList<>();
-        List<Following> followingList = memberEntity.getFollowingList();
+        List<Follow> followingList = memberEntity.getFollowingList();
 
-        for (Following following : followingList) {
-            result.add(modelMapper.map(following,FollowDto.class));
+        for (Follow follow : followingList) {
+            result.add(modelMapper.map(follow.getFollower(),FollowDto.class));
         }
         return result;
     }
 
     @Override
-    public List<FollowDto> getFollowerList(HttpServletRequest req) throws JwtExpiredException {
+    @Transactional(readOnly = true)
+    public List<FollowDto> getFollowers(HttpServletRequest req) throws JwtExpiredException {
         String accessToken = tokenProvider.ExtractToken(req);
         Member memberEntity = findMemberByToken(accessToken);
 
         List<FollowDto> result = new ArrayList<>();
-        List<Follower> followerList = memberEntity.getFollowerList();
+        List<Follow> followerList = memberEntity.getFollowerList();
 
-        for (Follower follower : followerList) {
-            result.add(modelMapper.map(follower,FollowDto.class));
+        for (Follow follower : followerList) {
+            result.add(modelMapper.map(follower.getFollowing(),FollowDto.class));
         }
         return result;
     }
@@ -112,7 +104,9 @@ public class FollowServiceImpl implements FollowService {
     private Member findMemberByToken(String accessToken) {
         try {
             String email = tokenProvider.extractUsername(accessToken);
-            return memberRepository.findByEmail(email);
+            return memberRepository
+                    .findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
         } catch (ExpiredJwtException e) {
             throw new JwtExpiredException("AccessToken Expired");
         }

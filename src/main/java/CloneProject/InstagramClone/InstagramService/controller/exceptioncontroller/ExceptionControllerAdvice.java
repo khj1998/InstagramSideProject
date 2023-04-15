@@ -38,6 +38,22 @@ public class ExceptionControllerAdvice {
                 .build();
     }
 
+    @ExceptionHandler(FollowMySelfException.class)
+    public ResponseEntity<ApiResponse> followMySelfException() {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(false)
+                .message("Follow Failed")
+                .build();
+    }
+
+    @ExceptionHandler(UnfollowFailedException.class)
+    public ResponseEntity<ApiResponse> unfollowFailedException() {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(false)
+                .message("Unfollow Failed")
+                .build();
+    }
+
     @ExceptionHandler(JwtExpiredException.class)
     public ResponseEntity<ApiResponse> handleJwtExpiredException() {
         return new ApiResponse.ApiResponseBuilder<>()

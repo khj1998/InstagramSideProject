@@ -41,7 +41,7 @@ public class FollowController {
 
     @GetMapping("/followings/list")
     public ResponseEntity<ApiResponse> getFollowings(HttpServletRequest req) {
-        List<FollowDto> followingList = followService.getFollowingList(req);
+        List<FollowDto> followingList = followService.getFollowings(req);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get User Following List")
@@ -51,7 +51,7 @@ public class FollowController {
 
     @GetMapping("/followers/list")
     public ResponseEntity<ApiResponse> getFollowers(HttpServletRequest req) {
-        List<FollowDto> followerList = followService.getFollowerList(req);
+        List<FollowDto> followerList = followService.getFollowers(req);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get User Follower List")

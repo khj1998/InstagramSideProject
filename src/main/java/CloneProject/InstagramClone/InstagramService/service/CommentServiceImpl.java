@@ -19,7 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +51,7 @@ public class CommentServiceImpl implements CommentService {
      * 댓글 쓴 Member, 댓글 - Member, 글 - 댓글 연관관계 매핑
      */
     @Override
-    public CommentDto AddComment(CommentDto commentDto) throws JwtExpiredException {
+    public CommentDto AddComment(CommentDto commentDto) throws JwtExpiredException,UsernameNotFoundException {
         Post postEntity = postRepository.findById(commentDto.getPostId()).get();
         Member memberEntity = findMemberByToken(commentDto.getAccessToken());
         Comment commentEntity = modelMapper.map(commentDto, Comment.class);
@@ -84,7 +86,8 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentDto> GetMyComments(HttpServletRequest req) throws JwtExpiredException {
+    @Transactional(readOnly = true)
+    public List<CommentDto> GetMyComments(HttpServletRequest req) throws JwtExpiredException,UsernameNotFoundException {
         List<CommentDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
         Member memberEntity = findMemberByToken(accessToken);
@@ -100,7 +103,9 @@ public class CommentServiceImpl implements CommentService {
     private Member findMemberByToken(String accessToken) {
         try {
             String email = tokenProvider.extractUsername(accessToken);
-            return memberRepository.findByEmail(email);
+            return memberRepository
+                    .findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred"));
         } catch (ExpiredJwtException e) {
             throw new JwtExpiredException("AccessToken Expired");
         }

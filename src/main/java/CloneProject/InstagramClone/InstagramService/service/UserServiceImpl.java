@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,9 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public AuthResponse CreateJwtToken(String username) {
-        Member member = memberRepository.findByEmail(username);
+        Member member = memberRepository
+                .findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
 
         // 로그인 성공시, accessToken,refreshToken 발급.
         String accessToken = tokenProvider.generateAccessToken(member);
@@ -68,7 +71,9 @@ public class UserServiceImpl implements UserService{
         }
 
         redisTemplate.delete(authDto.getAccessToken());
-        Member member = memberRepository.findByEmail(username);
+        Member member = memberRepository
+                .findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
         String refreshToken = (String) redisTemplate.opsForValue().get(username);
         String accessToken;
 
@@ -96,7 +101,9 @@ public class UserServiceImpl implements UserService{
     public void ChangePassword() {}
 
     private Member findUser(String email) {
-        return memberRepository.findByEmail(email);
+        return memberRepository
+                .findByEmail(email)
+                .orElse(null);
     }
 
     private Member setRoleToUser(SignUpDto signUpDto) {

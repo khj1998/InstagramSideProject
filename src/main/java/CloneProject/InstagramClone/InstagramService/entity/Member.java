@@ -44,10 +44,10 @@ public class Member implements UserDetails {
     private List<PostLike> postLikeList = new ArrayList<>();
 
     @OneToMany(mappedBy = "following",cascade = CascadeType.ALL)
-    private HashSet<Follow> followerList = new HashSet<>();
+    private List<Follow> followingList = new ArrayList<>();
 
     @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL)
-    private HashSet<Follow> followingList = new HashSet<>();
+    private List<Follow> followerList = new ArrayList<>();
 
     public void setPassword(String password) {
         this.password = password;

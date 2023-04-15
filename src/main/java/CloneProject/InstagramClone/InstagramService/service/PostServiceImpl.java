@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,6 +87,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PostDto> GetMyPosts(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
         String accessToken = tokenProvider.ExtractToken(req);
@@ -100,6 +102,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PostDto> GetPostLikeList(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
         String accessToken = tokenProvider.ExtractToken(req);
@@ -116,7 +119,9 @@ public class PostServiceImpl implements PostService {
     private Member findMemberByToken(String accessToken) {
         try {
             String email = tokenProvider.extractUsername(accessToken);
-            return memberRepository.findByEmail(email);
+            return memberRepository
+                    .findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
         } catch (ExpiredJwtException e) {
             throw new JwtExpiredException("AccessToken Expired");
         }
