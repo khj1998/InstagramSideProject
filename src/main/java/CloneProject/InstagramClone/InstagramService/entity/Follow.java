@@ -2,18 +2,15 @@ package CloneProject.InstagramClone.InstagramService.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
 @Getter
 @Entity
-@Table(name = "followers")
-@NoArgsConstructor
-public class Follower {
+public class Follow {
     @Id
-    @Column(name = "follower_id")
+    @Column(name = "follow_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -22,9 +19,9 @@ public class Follower {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
-    private Member member;
+    private Member following;
 
-    public void setFollower(Member follower) {
-        this.member = follower;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member follower;
 }
