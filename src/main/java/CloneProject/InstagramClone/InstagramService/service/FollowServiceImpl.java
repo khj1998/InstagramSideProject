@@ -49,6 +49,7 @@ public class FollowServiceImpl implements FollowService {
                 .follower(toMember)
                 .build();
 
+        followRepository.save(follow);
         FollowDto result = modelMapper.map(follow,FollowDto.class);
         result.setId(toMember.getId());
         return result;
