@@ -2,7 +2,7 @@ package CloneProject.InstagramClone.InstagramService.securitycustom;
 
 import CloneProject.InstagramClone.InstagramService.config.SpringConst;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
-import CloneProject.InstagramClone.InstagramService.exception.JwtIllegalException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

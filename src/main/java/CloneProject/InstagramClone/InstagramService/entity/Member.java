@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 @Getter
@@ -42,11 +43,11 @@ public class Member implements UserDetails {
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     private List<PostLike> postLikeList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
-    private List<Follower> followerList = new ArrayList<>();
+    @OneToMany(mappedBy = "following",cascade = CascadeType.ALL)
+    private List<Follow> followingList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
-    private List<Following> followingList = new ArrayList<>();
+    @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL)
+    private List<Follow> followerList = new ArrayList<>();
 
     public void setPassword(String password) {
         this.password = password;

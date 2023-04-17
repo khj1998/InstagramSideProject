@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.exception;
+package CloneProject.InstagramClone.InstagramService.exception.jwt;
 
 public class JwtIllegalException extends RuntimeException{
     public JwtIllegalException(String message) {

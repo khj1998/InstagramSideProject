@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.exception;
+package CloneProject.InstagramClone.InstagramService.exception.user;
 
 public class EmailAlreadyExistsException extends RuntimeException{
 
