@@ -1,8 +1,8 @@
 package CloneProject.InstagramClone.InstagramService.securitycustom;
 
 import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
-import CloneProject.InstagramClone.InstagramService.exception.JwtExpiredException;
-import CloneProject.InstagramClone.InstagramService.exception.JwtIllegalException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;

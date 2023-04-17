@@ -1,7 +1,13 @@
 package CloneProject.InstagramClone.InstagramService.controller.exceptioncontroller;
 
-import CloneProject.InstagramClone.InstagramService.exception.*;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.exception.follow.FollowMySelfException;
+import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFailedException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
+import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
+import CloneProject.InstagramClone.InstagramService.exception.user.UserNotAuthenticated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

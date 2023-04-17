@@ -3,7 +3,8 @@ package CloneProject.InstagramClone.InstagramService.service;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
 import CloneProject.InstagramClone.InstagramService.entity.*;
-import CloneProject.InstagramClone.InstagramService.exception.JwtExpiredException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
+import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.*;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -46,13 +47,17 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto FindPost(String postId) {
         Long id = Long.parseLong(postId);
-        Post postEntity = postRepository.findById(id).get();
+        Post postEntity = postRepository
+                .findById(id)
+                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
         return modelMapper.map(postEntity,PostDto.class);
     }
 
     @Override
     public PostDto EditPost(PostDto postDto) {
-        Post postEntity = postRepository.findById(postDto.getId()).get();
+        Post postEntity = postRepository
+                .findById(postDto.getId())
+                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
         postEntity.setTitle(postDto.getTitle());
         postEntity.setContent(postDto.getContent());
         postEntity.setImageUrl(postDto.getImageUrl());
@@ -73,9 +78,11 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostLikeDto AddPostLike(PostLikeDto postLikeDto) throws JwtExpiredException {
         Member memberEntity = findMemberByToken(postLikeDto.getAccessToken());
-        Post postEntity = postRepository.findById(postLikeDto.getPostId()).get();
-        PostLike postLikeEntity = new PostLike();
+        Post postEntity = postRepository
+                .findById(postLikeDto.getPostId())
+                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
 
+        PostLike postLikeEntity = new PostLike();
         memberEntity.AddPostLike(postLikeEntity);
         postEntity.AddPostLike(postLikeEntity);
 

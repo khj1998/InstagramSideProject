@@ -6,8 +6,10 @@ import CloneProject.InstagramClone.InstagramService.entity.Comment;
 import CloneProject.InstagramClone.InstagramService.entity.CommentLike;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
 import CloneProject.InstagramClone.InstagramService.entity.Post;
-import CloneProject.InstagramClone.InstagramService.exception.JwtExpiredException;
-import CloneProject.InstagramClone.InstagramService.exception.JwtIllegalException;
+import CloneProject.InstagramClone.InstagramService.exception.comment.CommentNotFoundException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
+import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.CommentLikeRepository;
 import CloneProject.InstagramClone.InstagramService.repository.CommentRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
@@ -40,7 +42,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto EditComment(CommentDto commentDto) {
-        Comment commentEntity = commentRepository.findById(commentDto.getCommentId()).get();
+        Comment commentEntity = commentRepository
+                .findById(commentDto.getCommentId())
+                .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
         commentEntity.setContent(commentDto.getContent());
         commentRepository.save(commentEntity);
 
@@ -52,7 +56,9 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     public CommentDto AddComment(CommentDto commentDto) throws JwtExpiredException,UsernameNotFoundException {
-        Post postEntity = postRepository.findById(commentDto.getPostId()).get();
+        Post postEntity = postRepository
+                .findById(commentDto.getPostId())
+                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
         Member memberEntity = findMemberByToken(commentDto.getAccessToken());
         Comment commentEntity = modelMapper.map(commentDto, Comment.class);
 
@@ -70,7 +76,9 @@ public class CommentServiceImpl implements CommentService {
     public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) throws JwtExpiredException {
         Long commentId = commentLikeDto.getCommentId();
         CommentLike commentLike = new CommentLike();
-        Comment commentEntity = commentRepository.findById(commentId).get();
+        Comment commentEntity = commentRepository
+                .findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));;
 
         commentEntity.AddCommentLike(commentLike);
 
