@@ -17,6 +17,7 @@ import java.util.List;
 @Table(name="members")
 @NoArgsConstructor
 public class Member implements UserDetails {
+
     @Id
     @Column(name = "member_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,6 +49,9 @@ public class Member implements UserDetails {
 
     @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL)
     private List<Follow> followerList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "toBlockedMember")
+    private List<BlockedUser> blockedList = new ArrayList<>();
 
     public void setPassword(String password) {
         this.password = password;

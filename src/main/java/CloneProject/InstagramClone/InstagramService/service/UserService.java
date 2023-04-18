@@ -10,5 +10,4 @@ public interface UserService {
     void logoutProcess(Long userId);
     AuthResponse ReallocateAccessToken(AuthDto authDto);
     AuthResponse CreateJwtToken(String username);
-
 }

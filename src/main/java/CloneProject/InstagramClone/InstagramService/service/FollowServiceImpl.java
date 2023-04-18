@@ -1,11 +1,17 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
+import CloneProject.InstagramClone.InstagramService.dto.follow.BlockUserDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
+import CloneProject.InstagramClone.InstagramService.entity.BlockedUser;
 import CloneProject.InstagramClone.InstagramService.entity.Follow;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
+import CloneProject.InstagramClone.InstagramService.exception.follow.BlockMySelfException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowMySelfException;
+import CloneProject.InstagramClone.InstagramService.exception.follow.UnBlockFailedException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFailedException;
+import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
+import CloneProject.InstagramClone.InstagramService.repository.BlockedUserRepository;
 import CloneProject.InstagramClone.InstagramService.repository.FollowRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
@@ -29,6 +35,7 @@ public class FollowServiceImpl implements FollowService {
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
     private final FollowRepository followRepository;
+    private final BlockedUserRepository blockedUserRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -70,6 +77,43 @@ public class FollowServiceImpl implements FollowService {
 
         followRepository.delete(follow);
         return modelMapper.map(follow,FollowDto.class);
+    }
+
+    @Override
+    public BlockUserDto blockUser(BlockUserDto blockUserDto) {
+        String accessToken = blockUserDto.getAccessToken();
+        Member fromBannedMember = findMemberByToken(accessToken);
+        Member toBannedMember = memberRepository
+                .findById(blockUserDto.getBanId())
+                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
+
+        if (fromBannedMember.getId().equals(toBannedMember.getId())) {
+            throw new BlockMySelfException("BanMySelfException occurred");
+        }
+
+        BlockedUser blockedUser = BlockedUser.builder()
+                .email(toBannedMember.getEmail())
+                .fromBlockedUser(fromBannedMember)
+                .toBlockedMember(toBannedMember)
+                .build();
+        blockedUserRepository.save(blockedUser);
+
+        return modelMapper.map(blockedUser, BlockUserDto.class);
+    }
+
+    @Override
+    public BlockUserDto unBlockUser(BlockUserDto blockUserDto) {
+        String accessToken = blockUserDto.getAccessToken();
+        Member fromBannedMember = findMemberByToken(accessToken);
+        Member toBannedMember = memberRepository
+                .findById(blockUserDto.getBanId())
+                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
+
+        BlockedUser blockedUser = blockedUserRepository.findByFromBlockedIdAndToBlockedId(fromBannedMember.getId(), toBannedMember.getId())
+                .orElseThrow(() -> new UnBlockFailedException("UnBlockedFailedException occurred"));
+        blockedUserRepository.delete(blockedUser);
+
+        return modelMapper.map(blockedUser, BlockUserDto.class);
     }
 
     @Override

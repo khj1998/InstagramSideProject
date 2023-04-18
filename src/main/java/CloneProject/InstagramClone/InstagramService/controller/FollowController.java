@@ -1,5 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
+import CloneProject.InstagramClone.InstagramService.dto.follow.BlockUserDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.service.FollowService;
@@ -35,6 +36,26 @@ public class FollowController {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Un Following Id : "+resDto.getId())
+                .data(resDto)
+                .build();
+    }
+
+    @PostMapping("/users/blocking")
+    public ResponseEntity<ApiResponse> blockUser(@RequestBody BlockUserDto blockUserDto) {
+        BlockUserDto resDto = followService.blockUser(blockUserDto);
+        return  new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("blocked user email : "+resDto.getEmail())
+                .data(resDto)
+                .build();
+    }
+
+    @PostMapping("/users/unblocking")
+    public ResponseEntity<ApiResponse> unblockUser(@RequestBody BlockUserDto blockUserDto) {
+        BlockUserDto resDto = followService.unBlockUser(blockUserDto);
+        return  new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("unblock user email : " + resDto.getEmail())
                 .data(resDto)
                 .build();
     }

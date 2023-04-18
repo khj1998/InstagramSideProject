@@ -7,9 +7,9 @@ import java.util.Date;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class FollowDto {
+public class BlockUserDto {
     private String accessToken;
-    private Long id;
+    private Long banId;
     private String email;
     private Date createdAt;
 }
