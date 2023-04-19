@@ -50,7 +50,7 @@ public class Member implements UserDetails {
     @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL)
     private List<Follow> followerList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "toBlockedMember")
+    @OneToMany(mappedBy = "blockedMember")
     private List<BlockedUser> blockedList = new ArrayList<>();
 
     public void setPassword(String password) {

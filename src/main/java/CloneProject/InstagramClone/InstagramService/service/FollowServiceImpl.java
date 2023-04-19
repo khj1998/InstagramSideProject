@@ -14,7 +14,6 @@ import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundE
 import CloneProject.InstagramClone.InstagramService.repository.BlockedUserRepository;
 import CloneProject.InstagramClone.InstagramService.repository.FollowRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
-import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FollowServiceImpl implements FollowService {
 
-    private final TokenProvider tokenProvider;
+    private final TokenService tokenService;
     private final MemberRepository memberRepository;
     private final FollowRepository followRepository;
     private final BlockedUserRepository blockedUserRepository;
@@ -42,7 +41,7 @@ public class FollowServiceImpl implements FollowService {
     @Transactional
     public FollowDto addFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
-        Member fromMember = findMemberByToken(accessToken); // 팔로우 거는 쪽
+        Member fromMember = tokenService.FindMemberByToken(accessToken); // 팔로우 거는 쪽
         Member toMember = memberRepository
                 .findById(followDto.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred")); // 팔로우 받는 쪽
@@ -66,7 +65,7 @@ public class FollowServiceImpl implements FollowService {
     @Transactional
     public FollowDto unFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
-        Member fromMember = findMemberByToken(accessToken);
+        Member fromMember = tokenService.FindMemberByToken(accessToken);
         Member toMember = memberRepository
                 .findById(followDto.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred"));
@@ -80,9 +79,10 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
+    @Transactional
     public BlockUserDto blockUser(BlockUserDto blockUserDto) {
         String accessToken = blockUserDto.getAccessToken();
-        Member fromBannedMember = findMemberByToken(accessToken);
+        Member fromBannedMember = tokenService.FindMemberByToken(accessToken);
         Member toBannedMember = memberRepository
                 .findById(blockUserDto.getBanId())
                 .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
@@ -93,7 +93,7 @@ public class FollowServiceImpl implements FollowService {
 
         BlockedUser blockedUser = BlockedUser.builder()
                 .email(toBannedMember.getEmail())
-                .fromBlockedUser(fromBannedMember)
+                .fromBlockedMember(fromBannedMember)
                 .toBlockedMember(toBannedMember)
                 .build();
         blockedUserRepository.save(blockedUser);
@@ -102,14 +102,15 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
+    @Transactional
     public BlockUserDto unBlockUser(BlockUserDto blockUserDto) {
         String accessToken = blockUserDto.getAccessToken();
-        Member fromBannedMember = findMemberByToken(accessToken);
+        Member fromBannedMember = tokenService.FindMemberByToken(accessToken);
         Member toBannedMember = memberRepository
                 .findById(blockUserDto.getBanId())
                 .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
 
-        BlockedUser blockedUser = blockedUserRepository.findByFromBlockedIdAndToBlockedId(fromBannedMember.getId(), toBannedMember.getId())
+        BlockedUser blockedUser = blockedUserRepository.findByBlockingMemberAndBlockedMember(fromBannedMember.getId(), toBannedMember.getId())
                 .orElseThrow(() -> new UnBlockFailedException("UnBlockedFailedException occurred"));
         blockedUserRepository.delete(blockedUser);
 
@@ -119,8 +120,8 @@ public class FollowServiceImpl implements FollowService {
     @Override
     @Transactional(readOnly = true)
     public List<FollowDto> getFollowings(HttpServletRequest req) throws JwtExpiredException {
-        String accessToken = tokenProvider.ExtractToken(req);
-        Member memberEntity = findMemberByToken(accessToken);
+        String accessToken = tokenService.ExtractToken(req);
+        Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<FollowDto> result = new ArrayList<>();
         List<Follow> followingList = memberEntity.getFollowingList();
@@ -134,8 +135,8 @@ public class FollowServiceImpl implements FollowService {
     @Override
     @Transactional(readOnly = true)
     public List<FollowDto> getFollowers(HttpServletRequest req) throws JwtExpiredException {
-        String accessToken = tokenProvider.ExtractToken(req);
-        Member memberEntity = findMemberByToken(accessToken);
+        String accessToken = tokenService.ExtractToken(req);
+        Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<FollowDto> result = new ArrayList<>();
         List<Follow> followerList = memberEntity.getFollowerList();
@@ -146,14 +147,9 @@ public class FollowServiceImpl implements FollowService {
         return result;
     }
 
-    private Member findMemberByToken(String accessToken) {
-        try {
-            String email = tokenProvider.extractUsername(accessToken);
-            return memberRepository
-                    .findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
-        } catch (ExpiredJwtException e) {
-            throw new JwtExpiredException("AccessToken Expired");
-        }
+    @Override
+    @Transactional(readOnly = true)
+    public List<BlockUserDto> getBlockedUsers(HttpServletRequest req) {
+        return null;
     }
 }

@@ -3,6 +3,7 @@ package CloneProject.InstagramClone.InstagramService.securitycustom;
 import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
+import CloneProject.InstagramClone.InstagramService.service.TokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
@@ -29,7 +30,7 @@ import java.nio.charset.StandardCharsets;
 @Component
 @RequiredArgsConstructor
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
-    private final TokenProvider tokenProvider;
+    private final TokenService tokenService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -58,7 +59,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         }
 
         try{
-            tokenProvider.isTokenValid(authDto.getAccessToken());
+            tokenService.isTokenValid(authDto.getAccessToken());
             //String redirectURI = requestURI.split("validation")[1];
             //response.sendRedirect(redirectURI+"?token="+authDto.getAccessToken());
         } catch(IllegalArgumentException e) {

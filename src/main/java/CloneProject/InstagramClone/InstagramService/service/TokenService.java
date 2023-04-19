@@ -1,9 +1,12 @@
-package CloneProject.InstagramClone.InstagramService.securitycustom;
+package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.config.SpringConst;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
+import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -21,10 +25,11 @@ import java.util.function.Function;
 
 @Component
 @RequiredArgsConstructor
-public class TokenProvider implements InitializingBean {
+public class TokenService implements InitializingBean {
     private Key access_key;
     private Key refresh_key;
     private final UserDetailsService userDetailsService;
+    private final MemberRepository memberRepository;
 
     @Override
     public void afterPropertiesSet() {
@@ -128,5 +133,16 @@ public class TokenProvider implements InitializingBean {
 
     private Date extractRefreshExpiration(String refreshToken) {
         return extractRefreshClaim(refreshToken,Claims::getExpiration);
+    }
+
+    public Member FindMemberByToken(String accessToken) {
+        try {
+            String email = extractUsername(accessToken);
+            return memberRepository
+                    .findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
+        } catch (ExpiredJwtException e) {
+            throw new JwtExpiredException("AccessToken Expired");
+        }
     }
 }

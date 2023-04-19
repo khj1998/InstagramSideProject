@@ -7,7 +7,6 @@ import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalExce
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
 import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
-import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.entity.Role;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
@@ -30,7 +29,7 @@ public class UserServiceImpl implements UserService{
 
     private final ModelMapper modelMapper;
     private final MemberRepository memberRepository;
-    private final TokenProvider tokenProvider;
+    private final TokenService tokenService;
     private final RedisTemplate redisTemplate;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -52,8 +51,8 @@ public class UserServiceImpl implements UserService{
                 .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
 
         // 로그인 성공시, accessToken,refreshToken 발급.
-        String accessToken = tokenProvider.generateAccessToken(member);
-        String refreshToken = tokenProvider.generateRefreshToken(member);
+        String accessToken = tokenService.generateAccessToken(member);
+        String refreshToken = tokenService.generateRefreshToken(member);
         redisTemplate.opsForValue().set(accessToken,username);
         redisTemplate.opsForValue().set(username,refreshToken);
 
@@ -83,9 +82,9 @@ public class UserServiceImpl implements UserService{
 
         try {
             //RefreshToken가 유효하지 않으면, 예외 발생
-            tokenProvider.isRefreshTokenValid(refreshToken);
-            accessToken = tokenProvider.generateAccessToken(member);
-            refreshToken = tokenProvider.generateRefreshToken(member);
+            tokenService.isRefreshTokenValid(refreshToken);
+            accessToken = tokenService.generateAccessToken(member);
+            refreshToken = tokenService.generateRefreshToken(member);
             redisTemplate.opsForValue().set(accessToken,username);
             redisTemplate.opsForValue().set(username,refreshToken);
         } catch (ExpiredJwtException e) {
@@ -107,7 +106,7 @@ public class UserServiceImpl implements UserService{
     private Member findUser(String email) {
         return memberRepository
                 .findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
+                .orElse(null);
     }
 
     private Member setRoleToUser(SignUpDto signUpDto) {

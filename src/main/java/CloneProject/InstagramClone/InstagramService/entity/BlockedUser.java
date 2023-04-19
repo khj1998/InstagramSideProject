@@ -27,17 +27,17 @@ public class BlockedUser {
     private Date createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "from_blocked_id")
-    private Member fromBlockedUser;
+    @JoinColumn(name = "blocking_id")
+    private Member blockingMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to_blocked_id")
-    private Member toBlockedMember;
+    @JoinColumn(name = "blocked_id")
+    private Member blockedMember;
 
     @Builder
-    public BlockedUser(String email,Member fromBlockedUser,Member toBlockedMember) {
+    public BlockedUser(String email,Member fromBlockedMember,Member toBlockedMember) {
         this.email = email;
-        this.fromBlockedUser = fromBlockedUser;
-        this.toBlockedMember = toBlockedMember;
+        this.blockingMember = fromBlockedMember;
+        this.blockedMember = toBlockedMember;
     }
 }

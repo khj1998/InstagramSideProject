@@ -6,13 +6,10 @@ import CloneProject.InstagramClone.InstagramService.entity.*;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.*;
-import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +22,7 @@ import java.util.List;
 public class PostServiceImpl implements PostService {
 
     private final ModelMapper modelMapper;
-    private final TokenProvider tokenProvider;
+    private final TokenService tokenService;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
@@ -33,7 +30,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto AddPost(PostDto postDto) throws JwtExpiredException {
         Post postEntity = modelMapper.map(postDto,Post.class);
-        Member memberEntity = findMemberByToken(postDto.getAccessToken());
+        Member memberEntity = tokenService.FindMemberByToken(postDto.getAccessToken());
         memberEntity.AddPost(postEntity);
 
         postRepository.save(postEntity);
@@ -77,7 +74,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     public PostLikeDto AddPostLike(PostLikeDto postLikeDto) throws JwtExpiredException {
-        Member memberEntity = findMemberByToken(postLikeDto.getAccessToken());
+        Member memberEntity = tokenService.FindMemberByToken(postLikeDto.getAccessToken());
         Post postEntity = postRepository
                 .findById(postLikeDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
@@ -97,8 +94,8 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public List<PostDto> GetMyPosts(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
-        String accessToken = tokenProvider.ExtractToken(req);
-        Member memberEntity = findMemberByToken(accessToken);
+        String accessToken = tokenService.ExtractToken(req);
+        Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Post> postList = memberEntity.getPostList();
 
         for (Post post : postList) {
@@ -112,8 +109,8 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public List<PostDto> GetPostLikeList(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
-        String accessToken = tokenProvider.ExtractToken(req);
-        Member memberEntity = findMemberByToken(accessToken);
+        String accessToken = tokenService.ExtractToken(req);
+        Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<PostLike> postLikeList = memberEntity.getPostLikeList();
         for (PostLike postLike : postLikeList) {
@@ -121,16 +118,5 @@ public class PostServiceImpl implements PostService {
         }
 
         return result;
-    }
-
-    private Member findMemberByToken(String accessToken) {
-        try {
-            String email = tokenProvider.extractUsername(accessToken);
-            return memberRepository
-                    .findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
-        } catch (ExpiredJwtException e) {
-            throw new JwtExpiredException("AccessToken Expired");
-        }
     }
 }

@@ -12,4 +12,5 @@ public interface FollowService {
     List<FollowDto> getFollowers(HttpServletRequest req);
     BlockUserDto blockUser(BlockUserDto blockUserDto);
     BlockUserDto unBlockUser(BlockUserDto blockUserDto);
+    List<BlockUserDto> getBlockedUsers(HttpServletRequest req);
 }

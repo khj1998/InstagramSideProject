@@ -14,7 +14,6 @@ import CloneProject.InstagramClone.InstagramService.repository.CommentLikeReposi
 import CloneProject.InstagramClone.InstagramService.repository.CommentRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.repository.PostRepository;
-import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +33,7 @@ import java.util.List;
 public class CommentServiceImpl implements CommentService {
 
     private final ModelMapper modelMapper;
-    private final TokenProvider tokenProvider;
+    private final TokenService tokenService;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
@@ -59,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
         Post postEntity = postRepository
                 .findById(commentDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
-        Member memberEntity = findMemberByToken(commentDto.getAccessToken());
+        Member memberEntity = tokenService.FindMemberByToken(commentDto.getAccessToken());
         Comment commentEntity = modelMapper.map(commentDto, Comment.class);
 
         memberEntity.AddComment(commentEntity);
@@ -98,7 +97,7 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentDto> GetMyComments(HttpServletRequest req) throws JwtExpiredException,UsernameNotFoundException {
         List<CommentDto> result = new ArrayList<>();
         String accessToken = extractToken(req);
-        Member memberEntity = findMemberByToken(accessToken);
+        Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Comment> commentList = memberEntity.getCommentList();
 
         for (Comment comment : commentList) {
@@ -106,17 +105,6 @@ public class CommentServiceImpl implements CommentService {
         }
 
         return result;
-    }
-
-    private Member findMemberByToken(String accessToken) {
-        try {
-            String email = tokenProvider.extractUsername(accessToken);
-            return memberRepository
-                    .findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred"));
-        } catch (ExpiredJwtException e) {
-            throw new JwtExpiredException("AccessToken Expired");
-        }
     }
 
     private String extractToken(HttpServletRequest req) {
