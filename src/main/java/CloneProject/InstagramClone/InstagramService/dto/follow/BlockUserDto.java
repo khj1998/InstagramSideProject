@@ -9,7 +9,7 @@ import java.util.Date;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BlockUserDto {
     private String accessToken;
-    private Long banId;
+    private Long id;
     private String email;
     private Date createdAt;
 }

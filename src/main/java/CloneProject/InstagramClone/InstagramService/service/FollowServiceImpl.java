@@ -1,20 +1,17 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
+import static CloneProject.InstagramClone.InstagramService.config.SpringConst.*;
 import CloneProject.InstagramClone.InstagramService.dto.follow.BlockUserDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
 import CloneProject.InstagramClone.InstagramService.entity.BlockedUser;
 import CloneProject.InstagramClone.InstagramService.entity.Follow;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
-import CloneProject.InstagramClone.InstagramService.exception.follow.BlockMySelfException;
-import CloneProject.InstagramClone.InstagramService.exception.follow.FollowMySelfException;
-import CloneProject.InstagramClone.InstagramService.exception.follow.UnBlockFailedException;
+import CloneProject.InstagramClone.InstagramService.exception.follow.*;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
-import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFailedException;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.BlockedUserRepository;
 import CloneProject.InstagramClone.InstagramService.repository.FollowRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +47,10 @@ public class FollowServiceImpl implements FollowService {
             throw new FollowMySelfException("Cannot follow myself exception occurred");
         }
 
+        if (fromMember.getFollowingList().size() >= FOLLOW_LIMIT_NUMBER) {
+            throw new FollowLimitException("FollowLimitException occurred");
+        }
+
         Follow follow = Follow.builder()
                 .following(fromMember)
                 .follower(toMember)
@@ -58,6 +59,7 @@ public class FollowServiceImpl implements FollowService {
         followRepository.save(follow);
         FollowDto result = modelMapper.map(follow,FollowDto.class);
         result.setId(toMember.getId());
+
         return result;
     }
 
@@ -75,46 +77,10 @@ public class FollowServiceImpl implements FollowService {
                 .orElseThrow(() -> new UnfollowFailedException("Unfollow failed exception occurred"));
 
         followRepository.delete(follow);
-        return modelMapper.map(follow,FollowDto.class);
-    }
+        FollowDto result = modelMapper.map(follow,FollowDto.class);
+        result.setId(followDto.getId());
 
-    @Override
-    @Transactional
-    public BlockUserDto blockUser(BlockUserDto blockUserDto) {
-        String accessToken = blockUserDto.getAccessToken();
-        Member fromBannedMember = tokenService.FindMemberByToken(accessToken);
-        Member toBannedMember = memberRepository
-                .findById(blockUserDto.getBanId())
-                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
-
-        if (fromBannedMember.getId().equals(toBannedMember.getId())) {
-            throw new BlockMySelfException("BanMySelfException occurred");
-        }
-
-        BlockedUser blockedUser = BlockedUser.builder()
-                .email(toBannedMember.getEmail())
-                .fromBlockedMember(fromBannedMember)
-                .toBlockedMember(toBannedMember)
-                .build();
-        blockedUserRepository.save(blockedUser);
-
-        return modelMapper.map(blockedUser, BlockUserDto.class);
-    }
-
-    @Override
-    @Transactional
-    public BlockUserDto unBlockUser(BlockUserDto blockUserDto) {
-        String accessToken = blockUserDto.getAccessToken();
-        Member fromBannedMember = tokenService.FindMemberByToken(accessToken);
-        Member toBannedMember = memberRepository
-                .findById(blockUserDto.getBanId())
-                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
-
-        BlockedUser blockedUser = blockedUserRepository.findByBlockingMemberAndBlockedMember(fromBannedMember.getId(), toBannedMember.getId())
-                .orElseThrow(() -> new UnBlockFailedException("UnBlockedFailedException occurred"));
-        blockedUserRepository.delete(blockedUser);
-
-        return modelMapper.map(blockedUser, BlockUserDto.class);
+        return result;
     }
 
     @Override
@@ -144,6 +110,52 @@ public class FollowServiceImpl implements FollowService {
         for (Follow follower : followerList) {
             result.add(modelMapper.map(follower.getFollowing(),FollowDto.class));
         }
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public BlockUserDto blockUser(BlockUserDto blockUserDto) {
+        String accessToken = blockUserDto.getAccessToken();
+        Member blockingMember = tokenService.FindMemberByToken(accessToken);
+        Member blockedMember = memberRepository
+                .findById(blockUserDto.getId())
+                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
+
+        if (blockingMember.getId().equals(blockedMember.getId())) {
+            throw new BlockMySelfException("BanMySelfException occurred");
+        }
+
+        BlockedUser blockedUser = BlockedUser.builder()
+                .email(blockedMember.getEmail())
+                .blockingMember(blockingMember)
+                .blockedMember(blockedMember)
+                .build();
+
+        blockedUserRepository.save(blockedUser);
+        BlockUserDto result = modelMapper.map(blockedUser, BlockUserDto.class);
+        result.setId(blockedUser.getId());
+
+        return modelMapper.map(blockedUser, BlockUserDto.class);
+    }
+
+    @Override
+    @Transactional
+    public BlockUserDto unBlockUser(BlockUserDto blockUserDto) {
+        String accessToken = blockUserDto.getAccessToken();
+        Member blockingMember = tokenService.FindMemberByToken(accessToken);
+        Member blockedMember = memberRepository
+                .findById(blockUserDto.getId())
+                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
+
+        BlockedUser blockedUser = blockedUserRepository
+                .findByBlockingMemberAndBlockedMember(blockingMember.getId(), blockedMember.getId())
+                .orElseThrow(() -> new UnBlockFailedException("UnBlockedFailedException occurred"));
+        blockedUserRepository.delete(blockedUser);
+
+        BlockUserDto result = modelMapper.map(blockedUser, BlockUserDto.class);
+        result.setId(blockedUser.getId());
+
         return result;
     }
 

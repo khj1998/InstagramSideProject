@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 @Getter
@@ -50,7 +49,7 @@ public class Member implements UserDetails {
     @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL)
     private List<Follow> followerList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "blockedMember")
+    @OneToMany(mappedBy = "blockedMember",cascade = CascadeType.ALL)
     private List<BlockedUser> blockedList = new ArrayList<>();
 
     public void setPassword(String password) {

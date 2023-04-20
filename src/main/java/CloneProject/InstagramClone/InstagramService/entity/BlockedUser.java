@@ -35,9 +35,9 @@ public class BlockedUser {
     private Member blockedMember;
 
     @Builder
-    public BlockedUser(String email,Member fromBlockedMember,Member toBlockedMember) {
+    public BlockedUser(String email,Member blockingMember,Member blockedMember) {
         this.email = email;
-        this.blockingMember = fromBlockedMember;
-        this.blockedMember = toBlockedMember;
+        this.blockingMember = blockingMember;
+        this.blockedMember = blockedMember;
     }
 }

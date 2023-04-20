@@ -1,6 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.controller.exceptioncontroller;
 
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.exception.follow.FollowLimitException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowMySelfException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFailedException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
@@ -41,6 +42,14 @@ public class ExceptionControllerAdvice {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(false)
                 .message("FAILED")
+                .build();
+    }
+
+    @ExceptionHandler(FollowLimitException.class)
+    public ResponseEntity<ApiResponse> handleFollowLimitException() {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(false)
+                .message("Follow Limit Exceeded")
                 .build();
     }
 
