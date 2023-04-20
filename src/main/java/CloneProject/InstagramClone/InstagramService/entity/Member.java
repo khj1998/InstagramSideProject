@@ -49,8 +49,11 @@ public class Member implements UserDetails {
     @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL)
     private List<Follow> followerList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "blockedMember",cascade = CascadeType.ALL)
-    private List<BlockedUser> blockedList = new ArrayList<>();
+    @OneToMany(mappedBy = "fromMember",cascade = CascadeType.ALL)
+    private List<BlockedMember> blockingList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "toMember",cascade = CascadeType.ALL)
+    private List<BlockedMember> blockedList = new ArrayList<>();
 
     public void setPassword(String password) {
         this.password = password;

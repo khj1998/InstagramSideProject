@@ -13,7 +13,7 @@ import java.util.Date;
 @Entity
 @Table(name = "blocked_users")
 @NoArgsConstructor
-public class BlockedUser {
+public class BlockedMember {
 
     @Id
     @Column(name = "blocked_user_id")
@@ -28,16 +28,16 @@ public class BlockedUser {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "blocking_id")
-    private Member blockingMember;
+    private Member fromMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "blocked_id")
-    private Member blockedMember;
+    private Member toMember;
 
     @Builder
-    public BlockedUser(String email,Member blockingMember,Member blockedMember) {
+    public BlockedMember(String email, Member blockingMember, Member blockedMember) {
         this.email = email;
-        this.blockingMember = blockingMember;
-        this.blockedMember = blockedMember;
+        this.fromMember = blockingMember;
+        this.toMember = blockedMember;
     }
 }

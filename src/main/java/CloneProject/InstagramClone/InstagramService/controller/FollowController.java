@@ -30,7 +30,7 @@ public class FollowController {
                 .build();
     }
 
-    @PostMapping("/unfollowing")
+    @DeleteMapping("/unfollowing")
     public ResponseEntity<ApiResponse> unFollowing(@RequestBody FollowDto followDto) {
         FollowDto resDto = followService.unFollow(followDto);
         return new ApiResponse.ApiResponseBuilder<>()
@@ -50,7 +50,7 @@ public class FollowController {
                 .build();
     }
 
-    @PostMapping("/users/unblocking")
+    @DeleteMapping("/users/unblocking")
     public ResponseEntity<ApiResponse> unblockUser(@RequestBody BlockUserDto blockUserDto) {
         BlockUserDto resDto = followService.unBlockUser(blockUserDto);
         return  new ApiResponse.ApiResponseBuilder<>()
