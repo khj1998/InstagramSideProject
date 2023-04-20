@@ -1,7 +1,14 @@
 package CloneProject.InstagramClone.InstagramService.controller.exceptioncontroller;
 
-import CloneProject.InstagramClone.InstagramService.exception.*;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.exception.follow.FollowLimitException;
+import CloneProject.InstagramClone.InstagramService.exception.follow.FollowMySelfException;
+import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFailedException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
+import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
+import CloneProject.InstagramClone.InstagramService.exception.user.UserNotAuthenticated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -35,6 +42,30 @@ public class ExceptionControllerAdvice {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(false)
                 .message("FAILED")
+                .build();
+    }
+
+    @ExceptionHandler(FollowLimitException.class)
+    public ResponseEntity<ApiResponse> handleFollowLimitException() {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(false)
+                .message("Follow Limit Exceeded")
+                .build();
+    }
+
+    @ExceptionHandler(FollowMySelfException.class)
+    public ResponseEntity<ApiResponse> followMySelfException() {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(false)
+                .message("Follow Failed")
+                .build();
+    }
+
+    @ExceptionHandler(UnfollowFailedException.class)
+    public ResponseEntity<ApiResponse> unfollowFailedException() {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(false)
+                .message("Unfollow Failed")
                 .build();
     }
 

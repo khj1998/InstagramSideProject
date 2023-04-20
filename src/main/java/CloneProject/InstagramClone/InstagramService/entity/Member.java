@@ -1,9 +1,8 @@
 package CloneProject.InstagramClone.InstagramService.entity;
 
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,9 +14,8 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name="members")
+@NoArgsConstructor
 public class Member implements UserDetails {
-
-    public Member() {}
 
     @Id
     @Column(name = "member_id")
@@ -45,12 +43,39 @@ public class Member implements UserDetails {
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     private List<PostLike> postLikeList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "following",cascade = CascadeType.ALL)
+    private List<Follow> followingList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL)
+    private List<Follow> followerList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "fromMember",cascade = CascadeType.ALL)
+    private List<BlockedMember> blockingList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "toMember",cascade = CascadeType.ALL)
+    private List<BlockedMember> blockedList = new ArrayList<>();
+
     public void setPassword(String password) {
         this.password = password;
     }
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public void AddPost(Post post) {
+        post.setMember(this);
+        this.getPostList().add(post);
+    }
+
+    public void AddPostLike(PostLike postLike) {
+        postLike.setMember(this);
+        this.getPostLikeList().add(postLike);
+    }
+
+    public void AddComment(Comment comment) {
+        comment.setMember(this);
+        this.getCommentList().add(comment);
     }
 
     @Override

@@ -2,8 +2,11 @@ package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
-import CloneProject.InstagramClone.InstagramService.exception.*;
-import CloneProject.InstagramClone.InstagramService.securitycustom.TokenProvider;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
+import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
+import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.entity.Role;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
@@ -14,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +29,7 @@ public class UserServiceImpl implements UserService{
 
     private final ModelMapper modelMapper;
     private final MemberRepository memberRepository;
-    private final TokenProvider tokenProvider;
+    private final TokenService tokenService;
     private final RedisTemplate redisTemplate;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -42,11 +46,13 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public AuthResponse CreateJwtToken(String username) {
-        Member member = memberRepository.findByEmail(username);
+        Member member = memberRepository
+                .findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
 
         // 로그인 성공시, accessToken,refreshToken 발급.
-        String accessToken = tokenProvider.generateAccessToken(member);
-        String refreshToken = tokenProvider.generateRefreshToken(member);
+        String accessToken = tokenService.generateAccessToken(member);
+        String refreshToken = tokenService.generateRefreshToken(member);
         redisTemplate.opsForValue().set(accessToken,username);
         redisTemplate.opsForValue().set(username,refreshToken);
 
@@ -68,15 +74,17 @@ public class UserServiceImpl implements UserService{
         }
 
         redisTemplate.delete(authDto.getAccessToken());
-        Member member = memberRepository.findByEmail(username);
+        Member member = memberRepository
+                .findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
         String refreshToken = (String) redisTemplate.opsForValue().get(username);
         String accessToken;
 
         try {
             //RefreshToken가 유효하지 않으면, 예외 발생
-            tokenProvider.isRefreshTokenValid(refreshToken);
-            accessToken = tokenProvider.generateAccessToken(member);
-            refreshToken = tokenProvider.generateRefreshToken(member);
+            tokenService.isRefreshTokenValid(refreshToken);
+            accessToken = tokenService.generateAccessToken(member);
+            refreshToken = tokenService.generateRefreshToken(member);
             redisTemplate.opsForValue().set(accessToken,username);
             redisTemplate.opsForValue().set(username,refreshToken);
         } catch (ExpiredJwtException e) {
@@ -96,7 +104,9 @@ public class UserServiceImpl implements UserService{
     public void ChangePassword() {}
 
     private Member findUser(String email) {
-        return memberRepository.findByEmail(email);
+        return memberRepository
+                .findByEmail(email)
+                .orElse(null);
     }
 
     private Member setRoleToUser(SignUpDto signUpDto) {
@@ -111,8 +121,10 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void logoutProcess(Long userId) {
-        Member member = memberRepository.findById(userId).get();
+        Member member = memberRepository
+                .findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
         String username = member.getUsername();
-        redisTemplate.delete(userId.toString());
+        redisTemplate.delete(username);
     }
 }

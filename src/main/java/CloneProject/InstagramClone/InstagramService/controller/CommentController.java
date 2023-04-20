@@ -20,8 +20,6 @@ import java.util.List;
 @RequestMapping("/comments")
 @RequiredArgsConstructor
 public class CommentController {
-    private final CommentRepository commentRepository;
-
     private final CommentService commentService;
 
     @GetMapping("/mycomments")

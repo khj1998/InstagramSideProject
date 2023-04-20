@@ -2,15 +2,14 @@ package CloneProject.InstagramClone.InstagramService.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Entity
 @Table(name = "commentlike")
+@NoArgsConstructor
 public class CommentLike {
-
-    public CommentLike() {}
-
     @Id
     @Column(name = "comment_like_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +25,5 @@ public class CommentLike {
 
     public void setComment(Comment comment) {
         this.comment = comment;
-    }
-
-    public void setMember(Member member) {
-        this.member = member;
     }
 }
