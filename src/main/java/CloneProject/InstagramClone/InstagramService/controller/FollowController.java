@@ -83,9 +83,19 @@ public class FollowController {
     @GetMapping("/users/blocked")
     public ResponseEntity<ApiResponse> getBlockedUsers(HttpServletRequest req) {
         List<BlockUserDto> resDto = followService.getBlockedUsers(req);
-        return  new ApiResponse.ApiResponseBuilder<>()
+        return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("get all blocked users")
+                .data(resDto)
+                .build();
+    }
+
+    @GetMapping("/users/blocking")
+    public ResponseEntity<ApiResponse> getBlockingUsers(HttpServletRequest req) {
+        List<BlockUserDto> resDto = followService.getBlockingUsers(req);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("users who blocking my account")
                 .data(resDto)
                 .build();
     }

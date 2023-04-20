@@ -174,4 +174,20 @@ public class FollowServiceImpl implements FollowService {
 
         return result;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BlockUserDto> getBlockingUsers(HttpServletRequest req) {
+        String accessToken = tokenService.ExtractToken(req);
+        Member memberEntity = tokenService.FindMemberByToken(accessToken);
+
+        List<BlockUserDto> result = new ArrayList<>();
+        List<BlockedMember> blockedMemberList = memberEntity.getBlockedList();
+
+        for (BlockedMember blockedMember : blockedMemberList) {
+            result.add(modelMapper.map(blockedMember.getFromMember(), BlockUserDto.class));
+        }
+
+        return result;
+    }
 }

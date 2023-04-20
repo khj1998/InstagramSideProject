@@ -9,7 +9,7 @@ public class SpringConst {
     public static final String[] PERMITTED_URIS = {"/users/register","/login/failure","/access-token/re-allocation","/users/logout",
             "/comments/add","/login/success","/service","/posts/add","/posts/likes/add","/posts/likes/list","/posts/myposts","/comments/likes/add"
     ,"/posts/edit","/posts","/comments/edit","/comments/mycomments","/comments/delete","/posts/delete","/follow/following","/follow/unfollowing",
-    "/follow/followings/list","/follow/followers/list","/follow/users/blocking","/follow/users/unblocking","/follow/users/blocked"};
+    "/follow/followings/list","/follow/followers/list","/follow/users/blocking","/follow/users/unblocking","/follow/users/blocked","/follow/users/blocked"};
     /*public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final int AFTER_BEARER = 7;
     public static final String JWT_TOKEN_PREFIX = "Bearer ";*/
