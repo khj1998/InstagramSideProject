@@ -53,7 +53,6 @@ public class UserServiceImpl implements UserService{
         // 로그인 성공시, accessToken,refreshToken 발급.
         String accessToken = tokenService.generateAccessToken(member);
         String refreshToken = tokenService.generateRefreshToken(member);
-        redisTemplate.opsForValue().set(accessToken,username);
         redisTemplate.opsForValue().set(username,refreshToken);
 
         return AuthResponse.builder()
@@ -85,7 +84,6 @@ public class UserServiceImpl implements UserService{
             tokenService.isRefreshTokenValid(refreshToken);
             accessToken = tokenService.generateAccessToken(member);
             refreshToken = tokenService.generateRefreshToken(member);
-            redisTemplate.opsForValue().set(accessToken,username);
             redisTemplate.opsForValue().set(username,refreshToken);
         } catch (ExpiredJwtException e) {
             throw new JwtExpiredException("RefreshToken Expired");
