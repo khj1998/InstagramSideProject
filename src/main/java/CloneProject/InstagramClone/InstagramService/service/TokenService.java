@@ -11,6 +11,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TokenService implements InitializingBean {

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import static CloneProject.InstagramClone.InstagramService.config.SpringConst.*;
 
 @Slf4j
 @RestController
@@ -30,12 +31,12 @@ public class UserController {
     }
 
     @GetMapping("/login/success")
-    public ResponseEntity<ApiResponse> login(@RequestParam String username) {
-        AuthResponse authResponse = userService.CreateJwtToken(username);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Login Success")
-                .data(authResponse)
+    public ResponseEntity<AuthResponse> login(@RequestParam String username) {
+        String accessToken = userService.CreateJwtToken(username);
+        return new AuthResponse
+                .AuthResponseBuilder(true,accessToken,"Bearer")
+                .setExpiresIn(ACCESS_TOKEN_EXPIRATION_TIME/1000)
+                .setMessage("Login Success")
                 .build();
     }
 
@@ -48,12 +49,12 @@ public class UserController {
     }
 
     @PostMapping("/access-token/re-allocation")
-    public ResponseEntity<ApiResponse> allocateAccessToken(@RequestBody AuthDto authDto) {
-        AuthResponse authResponse = userService.ReallocateAccessToken(authDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Reallocate Access Token")
-                .data(authResponse)
+    public ResponseEntity<AuthResponse> allocateAccessToken(@RequestBody AuthDto authDto) {
+        String accessToken = userService.ReallocateAccessToken(authDto);
+        return new AuthResponse
+                .AuthResponseBuilder(true,accessToken,"Bearer")
+                .setExpiresIn(ACCESS_TOKEN_EXPIRATION_TIME/1000)
+                .setMessage("create access token")
                 .build();
     }
 

@@ -8,6 +8,6 @@ public interface UserService {
     void CreateUser(SignUpDto signUpDto);
     void ChangePassword();
     void logoutProcess(Long userId);
-    AuthResponse ReallocateAccessToken(AuthDto authDto);
-    AuthResponse CreateJwtToken(String username);
+    String ReallocateAccessToken(AuthDto authDto);
+    String CreateJwtToken(String username);
 }

@@ -43,10 +43,10 @@ public class Member implements UserDetails {
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     private List<PostLike> postLikeList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "following",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "fromMember",cascade = CascadeType.ALL)
     private List<Follow> followingList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "follower",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "toMember",cascade = CascadeType.ALL)
     private List<Follow> followerList = new ArrayList<>();
 
     @OneToMany(mappedBy = "fromMember",cascade = CascadeType.ALL)

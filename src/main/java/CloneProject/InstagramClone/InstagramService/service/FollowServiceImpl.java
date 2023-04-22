@@ -52,8 +52,8 @@ public class FollowServiceImpl implements FollowService {
         }
 
         Follow follow = Follow.builder()
-                .following(fromMember)
-                .follower(toMember)
+                .fromMember(fromMember)
+                .toMember(toMember)
                 .build();
 
         followRepository.save(follow);
@@ -73,7 +73,7 @@ public class FollowServiceImpl implements FollowService {
                 .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred"));
 
         Follow follow = followRepository
-                .findByFollowingIdAndFollowerId(fromMember.getId(), toMember.getId())
+                .findByFromMemberIdAndToMemberId(fromMember.getId(), toMember.getId())
                 .orElseThrow(() -> new UnfollowFailedException("Unfollow failed exception occurred"));
 
         followRepository.delete(follow);
@@ -93,7 +93,7 @@ public class FollowServiceImpl implements FollowService {
         List<Follow> followingList = memberEntity.getFollowingList();
 
         for (Follow follow : followingList) {
-            result.add(modelMapper.map(follow.getFollower(),FollowDto.class));
+            result.add(modelMapper.map(follow.getToMember(),FollowDto.class));
         }
         return result;
     }
@@ -108,7 +108,7 @@ public class FollowServiceImpl implements FollowService {
         List<Follow> followerList = memberEntity.getFollowerList();
 
         for (Follow follower : followerList) {
-            result.add(modelMapper.map(follower.getFollowing(),FollowDto.class));
+            result.add(modelMapper.map(follower.getFromMember(),FollowDto.class));
         }
         return result;
     }
@@ -117,19 +117,19 @@ public class FollowServiceImpl implements FollowService {
     @Transactional
     public BlockUserDto blockUser(BlockUserDto blockUserDto) {
         String accessToken = blockUserDto.getAccessToken();
-        Member blockingMember = tokenService.FindMemberByToken(accessToken); // 차단 거는쪽
-        Member blockedMember = memberRepository
+        Member fromMember = tokenService.FindMemberByToken(accessToken); // 차단 거는쪽
+        Member toMember = memberRepository
                 .findById(blockUserDto.getId())
                 .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred")); //차단 대상
 
-        if (blockingMember.getId().equals(blockedMember.getId())) {
+        if (fromMember.getId().equals(toMember.getId())) {
             throw new BlockMySelfException("BanMySelfException occurred");
         }
 
         BlockedMember blockedUser = BlockedMember.builder()
-                .email(blockedMember.getEmail())
-                .blockingMember(blockingMember)
-                .blockedMember(blockedMember)
+                .email(toMember.getEmail())
+                .blockingMember(fromMember)
+                .blockedMember(toMember)
                 .build();
 
         blockedMemberRepository.save(blockedUser);
@@ -143,13 +143,13 @@ public class FollowServiceImpl implements FollowService {
     @Transactional
     public BlockUserDto unBlockUser(BlockUserDto blockUserDto) {
         String accessToken = blockUserDto.getAccessToken();
-        Member blockingMember = tokenService.FindMemberByToken(accessToken);
-        Member blockedMember = memberRepository
+        Member fromMember = tokenService.FindMemberByToken(accessToken);
+        Member toMember = memberRepository
                 .findById(blockUserDto.getId())
                 .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
 
         BlockedMember blockedUser = blockedMemberRepository
-                .findByFromMemberIdAndToMemberId(blockingMember.getId(), blockedMember.getId())
+                .findByFromMemberIdAndToMemberId(fromMember.getId(), toMember.getId())
                 .orElseThrow(() -> new UnBlockFailedException("UnBlockedFailedException occurred"));
         blockedMemberRepository.delete(blockedUser);
 

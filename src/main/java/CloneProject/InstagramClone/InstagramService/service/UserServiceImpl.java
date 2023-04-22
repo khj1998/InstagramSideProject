@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public AuthResponse CreateJwtToken(String username) {
+    public String CreateJwtToken(String username) {
         Member member = memberRepository
                 .findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
@@ -55,24 +55,21 @@ public class UserServiceImpl implements UserService{
         String refreshToken = tokenService.generateRefreshToken(member);
         redisTemplate.opsForValue().set(username,refreshToken);
 
-        return AuthResponse.builder()
-                .accessToken(accessToken)
-                .build();
+        return accessToken;
     }
 
     /**
      * Refresh 토큰 유효시, Access Token,Refresh Token 재발급 후 응답 - RTR 방식 채택
+     * Refresh 토큰이 만료되었다면, 로그인 세션이 만료된 상황 => 로그아웃 프로세스 진행
      */
     @Override
-    public AuthResponse ReallocateAccessToken(AuthDto authDto) {
+    public String ReallocateAccessToken(AuthDto authDto) {
 
-        String username = (String) redisTemplate.opsForValue().get(authDto.getAccessToken());
-
+        String username = tokenService.extractUsername(authDto.getAccessToken());
         if (username == null) {
             throw new JwtExpiredException("Invalid AccessToken");
         }
-
-        redisTemplate.delete(authDto.getAccessToken());
+        
         Member member = memberRepository
                 .findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
@@ -93,9 +90,7 @@ public class UserServiceImpl implements UserService{
             throw new JwtSignatureException("Illegal Signature");
         }
 
-        return AuthResponse.builder()
-                .accessToken(accessToken)
-                .build();
+        return accessToken;
     }
 
     @Override

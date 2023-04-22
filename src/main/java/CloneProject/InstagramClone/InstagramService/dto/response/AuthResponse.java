@@ -5,20 +5,20 @@ import lombok.Data;
 import org.springframework.http.ResponseEntity;
 
 @Data
-@JsonPropertyOrder({"success","accessToken","tokenType","expiresIn","scope"})
+@JsonPropertyOrder({"success","message","accessToken","tokenType","expiresIn"})
 public class AuthResponse {
     public boolean success;
     public String accessToken;
     public String tokenType;
     public int expiresIn;
-    public String scope;
+    public String message;
 
     private AuthResponse(AuthResponseBuilder builder) {
         this.success = builder.success;
         this.accessToken = builder.accessToken;
         this.tokenType = builder.tokenType;
         this.expiresIn = builder.expiresIn;
-        this.scope = builder.scope;
+        this.message = builder.message;
     }
 
     public boolean getSuccess() {
@@ -37,8 +37,8 @@ public class AuthResponse {
         return this.expiresIn;
     }
 
-    public String getScope() {
-        return this.scope;
+    public String getMessage() {
+        return this.message;
     }
 
     public static class AuthResponseBuilder {
@@ -46,7 +46,7 @@ public class AuthResponse {
         private String accessToken;
         private String tokenType;
         private int expiresIn;
-        private String scope;
+        private String message;
 
         public AuthResponseBuilder(boolean success, String accessToken, String tokenType) {
             this.success = success;
@@ -59,8 +59,8 @@ public class AuthResponse {
             return this;
         }
 
-        public AuthResponseBuilder setScope(String scope) {
-            this.scope = scope;
+        public AuthResponseBuilder setMessage(String message) {
+            this.message = message;
             return this;
         }
 
