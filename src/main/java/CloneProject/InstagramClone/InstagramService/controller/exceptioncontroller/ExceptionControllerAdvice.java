@@ -82,7 +82,7 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<JwtExResponse> handleJwtIllegalException() {
         return new JwtExResponse.AuthExResponseBuilder()
                 .error("invalid_request")
-                .error_description("Request with invalid Json Web Token")
+                .error_description("Request with Illegal Json Web Token")
                 .build();
     }
 

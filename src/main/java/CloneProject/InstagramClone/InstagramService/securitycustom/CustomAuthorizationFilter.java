@@ -60,8 +60,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
         try{
             tokenService.isTokenValid(authDto.getAccessToken());
-            //String redirectURI = requestURI.split("validation")[1];
-            //response.sendRedirect(redirectURI+"?token="+authDto.getAccessToken());
         } catch(IllegalArgumentException e) {
             throw new JwtIllegalException("유효하지 않은 토큰입니다.");
         } catch (ExpiredJwtException e) {

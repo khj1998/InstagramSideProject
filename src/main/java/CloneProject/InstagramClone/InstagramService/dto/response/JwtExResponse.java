@@ -1,8 +1,10 @@
 package CloneProject.InstagramClone.InstagramService.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
+@JsonPropertyOrder({"error","error_description"})
 public class JwtExResponse {
     private String error;
     private String error_description;
@@ -36,8 +38,8 @@ public class JwtExResponse {
 
         public ResponseEntity<JwtExResponse> build() {
             JwtExResponse jwtExResponse = new JwtExResponse(this);
-            return ResponseEntity
-                    .status(HttpStatusCode.valueOf(400))
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
                     .body(jwtExResponse);
         }
     }
