@@ -8,33 +8,33 @@ import org.springframework.http.ResponseEntity;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"error","error_description"})
 public class JwtExResponse {
-    private String error;
-    private String error_description;
+    private String exception;
+    private String exception_description;
 
     private JwtExResponse(AuthExResponseBuilder builder) {
-        this.error = builder.error;
-        this.error_description = builder.error_description;
+        this.exception = builder.exception;
+        this.exception_description = builder.exception_description;
     }
 
-    public String getError() {
-        return this.error;
+    public String getException() {
+        return this.exception;
     }
 
-    public String getError_description() {
-        return this.error_description;
+    public String getException_description() {
+        return this.exception_description;
     }
 
     public static class AuthExResponseBuilder {
-        private String error;
-        private String error_description;
+        private String exception;
+        private String exception_description;
 
-        public AuthExResponseBuilder error(String error) {
-            this.error = error;
+        public AuthExResponseBuilder error(String exception) {
+            this.exception = exception;
             return this;
         }
 
-        public AuthExResponseBuilder error_description(String error_description) {
-            this.error_description = error_description;
+        public AuthExResponseBuilder error_description(String exception_description) {
+            this.exception_description = exception_description;
             return this;
         }
 

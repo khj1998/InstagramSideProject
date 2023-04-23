@@ -1,7 +1,9 @@
 package CloneProject.InstagramClone.InstagramService.controller.exceptioncontroller;
 
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.FollowExResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.JwtExResponse;
+import CloneProject.InstagramClone.InstagramService.exception.follow.BlockMySelfException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowLimitException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowMySelfException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFailedException;
@@ -10,6 +12,7 @@ import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalExce
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
 import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotAuthenticated;
+import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,6 +33,14 @@ public class ExceptionControllerAdvice {
                 .build();
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiResponse> handleUserNotFoundException() {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(false)
+                .message("user not found exception")
+                .build();
+    }
+
     @ExceptionHandler(UserNotAuthenticated.class)
     public ResponseEntity<ApiResponse> handleUserPrincipalNotExistsException() {
         return new ApiResponse.ApiResponseBuilder<>()
@@ -39,34 +50,42 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse> handleAnnotationException() {
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(false)
-                .message("FAILED")
+    public ResponseEntity<FollowExResponse> handleAnnotationException() {
+        return new FollowExResponse.FollowExResponseBuilder(false)
+                .setException("")
+                .setException_message("")
                 .build();
     }
 
     @ExceptionHandler(FollowLimitException.class)
-    public ResponseEntity<ApiResponse> handleFollowLimitException() {
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(false)
-                .message("Follow Limit Exceeded")
+    public ResponseEntity<FollowExResponse> handleFollowLimitException() {
+        return new FollowExResponse.FollowExResponseBuilder(false)
+                .setException("invalid follow request")
+                .setException_message("following limit exceeded")
                 .build();
     }
 
     @ExceptionHandler(FollowMySelfException.class)
-    public ResponseEntity<ApiResponse> followMySelfException() {
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(false)
-                .message("Follow Failed")
+    public ResponseEntity<FollowExResponse> handleFollowMySelfException() {
+        return new FollowExResponse.FollowExResponseBuilder(false)
+                .setException("invalid follow request")
+                .setException_message("following my account is not valid")
                 .build();
     }
 
     @ExceptionHandler(UnfollowFailedException.class)
-    public ResponseEntity<ApiResponse> unfollowFailedException() {
+    public ResponseEntity<FollowExResponse> handleUnfollowFailedException() {
+        return new FollowExResponse.FollowExResponseBuilder(false)
+                .setException("invalid unfollow request")
+                .setException_message("Unfollow failed exception occurred")
+                .build();
+    }
+
+    @ExceptionHandler(BlockMySelfException.class)
+    public ResponseEntity<ApiResponse> handleBlockMySelfException() {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(false)
-                .message("Unfollow Failed")
+                .message("block my account exception")
                 .build();
     }
 
