@@ -1,6 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.controller.exceptioncontroller;
 
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.JwtExResponse;
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowLimitException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowMySelfException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFailedException;
@@ -70,26 +71,26 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(JwtExpiredException.class)
-    public ResponseEntity<ApiResponse> handleJwtExpiredException() {
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(false)
-                .message("Token Expired")
+    public ResponseEntity<JwtExResponse> handleJwtExpiredException() {
+        return new JwtExResponse.AuthExResponseBuilder()
+                .error("invalid_request")
+                .error_description("Request with expired Json Web Token")
                 .build();
     }
 
     @ExceptionHandler(JwtIllegalException.class)
-    public ResponseEntity<ApiResponse> handleJwtIllegalException() {
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(false)
-                .message("Illegal Token")
+    public ResponseEntity<JwtExResponse> handleJwtIllegalException() {
+        return new JwtExResponse.AuthExResponseBuilder()
+                .error("invalid_request")
+                .error_description("Request with invalid Json Web Token")
                 .build();
     }
 
     @ExceptionHandler(JwtSignatureException.class)
-    public ResponseEntity<ApiResponse> handleJwtSignatureException() {
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(false)
-                .message("Illegal Signature")
+    public ResponseEntity<JwtExResponse> handleJwtSignatureException() {
+        return new JwtExResponse.AuthExResponseBuilder()
+                .error("invalid_request")
+                .error_description("Request with Invalid Json web Token Signature")
                 .build();
     }
 }
