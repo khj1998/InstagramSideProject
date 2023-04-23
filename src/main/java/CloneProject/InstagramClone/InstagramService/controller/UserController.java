@@ -34,7 +34,8 @@ public class UserController {
     public ResponseEntity<AuthResponse> login(@RequestParam String username) {
         String accessToken = userService.CreateJwtToken(username);
         return new AuthResponse
-                .AuthResponseBuilder(true,accessToken,"Bearer")
+                .AuthResponseBuilder(true,"Bearer")
+                .setAccessToken(accessToken)
                 .setExpiresIn(ACCESS_TOKEN_EXPIRATION_TIME/1000)
                 .setMessage("Login Success")
                 .build();
@@ -52,7 +53,8 @@ public class UserController {
     public ResponseEntity<AuthResponse> allocateAccessToken(@RequestBody AuthDto authDto) {
         String accessToken = userService.ReallocateAccessToken(authDto);
         return new AuthResponse
-                .AuthResponseBuilder(true,accessToken,"Bearer")
+                .AuthResponseBuilder(true,"Bearer")
+                .setAccessToken(accessToken)
                 .setExpiresIn(ACCESS_TOKEN_EXPIRATION_TIME/1000)
                 .setMessage("create access token")
                 .build();

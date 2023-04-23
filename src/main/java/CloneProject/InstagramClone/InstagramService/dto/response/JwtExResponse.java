@@ -1,9 +1,11 @@
 package CloneProject.InstagramClone.InstagramService.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"error","error_description"})
 public class JwtExResponse {
     private String error;

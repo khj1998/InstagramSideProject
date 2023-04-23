@@ -1,16 +1,16 @@
 package CloneProject.InstagramClone.InstagramService.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.Data;
 import org.springframework.http.ResponseEntity;
 
-@Data
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"success","message","accessToken","tokenType","expiresIn"})
 public class AuthResponse {
     public boolean success;
     public String accessToken;
     public String tokenType;
-    public int expiresIn;
+    public Integer expiresIn;
     public String message;
 
     private AuthResponse(AuthResponseBuilder builder) {
@@ -33,7 +33,7 @@ public class AuthResponse {
         return this.tokenType;
     }
 
-    public int getExpiresIn() {
+    public Integer getExpiresIn() {
         return this.expiresIn;
     }
 
@@ -45,13 +45,17 @@ public class AuthResponse {
         private boolean success;
         private String accessToken;
         private String tokenType;
-        private int expiresIn;
+        private Integer expiresIn;
         private String message;
 
-        public AuthResponseBuilder(boolean success, String accessToken, String tokenType) {
+        public AuthResponseBuilder(boolean success, String tokenType) {
             this.success = success;
-            this.accessToken = accessToken;
             this.tokenType = tokenType;
+        }
+
+        public AuthResponseBuilder setAccessToken(String accessToken) {
+            this.accessToken = accessToken;
+            return this;
         }
 
         public AuthResponseBuilder setExpiresIn(int expiresIn) {
@@ -66,7 +70,9 @@ public class AuthResponse {
 
         public ResponseEntity<AuthResponse> build() {
             AuthResponse authResponse = new AuthResponse(this);
-            return ResponseEntity.ok(authResponse);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(authResponse);
         }
     }
 }

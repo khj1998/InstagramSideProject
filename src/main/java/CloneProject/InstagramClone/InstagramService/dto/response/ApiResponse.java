@@ -49,7 +49,9 @@ public class ApiResponse<T> {
 
         public ResponseEntity<ApiResponse> build() {
             ApiResponse apiResponse = new ApiResponse(this);
-            return ResponseEntity.ok(apiResponse);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(apiResponse);
         }
     }
 }

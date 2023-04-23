@@ -1,5 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.securitycustom;
 
+import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.JwtExResponse;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
@@ -50,10 +51,11 @@ public class CustomJwtExceptionFilter extends OncePerRequestFilter {
         res.setStatus(HttpStatus.OK.value());
         res.setContentType("application/json; charset=UTF-8");
 
-        /*TokenMessage message = new TokenMessage();
-        message.setMessage("Valid Token");
-        String resValue = mapper.writeValueAsString(message);
-        res.getWriter().write(resValue);*/
+        ResponseEntity authResponse = new AuthResponse.AuthResponseBuilder(true,"Bearer")
+                .setMessage("valid Json Web Token")
+                .build();
+        String resValue = mapper.writeValueAsString(authResponse);
+        res.getWriter().write(resValue);
     }
 
     private void setExpiredExceptionResponse(ObjectMapper mapper, HttpServletResponse res) throws IOException {
