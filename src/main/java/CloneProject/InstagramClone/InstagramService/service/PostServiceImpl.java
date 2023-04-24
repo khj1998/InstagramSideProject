@@ -28,6 +28,7 @@ public class PostServiceImpl implements PostService {
     private final PostLikeRepository postLikeRepository;
 
     @Override
+    @Transactional
     public PostDto AddPost(PostDto postDto) throws JwtExpiredException {
         Post postEntity = modelMapper.map(postDto,Post.class);
         Member memberEntity = tokenService.FindMemberByToken(postDto.getAccessToken());
@@ -42,6 +43,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostDto FindPost(String postId) {
         Long id = Long.parseLong(postId);
         Post postEntity = postRepository
@@ -51,6 +53,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostDto EditPost(PostDto postDto) {
         Post postEntity = postRepository
                 .findById(postDto.getId())
@@ -64,6 +67,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void DeletePost(String postId) {
         Long id = Long.parseLong(postId);
         postRepository.deleteById(id);
@@ -73,6 +77,7 @@ public class PostServiceImpl implements PostService {
      * 이미 좋아요를 추가한 상태라면 좋아요 취소
      */
     @Override
+    @Transactional
     public PostLikeDto AddPostLike(PostLikeDto postLikeDto) throws JwtExpiredException {
         Member memberEntity = tokenService.FindMemberByToken(postLikeDto.getAccessToken());
         Post postEntity = postRepository

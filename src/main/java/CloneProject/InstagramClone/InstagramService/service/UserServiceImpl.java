@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -34,6 +35,7 @@ public class UserServiceImpl implements UserService{
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
+    @Transactional
     public void CreateUser(SignUpDto signUpDto) {
         if (findUser(signUpDto.getEmail()) == null) {
             Member user = setRoleToUser(signUpDto);
@@ -63,6 +65,7 @@ public class UserServiceImpl implements UserService{
      * Refresh 토큰이 만료되었다면, 로그인 세션이 만료된 상황 => 로그아웃 프로세스 진행
      */
     @Override
+    @Transactional
     public String ReallocateAccessToken(AuthDto authDto) {
 
         String username = tokenService.extractUsername(authDto.getAccessToken());

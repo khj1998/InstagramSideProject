@@ -2,17 +2,16 @@ package CloneProject.InstagramClone.InstagramService.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonPropertyOrder({"success","exception","exception_message"})
-public class FollowExResponse {
+public class ExceptionResponse {
     private boolean success;
     private String exception;
     private String exception_message;
 
-    private FollowExResponse(FollowExResponseBuilder builder) {
+    private ExceptionResponse(ExceptionResponseBuilder builder) {
         this.success = builder.success;
         this.exception = builder.exception;
         this.exception_message = builder.exception_message;
@@ -30,27 +29,27 @@ public class FollowExResponse {
         return this.exception_message;
     }
 
-    public static class FollowExResponseBuilder {
+    public static class ExceptionResponseBuilder {
         private boolean success;
         private String exception;
         private String exception_message;
 
-        public FollowExResponseBuilder(boolean success) {
+        public ExceptionResponseBuilder(boolean success) {
             this.success = success;
         }
 
-        public FollowExResponseBuilder setException(String exception) {
+        public ExceptionResponseBuilder setException(String exception) {
             this.exception = exception;
             return this;
         }
 
-        public FollowExResponseBuilder setException_message(String exception_message) {
+        public ExceptionResponseBuilder setException_message(String exception_message) {
             this.exception_message = exception_message;
             return this;
         }
 
-        public ResponseEntity<FollowExResponse> build() {
-            FollowExResponse response = new FollowExResponse(this);
+        public ResponseEntity<ExceptionResponse> build() {
+            ExceptionResponse response = new ExceptionResponse(this);
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
                     .body(response);

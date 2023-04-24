@@ -40,6 +40,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentLikeRepository commentLikeRepository;
 
     @Override
+    @Transactional
     public CommentDto EditComment(CommentDto commentDto) {
         Comment commentEntity = commentRepository
                 .findById(commentDto.getCommentId())
@@ -54,6 +55,7 @@ public class CommentServiceImpl implements CommentService {
      * 댓글 쓴 Member, 댓글 - Member, 글 - 댓글 연관관계 매핑
      */
     @Override
+    @Transactional
     public CommentDto AddComment(CommentDto commentDto) throws JwtExpiredException,UsernameNotFoundException {
         Post postEntity = postRepository
                 .findById(commentDto.getPostId())
@@ -72,6 +74,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) throws JwtExpiredException {
         Long commentId = commentLikeDto.getCommentId();
         CommentLike commentLike = new CommentLike();
@@ -87,6 +90,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public void DeleteComment(String commentId) {
         Long id = Long.parseLong(commentId);
         commentRepository.deleteById(id);

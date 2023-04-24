@@ -1,8 +1,8 @@
 package CloneProject.InstagramClone.InstagramService.controller.exceptioncontroller;
 
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
-import CloneProject.InstagramClone.InstagramService.dto.response.FollowExResponse;
-import CloneProject.InstagramClone.InstagramService.dto.response.JwtExResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.ExceptionResponse;
+import CloneProject.InstagramClone.InstagramService.exception.comment.CommentNotFoundException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.BlockMySelfException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowLimitException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowMySelfException;
@@ -10,6 +10,7 @@ import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFai
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
+import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
 import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotAuthenticated;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
@@ -25,91 +26,106 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExceptionControllerAdvice {
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ApiResponse> handle() {
-        log.info("user already exists");
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(false)
-                .message("Email Exists")
+    public ResponseEntity<ExceptionResponse> handleEmailAlreadyExistsException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid signup request")
+                .setException_message("email already exists exception")
                 .build();
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiResponse> handleUserNotFoundException() {
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(false)
-                .message("user not found exception")
+    public ResponseEntity<ExceptionResponse> handleUserNotFoundException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid request")
+                .setException_message("user not found exception")
                 .build();
     }
 
     @ExceptionHandler(UserNotAuthenticated.class)
-    public ResponseEntity<ApiResponse> handleUserPrincipalNotExistsException() {
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(false)
-                .message("User Not Authenticated")
+    public ResponseEntity<ExceptionResponse> handleUserPrincipalNotExistsException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid authentication request")
+                .setException_message("user principal not exists")
                 .build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<FollowExResponse> handleAnnotationException() {
-        return new FollowExResponse.FollowExResponseBuilder(false)
+    public ResponseEntity<ExceptionResponse> handleAnnotationException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("")
                 .setException_message("")
                 .build();
     }
 
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handlePostNotFoundException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid post request")
+                .setException_message("failed to find post")
+                .build();
+    }
+
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleCommentNotFoundException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid comment request")
+                .setException_message("failed to find comment")
+                .build();
+    }
+
     @ExceptionHandler(FollowLimitException.class)
-    public ResponseEntity<FollowExResponse> handleFollowLimitException() {
-        return new FollowExResponse.FollowExResponseBuilder(false)
+    public ResponseEntity<ExceptionResponse> handleFollowLimitException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid follow request")
                 .setException_message("following limit exceeded")
                 .build();
     }
 
     @ExceptionHandler(FollowMySelfException.class)
-    public ResponseEntity<FollowExResponse> handleFollowMySelfException() {
-        return new FollowExResponse.FollowExResponseBuilder(false)
+    public ResponseEntity<ExceptionResponse> handleFollowMySelfException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid follow request")
                 .setException_message("following my account is not valid")
                 .build();
     }
 
     @ExceptionHandler(UnfollowFailedException.class)
-    public ResponseEntity<FollowExResponse> handleUnfollowFailedException() {
-        return new FollowExResponse.FollowExResponseBuilder(false)
+    public ResponseEntity<ExceptionResponse> handleUnfollowFailedException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid unfollow request")
                 .setException_message("Unfollow failed exception occurred")
                 .build();
     }
 
     @ExceptionHandler(BlockMySelfException.class)
-    public ResponseEntity<ApiResponse> handleBlockMySelfException() {
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(false)
-                .message("block my account exception")
+    public ResponseEntity<ExceptionResponse> handleBlockMySelfException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid user blocking request")
+                .setException_message("block myself request is not valid")
                 .build();
     }
 
     @ExceptionHandler(JwtExpiredException.class)
-    public ResponseEntity<JwtExResponse> handleJwtExpiredException() {
-        return new JwtExResponse.AuthExResponseBuilder()
-                .error("invalid_request")
-                .error_description("Request with expired Json Web Token")
+    public ResponseEntity<ExceptionResponse> handleJwtExpiredException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid_request")
+                .setException_message("Request with expired Json Web Token")
                 .build();
     }
 
     @ExceptionHandler(JwtIllegalException.class)
-    public ResponseEntity<JwtExResponse> handleJwtIllegalException() {
-        return new JwtExResponse.AuthExResponseBuilder()
-                .error("invalid_request")
-                .error_description("Request with Illegal Json Web Token")
+    public ResponseEntity<ExceptionResponse> handleJwtIllegalException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid_request")
+                .setException_message("Request with Illegal Json Web Token")
                 .build();
     }
 
     @ExceptionHandler(JwtSignatureException.class)
-    public ResponseEntity<JwtExResponse> handleJwtSignatureException() {
-        return new JwtExResponse.AuthExResponseBuilder()
-                .error("invalid_request")
-                .error_description("Request with Invalid Json web Token Signature")
+    public ResponseEntity<ExceptionResponse> handleJwtSignatureException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid_request")
+                .setException_message("Request with Invalid Json web Token Signature")
                 .build();
     }
 }
