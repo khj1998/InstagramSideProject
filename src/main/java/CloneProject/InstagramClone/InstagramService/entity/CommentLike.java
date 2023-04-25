@@ -23,6 +23,10 @@ public class CommentLike {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
     public void setComment(Comment comment) {
         this.comment = comment;
     }

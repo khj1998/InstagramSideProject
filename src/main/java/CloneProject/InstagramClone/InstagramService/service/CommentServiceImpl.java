@@ -77,12 +77,14 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) throws JwtExpiredException {
         Long commentId = commentLikeDto.getCommentId();
+        Member memberEntity = tokenService.FindMemberByToken(commentLikeDto.getAccessToken());
         CommentLike commentLike = new CommentLike();
         Comment commentEntity = commentRepository
                 .findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));;
+                .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
 
-        commentEntity.AddCommentLike(commentLike);
+        commentLike.setComment(commentEntity);
+        commentLike.setMember(memberEntity);
 
         commentLikeRepository.save(commentLike);
         commentRepository.save(commentEntity);
@@ -106,6 +108,22 @@ public class CommentServiceImpl implements CommentService {
 
         for (Comment comment : commentList) {
             result.add(modelMapper.map(comment, CommentDto.class));
+        }
+
+        return result;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CommentDto> GetMyCommentLikes(HttpServletRequest req) {
+        List<CommentDto> result = new ArrayList<>();
+        String accessToken = extractToken(req);
+        Member memberEntity = tokenService.FindMemberByToken(accessToken);
+
+        List<CommentLike> commentLikeList = memberEntity.getCommentLikeList();
+
+        for (CommentLike commentLike : commentLikeList) {
+            result.add(modelMapper.map(commentLike.getComment(),CommentDto.class));
         }
 
         return result;

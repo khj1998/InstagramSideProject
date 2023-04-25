@@ -12,4 +12,5 @@ public interface CommentService {
     CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto);
     void DeleteComment(String commentId);
     List<CommentDto> GetMyComments(HttpServletRequest req);
+    List<CommentDto> GetMyCommentLikes(HttpServletRequest req);
 }

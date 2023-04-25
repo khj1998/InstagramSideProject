@@ -38,6 +38,9 @@ public class Member implements UserDetails {
     private List<Comment> commentList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
+    private List<CommentLike> commentLikeList =  new ArrayList<>();
+
+    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)
     private List<Post> postList = new ArrayList<>();
 
     @OneToMany(mappedBy = "member",cascade = CascadeType.ALL)

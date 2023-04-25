@@ -62,6 +62,16 @@ public class CommentController {
                 .build();
     }
 
+    @GetMapping("/likes")
+    public ResponseEntity<ApiResponse> getCommentLikeList(HttpServletRequest req) {
+        List<CommentDto> resDto = commentService.GetMyCommentLikes(req);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("좋아요를 누른 댓글 리스트 조회")
+                .data(resDto)
+                .build();
+    }
+
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse> deleteComment(@RequestParam("commentId") String commentId) {
         commentService.DeleteComment(commentId);
