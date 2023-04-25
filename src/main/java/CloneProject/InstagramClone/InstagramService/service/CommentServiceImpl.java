@@ -2,6 +2,7 @@ package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
+import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.entity.Comment;
 import CloneProject.InstagramClone.InstagramService.entity.CommentLike;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,20 +77,33 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto) throws JwtExpiredException {
+    public ResponseEntity<ApiResponse> AddCommentLike(CommentLikeDto commentLikeDto) throws JwtExpiredException {
         Long commentId = commentLikeDto.getCommentId();
         Member memberEntity = tokenService.FindMemberByToken(commentLikeDto.getAccessToken());
-        CommentLike commentLike = new CommentLike();
         Comment commentEntity = commentRepository
                 .findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
+        CommentLike commentLike = new CommentLike();
+        CommentLike commentLikeEntity = commentLikeRepository.findByMemberIdAndCommentId(memberEntity.getId(),commentEntity.getId());
 
-        commentLike.setComment(commentEntity);
-        commentLike.setMember(memberEntity);
+        if (commentLikeEntity == null) {
+            commentLike.setComment(commentEntity);
+            commentLike.setMember(memberEntity);
+            commentLikeRepository.save(commentLike);
 
-        commentLikeRepository.save(commentLike);
-        commentRepository.save(commentEntity);
-        return commentLikeDto;
+            return new ApiResponse.ApiResponseBuilder<>()
+                    .success(true)
+                    .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 누르셨습니다")
+                    .data(modelMapper.map(commentEntity, CommentDto.class))
+                    .build();
+        } else {
+            commentLikeRepository.delete(commentLikeEntity);
+            return new ApiResponse.ApiResponseBuilder<>()
+                    .success(true)
+                    .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 취소하셨습니다.")
+                    .data(modelMapper.map(commentEntity, CommentDto.class))
+                    .build();
+        }
     }
 
     @Override

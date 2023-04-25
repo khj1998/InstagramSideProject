@@ -54,12 +54,7 @@ public class CommentController {
 
     @PostMapping("/likes/add")
     public ResponseEntity<ApiResponse> addCommentLike(@RequestBody CommentLikeDto commentLikeDto) {
-        CommentLikeDto resDto = commentService.AddCommentLike(commentLikeDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("댓글에 좋아요를 누르셨습니다.")
-                .data(resDto)
-                .build();
+        return commentService.AddCommentLike(commentLikeDto);
     }
 
     @GetMapping("/likes")
