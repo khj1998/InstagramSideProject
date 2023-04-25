@@ -74,12 +74,7 @@ public class PostController {
 
     @PostMapping("/likes/add")
     public ResponseEntity<ApiResponse> addLikes(@RequestBody PostLikeDto postLikeDto) {
-        PostLikeDto resDto = postService.AddPostLike(postLikeDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message(resDto.getPostTitle()+" 글에 좋아요를 등록하였습니다.")
-                .data(resDto)
-                .build();
+        return postService.AddPostLike(postLikeDto);
     }
 
     @DeleteMapping("/delete")

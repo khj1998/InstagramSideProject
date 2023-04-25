@@ -1,7 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.securitycustom;
 
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
-import CloneProject.InstagramClone.InstagramService.dto.response.JwtExResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.ExceptionResponse;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -62,9 +62,9 @@ public class CustomJwtExceptionFilter extends OncePerRequestFilter {
         res.setStatus(HttpStatus.OK.value());
         res.setContentType("application/json; charset=UTF-8");
 
-        ResponseEntity jwtExResponse = new JwtExResponse.AuthExResponseBuilder()
-                                    .error("invalid_request")
-                                    .error_description("Request with expired Json Web Token")
+        ResponseEntity jwtExResponse = new ExceptionResponse.ExceptionResponseBuilder(false)
+                                    .setException("invalid_request")
+                                    .setException_message("Request with expired Json Web Token")
                                     .build();
         String resValue = mapper.writeValueAsString(jwtExResponse);
         res.getWriter().write(resValue);
@@ -74,9 +74,9 @@ public class CustomJwtExceptionFilter extends OncePerRequestFilter {
         res.setStatus(HttpStatus.OK.value());
         res.setContentType("application/json; charset=UTF-8");
 
-        ResponseEntity jwtExResponse = new JwtExResponse.AuthExResponseBuilder()
-                .error("invalid_request")
-                .error_description("Request with Illegal Json Web Token")
+        ResponseEntity jwtExResponse = new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid_request")
+                .setException_message("Request with Illegal Json Web Token")
                 .build();
         String resValue = mapper.writeValueAsString(jwtExResponse);
         res.getWriter().write(resValue);
@@ -86,9 +86,9 @@ public class CustomJwtExceptionFilter extends OncePerRequestFilter {
         res.setStatus(HttpStatus.OK.value());
         res.setContentType("application/json; charset=UTF-8");
 
-        ResponseEntity jwtExResponse = new JwtExResponse.AuthExResponseBuilder()
-                .error("invalid_request")
-                .error_description("Request with Invalid Json web Token Signature")
+        ResponseEntity jwtExResponse = new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid_request")
+                .setException_message("Request with Invalid Json web Token Signature")
                 .build();
         String resValue = mapper.writeValueAsString(jwtExResponse);
         res.getWriter().write(resValue);

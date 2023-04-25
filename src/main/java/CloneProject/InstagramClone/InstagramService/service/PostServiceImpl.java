@@ -2,6 +2,7 @@ package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
+import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.entity.*;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,21 +80,37 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     @Transactional
-    public PostLikeDto AddPostLike(PostLikeDto postLikeDto) throws JwtExpiredException {
+    public ResponseEntity<ApiResponse> AddPostLike(PostLikeDto postLikeDto) throws JwtExpiredException {
+        ResponseEntity<ApiResponse> response;
         Member memberEntity = tokenService.FindMemberByToken(postLikeDto.getAccessToken());
+
         Post postEntity = postRepository
                 .findById(postLikeDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
 
-        PostLike postLikeEntity = new PostLike();
-        memberEntity.AddPostLike(postLikeEntity);
-        postEntity.AddPostLike(postLikeEntity);
+        PostLike postLike = postLikeRepository.findByMemberIdAndPostId(memberEntity.getId(),postLikeDto.getPostId());
 
-        postLikeRepository.save(postLikeEntity);
-        postRepository.save(postEntity);
-        memberRepository.save(memberEntity);
-        postLikeDto.setPostTitle(postEntity.getTitle());
-        return postLikeDto;
+        if (postLike==null) {
+            PostLike newPostLike = new PostLike();
+            newPostLike.setMember(memberEntity);
+            newPostLike.setPost(postEntity);
+            postLikeDto.setPostTitle(postEntity.getTitle());
+            postLikeRepository.save(newPostLike);
+            response = new ApiResponse.ApiResponseBuilder<>()
+                    .success(true)
+                    .message(postEntity.getTitle()+"번 글에 좋아요를 등록하였습니다.")
+                    .data(postLikeDto)
+                    .build();
+        } else {
+            postLikeRepository.delete(postLike);
+            response = new ApiResponse.ApiResponseBuilder<>()
+                    .success(true)
+                    .message(postEntity.getTitle()+"번 글에 좋아요를 취소하였습니다.")
+                    .data(postLikeDto)
+                    .build();
+        }
+
+        return response;
     }
 
     @Override
