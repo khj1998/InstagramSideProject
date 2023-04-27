@@ -29,7 +29,6 @@ public class FriendServiceImpl implements FriendService {
     private final ModelMapper modelMapper;
     private final TokenService tokenService;
     private final MemberRepository memberRepository;
-    private final FollowRepository followRepository;
     private final FriendRepository friendRepository;
 
     @Override
@@ -43,7 +42,6 @@ public class FriendServiceImpl implements FriendService {
         Member fromMember = tokenService.FindMemberByToken(accessToken);
         Long fromMemberId = fromMember.getId();
         List<FriendDto> resDtoList = new ArrayList<>();
-        List<Friend> friendList = fromMember.getFriendList();
 
         for (FriendDto friendDto : friendDtoList) {
             Member toMember = memberRepository.findById(friendDto.getId())
@@ -58,8 +56,10 @@ public class FriendServiceImpl implements FriendService {
                 throw new DuplicatedFriendException("DuplicatedFriendException occurred");
             });
 
-            resDtoList.add(modelMapper.map(friend.getToMember(),FriendDto.class));
             friendRepository.save(friend);
+            FriendDto f = modelMapper.map(friend.getToMember(),FriendDto.class);
+            f.setCreatedAt(friend.getCreatedAt());
+            resDtoList.add(f);
         }
 
         return resDtoList;
@@ -92,7 +92,9 @@ public class FriendServiceImpl implements FriendService {
         List<FriendDto> friendDtoList = new ArrayList<>();
 
         for (Friend friend : friendList) {
-            friendDtoList.add(modelMapper.map(friend.getToMember(),FriendDto.class));
+            FriendDto friendDto = modelMapper.map(friend.getToMember(),FriendDto.class);
+            friendDto.setCreatedAt(friend.getCreatedAt());
+            friendDtoList.add(friendDto);
         }
 
         return friendDtoList;
