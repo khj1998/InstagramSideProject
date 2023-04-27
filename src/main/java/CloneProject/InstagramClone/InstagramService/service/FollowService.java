@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface FollowService {
     FollowDto addFollow(FollowDto followDto);
-    FollowDto unFollow(FollowDto followDto);
+    void unFollow(FollowDto followDto);
     List<FollowDto> getFollowings(HttpServletRequest req);
     List<FollowDto> getFollowers(HttpServletRequest req);
     BlockUserDto blockUser(BlockUserDto blockUserDto);
-    BlockUserDto unBlockUser(BlockUserDto blockUserDto);
+    void unBlockUser(BlockUserDto blockUserDto);
     List<BlockUserDto> getBlockedUsers(HttpServletRequest req);
     List<BlockUserDto> getBlockingUsers(HttpServletRequest req);
 }

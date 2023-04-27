@@ -32,11 +32,10 @@ public class FollowController {
 
     @DeleteMapping("/unfollowing")
     public ResponseEntity<ApiResponse> unFollowing(@RequestBody FollowDto followDto) {
-        FollowDto resDto = followService.unFollow(followDto);
+        followService.unFollow(followDto);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
-                .message("Un Following Id : "+resDto.getId())
-                .data(resDto)
+                .message("Un Following Id : "+followDto.getId())
                 .build();
     }
 
@@ -52,11 +51,10 @@ public class FollowController {
 
     @DeleteMapping("/users/unblocking")
     public ResponseEntity<ApiResponse> unblockUser(@RequestBody BlockUserDto blockUserDto) {
-        BlockUserDto resDto = followService.unBlockUser(blockUserDto);
+        followService.unBlockUser(blockUserDto);
         return  new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
-                .message("unblock user email : " + resDto.getEmail())
-                .data(resDto)
+                .message("unblock user email : " + blockUserDto.getEmail())
                 .build();
     }
 

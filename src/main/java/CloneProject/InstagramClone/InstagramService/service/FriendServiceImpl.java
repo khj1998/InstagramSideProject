@@ -56,7 +56,7 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     @Transactional
-    public List<FriendDto> DeleteFriend(List<FriendDto> friendDtoList) {
+    public void DeleteFriend(List<FriendDto> friendDtoList) {
         if (friendDtoList.size() == 0) {
             throw new FriendMinSelectException("FriendMinSelectException occurred");
         }
@@ -71,7 +71,6 @@ public class FriendServiceImpl implements FriendService {
                     .orElseThrow(()->new FriendNoFoundException("FriendNoFoundException occurred"));
             friendRepository.delete(friend);
         }
-        return null;
     }
 
     @Override

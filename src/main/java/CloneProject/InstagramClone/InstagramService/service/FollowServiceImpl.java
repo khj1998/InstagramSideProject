@@ -65,7 +65,7 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     @Transactional
-    public FollowDto unFollow(FollowDto followDto) throws JwtExpiredException {
+    public void unFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
         Member toMember = memberRepository
@@ -79,8 +79,6 @@ public class FollowServiceImpl implements FollowService {
         followRepository.delete(follow);
         FollowDto result = modelMapper.map(follow,FollowDto.class);
         result.setId(followDto.getId());
-
-        return result;
     }
 
     @Override
@@ -141,7 +139,7 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     @Transactional
-    public BlockUserDto unBlockUser(BlockUserDto blockUserDto) {
+    public void unBlockUser(BlockUserDto blockUserDto) {
         String accessToken = blockUserDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
         Member toMember = memberRepository
@@ -155,8 +153,6 @@ public class FollowServiceImpl implements FollowService {
 
         BlockUserDto result = modelMapper.map(blockedUser, BlockUserDto.class);
         result.setId(blockedUser.getId());
-
-        return result;
     }
 
     @Override

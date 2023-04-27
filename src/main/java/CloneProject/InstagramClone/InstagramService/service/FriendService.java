@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface FriendService {
     List<FriendDto> AddFriend(List<FriendDto> friendDtoList);
-    List<FriendDto> DeleteFriend(List<FriendDto> friendDtoList);
+    void DeleteFriend(List<FriendDto> friendDtoList);
     List<FriendDto> GetFriendList(HttpServletRequest req);
 }
