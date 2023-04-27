@@ -20,5 +20,19 @@ public class Friend {
     @CreationTimestamp
     private Date createdAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "from_friend_fk")
+    private Member fromMember;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "to_friend_fk")
+    private Member toMember;
+
+    public void setFromMember(Member fromMember) {
+        this.fromMember = fromMember;
+    }
+
+    public void setToMember(Member toMember) {
+        this.toMember = toMember;
+    }
 }

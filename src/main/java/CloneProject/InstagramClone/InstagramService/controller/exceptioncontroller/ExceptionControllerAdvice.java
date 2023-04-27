@@ -7,6 +7,8 @@ import CloneProject.InstagramClone.InstagramService.exception.follow.BlockMySelf
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowLimitException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowMySelfException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFailedException;
+import CloneProject.InstagramClone.InstagramService.exception.friend.FriendMinSelectException;
+import CloneProject.InstagramClone.InstagramService.exception.friend.FriendNoFoundException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
@@ -102,6 +104,22 @@ public class ExceptionControllerAdvice {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid user blocking request")
                 .setException_message("block myself request is not valid")
+                .build();
+    }
+
+    @ExceptionHandler(FriendMinSelectException.class)
+    public ResponseEntity<ExceptionResponse> handleFriendMinSelectException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid friend add request")
+                .setException_message("At least one friend must be selected")
+                .build();
+    }
+
+    @ExceptionHandler(FriendNoFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleFriendNoFoundException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid friend delete request")
+                .setException_message("friend not exists")
                 .build();
     }
 

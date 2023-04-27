@@ -1,7 +1,10 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
-import CloneProject.InstagramClone.InstagramService.dto.follow.FriendDto;
+import CloneProject.InstagramClone.InstagramService.dto.friend.FriendDto;
+
+import java.util.List;
 
 public interface FriendService {
-    FriendDto AddFriend(FriendDto friendDto);
+    List<FriendDto> AddFriend(List<FriendDto> friendDtoList);
+    List<FriendDto> DeleteFriend(List<FriendDto> friendDtoList);
 }
