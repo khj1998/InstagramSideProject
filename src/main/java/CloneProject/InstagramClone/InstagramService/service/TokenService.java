@@ -41,7 +41,7 @@ public class TokenService implements InitializingBean {
         this.refresh_key = Keys.hmacShaKeyFor(refreshKeyBytes);
     }
 
-    public String ExtractToken(HttpServletRequest req) {
+    public String ExtractTokenFromReq(HttpServletRequest req) {
         String authorizationHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
         if (authorizationHeader.isBlank() || !authorizationHeader.startsWith("Bearer ")) {
             throw new JwtIllegalException("인증 토큰이 유효하지 않습니다.");

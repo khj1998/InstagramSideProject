@@ -61,7 +61,7 @@ public class Member implements UserDetails {
     /**
     자기 자신만 친한 친구 리스트를 조회할 수 있다.
      */
-    @OneToMany(mappedBy = "toMember",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "fromMember",cascade = CascadeType.ALL)
     private List<Friend> friendList = new ArrayList<>();
 
     public void setPassword(String password) {

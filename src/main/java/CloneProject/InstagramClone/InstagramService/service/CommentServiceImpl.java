@@ -117,7 +117,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional(readOnly = true)
     public List<CommentDto> GetMyComments(HttpServletRequest req) throws JwtExpiredException,UsernameNotFoundException {
         List<CommentDto> result = new ArrayList<>();
-        String accessToken = extractToken(req);
+        String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Comment> commentList = memberEntity.getCommentList();
 
@@ -132,7 +132,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional(readOnly = true)
     public List<CommentDto> GetMyCommentLikes(HttpServletRequest req) {
         List<CommentDto> result = new ArrayList<>();
-        String accessToken = extractToken(req);
+        String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<CommentLike> commentLikeList = memberEntity.getCommentLikeList();
@@ -142,14 +142,5 @@ public class CommentServiceImpl implements CommentService {
         }
 
         return result;
-    }
-
-    private String extractToken(HttpServletRequest req) {
-        String authorizationHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authorizationHeader.isBlank() || !authorizationHeader.startsWith("Bearer ")) {
-            throw new JwtIllegalException("인증 토큰이 유효하지 않습니다.");
-        }
-
-        return authorizationHeader.substring(7);
     }
 }

@@ -9,6 +9,7 @@ import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundE
 import CloneProject.InstagramClone.InstagramService.repository.FollowRepository;
 import CloneProject.InstagramClone.InstagramService.repository.FriendRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -46,7 +47,7 @@ public class FriendServiceImpl implements FriendService {
             Friend friend = new Friend();
             friend.setFromMember(fromMember);
             friend.setToMember(toMember);
-            resDtoList.add(modelMapper.map(friend,FriendDto.class));
+            resDtoList.add(modelMapper.map(friend.getToMember(),FriendDto.class));
             friendRepository.save(friend);
         }
 
@@ -71,5 +72,19 @@ public class FriendServiceImpl implements FriendService {
             friendRepository.delete(friend);
         }
         return null;
+    }
+
+    @Override
+    public List<FriendDto> GetFriendList(HttpServletRequest req) {
+        String accessToken = tokenService.ExtractTokenFromReq(req);
+        Member memberEntity = tokenService.FindMemberByToken(accessToken);
+        List<Friend> friendList = memberEntity.getFriendList();
+        List<FriendDto> friendDtoList = new ArrayList<>();
+
+        for (Friend friend : friendList) {
+            friendDtoList.add(modelMapper.map(friend.getToMember(),FriendDto.class));
+        }
+
+        return friendDtoList;
     }
 }

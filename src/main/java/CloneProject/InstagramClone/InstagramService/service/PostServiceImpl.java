@@ -117,7 +117,7 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public List<PostDto> GetMyPosts(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
-        String accessToken = tokenService.ExtractToken(req);
+        String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Post> postList = memberEntity.getPostList();
 
@@ -132,7 +132,7 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public List<PostDto> GetPostLikeList(HttpServletRequest req) throws JwtExpiredException {
         List<PostDto> result = new ArrayList<>();
-        String accessToken = tokenService.ExtractToken(req);
+        String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<PostLike> postLikeList = memberEntity.getPostLikeList();

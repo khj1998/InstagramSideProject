@@ -86,7 +86,7 @@ public class FollowServiceImpl implements FollowService {
     @Override
     @Transactional(readOnly = true)
     public List<FollowDto> getFollowings(HttpServletRequest req) throws JwtExpiredException {
-        String accessToken = tokenService.ExtractToken(req);
+        String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<FollowDto> result = new ArrayList<>();
@@ -101,7 +101,7 @@ public class FollowServiceImpl implements FollowService {
     @Override
     @Transactional(readOnly = true)
     public List<FollowDto> getFollowers(HttpServletRequest req) throws JwtExpiredException {
-        String accessToken = tokenService.ExtractToken(req);
+        String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<FollowDto> result = new ArrayList<>();
@@ -162,7 +162,7 @@ public class FollowServiceImpl implements FollowService {
     @Override
     @Transactional(readOnly = true)
     public List<BlockUserDto> getBlockedUsers(HttpServletRequest req) {
-        String accessToken = tokenService.ExtractToken(req);
+        String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<BlockUserDto> result = new ArrayList<>();
@@ -178,7 +178,7 @@ public class FollowServiceImpl implements FollowService {
     @Override
     @Transactional(readOnly = true)
     public List<BlockUserDto> getBlockingUsers(HttpServletRequest req) {
-        String accessToken = tokenService.ExtractToken(req);
+        String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<BlockUserDto> result = new ArrayList<>();

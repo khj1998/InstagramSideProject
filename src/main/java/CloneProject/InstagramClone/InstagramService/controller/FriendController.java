@@ -3,14 +3,12 @@ package CloneProject.InstagramClone.InstagramService.controller;
 import CloneProject.InstagramClone.InstagramService.dto.friend.FriendDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.service.FriendService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,13 +19,23 @@ import java.util.List;
 public class FriendController {
     private final FriendService friendService;
 
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse> GetFriend(HttpServletRequest req) {
+        List<FriendDto> resDto = friendService.GetFriendList(req);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Get Friends")
+                .data(resDto)
+                .build();
+    }
+
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> AddFriend(@RequestBody List<FriendDto> friendDtoList) {
-        friendService.AddFriend(friendDtoList);
+        List<FriendDto> resDto = friendService.AddFriend(friendDtoList);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Friends")
-                .data(friendDtoList)
+                .data(resDto)
                 .build();
     }
 
