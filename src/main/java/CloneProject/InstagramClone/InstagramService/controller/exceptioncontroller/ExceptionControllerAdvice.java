@@ -7,6 +7,7 @@ import CloneProject.InstagramClone.InstagramService.exception.follow.BlockMySelf
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowLimitException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.FollowMySelfException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFailedException;
+import CloneProject.InstagramClone.InstagramService.exception.friend.DuplicatedFriendException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendMinSelectException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendNoFoundException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
@@ -120,6 +121,14 @@ public class ExceptionControllerAdvice {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid friend delete request")
                 .setException_message("friend not exists")
+                .build();
+    }
+
+    @ExceptionHandler(DuplicatedFriendException.class)
+    public ResponseEntity<ExceptionResponse> handleDuplicatedFriendException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid add friend request")
+                .setException_message("Duplicated friend")
                 .build();
     }
 
