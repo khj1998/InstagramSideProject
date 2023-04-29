@@ -7,7 +7,6 @@ import CloneProject.InstagramClone.InstagramService.exception.friend.DuplicatedF
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendMinSelectException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendNoFoundException;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
-import CloneProject.InstagramClone.InstagramService.repository.FollowRepository;
 import CloneProject.InstagramClone.InstagramService.repository.FriendRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
