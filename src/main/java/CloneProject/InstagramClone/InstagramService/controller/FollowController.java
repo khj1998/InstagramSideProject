@@ -3,6 +3,8 @@ package CloneProject.InstagramClone.InstagramService.controller;
 import CloneProject.InstagramClone.InstagramService.dto.follow.BlockUserDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.FollowResponse;
+import CloneProject.InstagramClone.InstagramService.entity.Follow;
 import CloneProject.InstagramClone.InstagramService.service.FollowService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -21,31 +23,27 @@ public class FollowController {
     private final FollowService followService;
 
     @PostMapping("/following")
-    public ResponseEntity<ApiResponse> addFollowing(@RequestBody FollowDto followDto) {
-        FollowDto resDto = followService.addFollow(followDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Add Following Id : "+ resDto.getId())
-                .data(resDto)
-                .build();
+    public ResponseEntity<FollowResponse> addFollowing(@RequestBody FollowDto followDto) {
+        return followService.addFollow(followDto);
     }
 
     @DeleteMapping("/unfollowing")
-    public ResponseEntity<ApiResponse> unFollowing(@RequestBody FollowDto followDto) {
+    public ResponseEntity<FollowResponse> unFollowing(@RequestBody FollowDto followDto) {
         followService.unFollow(followDto);
-        return new ApiResponse.ApiResponseBuilder<>()
+        return new FollowResponse.FollowResponseBuilder<>()
                 .success(true)
                 .message("Un Following Id : "+followDto.getId())
                 .build();
     }
 
     @PostMapping("/users/blocking")
-    public ResponseEntity<ApiResponse> blockUser(@RequestBody BlockUserDto blockUserDto) {
+    public ResponseEntity<FollowResponse> blockUser(@RequestBody BlockUserDto blockUserDto) {
         BlockUserDto resDto = followService.blockUser(blockUserDto);
-        return  new ApiResponse.ApiResponseBuilder<>()
+        return new FollowResponse.FollowResponseBuilder<>()
                 .success(true)
-                .message("blocked user email : "+resDto.getEmail())
-                .data(resDto)
+                .message("blocking member")
+                .fromMember("")
+                .toMember("")
                 .build();
     }
 

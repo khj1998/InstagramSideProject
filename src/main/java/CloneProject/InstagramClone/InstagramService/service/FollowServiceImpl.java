@@ -3,6 +3,7 @@ package CloneProject.InstagramClone.InstagramService.service;
 import static CloneProject.InstagramClone.InstagramService.config.SpringConst.*;
 import CloneProject.InstagramClone.InstagramService.dto.follow.BlockUserDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
+import CloneProject.InstagramClone.InstagramService.dto.response.FollowResponse;
 import CloneProject.InstagramClone.InstagramService.entity.BlockedMember;
 import CloneProject.InstagramClone.InstagramService.entity.Follow;
 import CloneProject.InstagramClone.InstagramService.entity.Member;
@@ -16,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +38,7 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     @Transactional
-    public FollowDto addFollow(FollowDto followDto) throws JwtExpiredException {
+    public ResponseEntity<FollowResponse> addFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken); // 팔로우 거는 쪽
         Member toMember = memberRepository
@@ -55,12 +57,20 @@ public class FollowServiceImpl implements FollowService {
                 .fromMember(fromMember)
                 .toMember(toMember)
                 .build();
-
         followRepository.save(follow);
-        FollowDto result = modelMapper.map(follow,FollowDto.class);
-        result.setId(toMember.getId());
 
-        return result;
+        FollowDto toMemberDto = modelMapper.map(toMember,FollowDto.class);
+        toMemberDto.setId(toMember.getId());
+
+        FollowDto fromMemberDto = modelMapper.map(fromMember,FollowDto.class);
+        fromMemberDto.setId(fromMember.getId());
+
+        return new FollowResponse.FollowResponseBuilder<>()
+                .success(true)
+                .message("Add Following")
+                .fromMember(fromMemberDto)
+                .toMember(toMemberDto)
+                .build();
     }
 
     @Override
