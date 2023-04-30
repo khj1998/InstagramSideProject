@@ -1,9 +1,10 @@
-package CloneProject.InstagramClone.InstagramService.entity;
+package CloneProject.InstagramClone.InstagramService.entity.comment;
 
+import CloneProject.InstagramClone.InstagramService.entity.member.Member;
+import CloneProject.InstagramClone.InstagramService.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 

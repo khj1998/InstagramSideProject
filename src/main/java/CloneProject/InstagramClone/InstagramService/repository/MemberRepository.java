@@ -1,6 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.repository;
 
-import CloneProject.InstagramClone.InstagramService.entity.Member;
+import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

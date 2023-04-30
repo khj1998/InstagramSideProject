@@ -4,7 +4,6 @@ import CloneProject.InstagramClone.InstagramService.dto.follow.BlockUserDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.FollowResponse;
-import CloneProject.InstagramClone.InstagramService.entity.Follow;
 import CloneProject.InstagramClone.InstagramService.service.FollowService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

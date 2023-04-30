@@ -1,8 +1,8 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.friend.FriendDto;
-import CloneProject.InstagramClone.InstagramService.entity.Friend;
-import CloneProject.InstagramClone.InstagramService.entity.Member;
+import CloneProject.InstagramClone.InstagramService.entity.friend.Friend;
+import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.exception.friend.DuplicatedFriendException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendMinSelectException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendNoFoundException;

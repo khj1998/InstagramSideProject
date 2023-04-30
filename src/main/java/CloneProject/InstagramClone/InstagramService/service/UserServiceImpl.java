@@ -7,9 +7,8 @@ import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalExce
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
 import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
-import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
-import CloneProject.InstagramClone.InstagramService.entity.Role;
-import CloneProject.InstagramClone.InstagramService.entity.Member;
+import CloneProject.InstagramClone.InstagramService.entity.member.Role;
+import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;

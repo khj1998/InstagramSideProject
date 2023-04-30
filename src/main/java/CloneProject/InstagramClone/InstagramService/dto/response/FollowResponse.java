@@ -1,6 +1,5 @@
 package CloneProject.InstagramClone.InstagramService.dto.response;
 
-import CloneProject.InstagramClone.InstagramService.entity.Member;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.springframework.http.ResponseEntity;

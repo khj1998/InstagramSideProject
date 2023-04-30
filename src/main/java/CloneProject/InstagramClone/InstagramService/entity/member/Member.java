@@ -1,5 +1,11 @@
-package CloneProject.InstagramClone.InstagramService.entity;
+package CloneProject.InstagramClone.InstagramService.entity.member;
 
+import CloneProject.InstagramClone.InstagramService.entity.comment.Comment;
+import CloneProject.InstagramClone.InstagramService.entity.comment.CommentLike;
+import CloneProject.InstagramClone.InstagramService.entity.follow.Follow;
+import CloneProject.InstagramClone.InstagramService.entity.friend.Friend;
+import CloneProject.InstagramClone.InstagramService.entity.post.Post;
+import CloneProject.InstagramClone.InstagramService.entity.post.PostLike;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

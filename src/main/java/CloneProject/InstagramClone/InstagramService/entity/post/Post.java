@@ -1,10 +1,11 @@
-package CloneProject.InstagramClone.InstagramService.entity;
+package CloneProject.InstagramClone.InstagramService.entity.post;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import CloneProject.InstagramClone.InstagramService.entity.comment.Comment;
+import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTagMapping;
+import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -44,6 +45,9 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostLike> postLikeList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<HashTagMapping> hashTagMappingList = new ArrayList<>();
 
     public void AddPostLike(PostLike postLike) {
         postLike.setPost(this);

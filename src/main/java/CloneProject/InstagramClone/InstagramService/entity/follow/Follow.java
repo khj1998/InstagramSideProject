@@ -1,19 +1,21 @@
-package CloneProject.InstagramClone.InstagramService.entity;
+package CloneProject.InstagramClone.InstagramService.entity.follow;
 
+import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.util.Date;
 
 @Getter
 @Entity
-@Table(name = "friends")
+@Table(name = "follows")
 @NoArgsConstructor
-public class Friend {
+public class Follow {
+
     @Id
-    @Column(name = "friend_id")
+    @Column(name = "follow_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -21,18 +23,16 @@ public class Friend {
     private Date createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "from_friend_fk")
+    @JoinColumn(name = "following_id")
     private Member fromMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to_friend_fk")
+    @JoinColumn(name = "follower_id")
     private Member toMember;
 
-    public void setFromMember(Member fromMember) {
+    @Builder
+    public Follow(Member fromMember,Member toMember) {
         this.fromMember = fromMember;
-    }
-
-    public void setToMember(Member toMember) {
         this.toMember = toMember;
     }
 }
