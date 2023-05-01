@@ -71,12 +71,28 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostDto FindPost(String postId) {
-        Long id = Long.parseLong(postId);
+    public ResponseEntity<ApiResponse> FindPost(HttpServletRequest req,Long postId) {
+        //Long id = Long.parseLong(postId);
+        String accessToken = tokenService.ExtractTokenFromReq(req);
+        tokenService.isTokenValid(accessToken);
+        List<HashTagDto> hashTagDtoList = new ArrayList<>();
         Post postEntity = postRepository
-                .findById(id)
+                .findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
-        return modelMapper.map(postEntity,PostDto.class);
+
+        PostDto resData = modelMapper.map(postEntity,PostDto.class);
+        List<HashTagMapping> hashTagMappingList = postEntity.getHashTagMappingList();
+
+        for (HashTagMapping hashTagMapping : hashTagMappingList) {
+            HashTagDto hashTagDto = modelMapper.map(hashTagMapping.getHashTag(), HashTagDto.class);
+            resData.getHashTagList().add(hashTagDto);
+        }
+
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("get post Id : "+postId)
+                .data(resData)
+                .build();
     }
 
     @Override

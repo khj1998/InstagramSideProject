@@ -23,13 +23,8 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getPost(@RequestParam String postId) {
-        PostDto resDto = postService.FindPost(postId);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("get post Id : "+postId)
-                .data(resDto)
-                .build();
+    public ResponseEntity<ApiResponse> getPost(HttpServletRequest req,@RequestParam Long postId) {
+        return postService.FindPost(req,postId);
     }
 
     @GetMapping("/myposts")

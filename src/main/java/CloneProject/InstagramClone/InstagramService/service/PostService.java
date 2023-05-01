@@ -13,7 +13,7 @@ import java.util.List;
  */
 public interface PostService {
     ResponseEntity<ApiResponse> AddPost(PostDto postDto);
-    PostDto FindPost(String postId);
+    ResponseEntity<ApiResponse> FindPost(HttpServletRequest req,Long postId);
     PostDto EditPost(PostDto postDto);
     void DeletePost(String postId);
     ResponseEntity<ApiResponse> AddPostLike(PostLikeDto postLikeDto);
