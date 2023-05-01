@@ -4,6 +4,7 @@ import CloneProject.InstagramClone.InstagramService.entity.comment.Comment;
 import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTagMapping;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -59,19 +60,23 @@ public class Post {
         this.getCommentList().add(comment);
     }
 
-    public void setMember(Member member) {
+    @Builder
+    public Post(Member member,String title,String content,String imageUrl) {
         this.member = member;
+        this.title = title;
+        this.content = content;
+        this.imageUrl = imageUrl;
     }
 
-    public void setTitle(String title) {
+    public void ChangeTitle(String title) {
         this.title = title;
     }
 
-    public void setContent(String content) {
+    public void ChangeContent(String content) {
         this.content = content;
     }
 
-    public void setImageUrl(String imageUrl) {
+    public void ChangeImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 }

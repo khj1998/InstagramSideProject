@@ -26,10 +26,6 @@ public class HashTagServiceImpl implements HashTagService {
 
     @Override
     public ResponseEntity<ApiResponse> AddHashTagToPost(HashTagDto hashTagDto) {
-        if (!tokenService.isTokenValid(hashTagDto.getAccessToken())) {
-            throw new JwtIllegalException("유효하지 않은 Json Web Token");
-        }
-
         Post post = postRepository.findById(hashTagDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException("없는 게시물입니다."));
         HashTag hashTag = HashTag.builder()

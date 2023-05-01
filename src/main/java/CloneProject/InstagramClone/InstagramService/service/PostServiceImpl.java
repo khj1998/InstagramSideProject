@@ -30,19 +30,21 @@ public class PostServiceImpl implements PostService {
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+    private final HashTagRepository hashTagRepository;
+    private final HashTagMappingRepository hashTagMappingRepository;
 
     @Override
     @Transactional
     public PostDto AddPost(PostDto postDto) throws JwtExpiredException {
-        Post postEntity = modelMapper.map(postDto,Post.class);
         Member memberEntity = tokenService.FindMemberByToken(postDto.getAccessToken());
-        memberEntity.AddPost(postEntity);
-
+        Post postEntity = Post.builder()
+                .member(memberEntity)
+                .title(postDto.getTitle())
+                .content(postDto.getTitle())
+                .imageUrl(postDto.getImageUrl())
+                .build();
         postRepository.save(postEntity);
-        memberRepository.save(memberEntity);
-
         PostDto response = modelMapper.map(postEntity, PostDto.class);
-        response.setAccessToken(postDto.getAccessToken());
         return response;
     }
 
@@ -62,9 +64,9 @@ public class PostServiceImpl implements PostService {
         Post postEntity = postRepository
                 .findById(postDto.getId())
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
-        postEntity.setTitle(postDto.getTitle());
-        postEntity.setContent(postDto.getContent());
-        postEntity.setImageUrl(postDto.getImageUrl());
+        postEntity.ChangeTitle(postDto.getTitle());
+        postEntity.ChangeContent(postDto.getContent());
+        postEntity.ChangeImageUrl(postDto.getImageUrl());
 
         postRepository.save(postEntity);
         return modelMapper.map(postEntity,PostDto.class);
