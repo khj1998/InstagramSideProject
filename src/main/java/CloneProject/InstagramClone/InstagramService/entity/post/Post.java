@@ -50,16 +50,6 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<HashTagMapping> hashTagMappingList = new ArrayList<>();
 
-    public void AddPostLike(PostLike postLike) {
-        postLike.setPost(this);
-        this.getPostLikeList().add(postLike);
-    }
-
-    public void AddComment(Comment comment) {
-        comment.setPost(this);
-        this.getCommentList().add(comment);
-    }
-
     @Builder
     public Post(Member member,String title,String content,String imageUrl) {
         this.member = member;

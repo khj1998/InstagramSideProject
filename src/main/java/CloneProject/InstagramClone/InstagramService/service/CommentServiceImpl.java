@@ -62,9 +62,6 @@ public class CommentServiceImpl implements CommentService {
         Member memberEntity = tokenService.FindMemberByToken(commentDto.getAccessToken());
         Comment commentEntity = modelMapper.map(commentDto, Comment.class);
 
-        memberEntity.AddComment(commentEntity);
-        postEntity.AddComment(commentEntity);
-
         commentRepository.save(commentEntity);
         postRepository.save(postEntity);
         memberRepository.save(memberEntity);

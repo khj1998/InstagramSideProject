@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class HashTagDto {
-    private String hashTag;
+    private String tagName;
 }

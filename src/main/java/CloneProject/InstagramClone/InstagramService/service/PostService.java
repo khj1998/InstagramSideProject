@@ -12,7 +12,7 @@ import java.util.List;
  * get 요청은 header에 token을 실어서 전송.
  */
 public interface PostService {
-    PostDto AddPost(PostDto postDto);
+    ResponseEntity<ApiResponse> AddPost(PostDto postDto);
     PostDto FindPost(String postId);
     PostDto EditPost(PostDto postDto);
     void DeletePost(String postId);

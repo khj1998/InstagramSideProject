@@ -78,21 +78,6 @@ public class Member implements UserDetails {
         this.role = role;
     }
 
-    public void AddPost(Post post) {
-        post.setMember(this);
-        this.getPostList().add(post);
-    }
-
-    public void AddPostLike(PostLike postLike) {
-        postLike.setMember(this);
-        this.getPostLikeList().add(postLike);
-    }
-
-    public void AddComment(Comment comment) {
-        comment.setMember(this);
-        this.getCommentList().add(comment);
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

@@ -44,12 +44,7 @@ public class PostController {
 
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addPost(@RequestBody PostDto postDto) {
-        PostDto resDto = postService.AddPost(postDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Add Post")
-                .data(resDto)
-                .build();
+        return postService.AddPost(postDto);
     }
 
     @PostMapping("/edit")

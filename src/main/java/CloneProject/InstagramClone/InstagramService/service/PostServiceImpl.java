@@ -1,8 +1,11 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
+import CloneProject.InstagramClone.InstagramService.dto.hashtag.HashTagDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTag;
+import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTagMapping;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.entity.post.Post;
 import CloneProject.InstagramClone.InstagramService.entity.post.PostLike;
@@ -27,7 +30,6 @@ public class PostServiceImpl implements PostService {
 
     private final ModelMapper modelMapper;
     private final TokenService tokenService;
-    private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final HashTagRepository hashTagRepository;
@@ -35,7 +37,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostDto AddPost(PostDto postDto) throws JwtExpiredException {
+    public ResponseEntity<ApiResponse> AddPost(PostDto postDto) throws JwtExpiredException {
         Member memberEntity = tokenService.FindMemberByToken(postDto.getAccessToken());
         Post postEntity = Post.builder()
                 .member(memberEntity)
@@ -43,9 +45,28 @@ public class PostServiceImpl implements PostService {
                 .content(postDto.getTitle())
                 .imageUrl(postDto.getImageUrl())
                 .build();
+
+        for (HashTagDto hashTagDto : postDto.getHashTagList()) {
+            HashTag hashTag = HashTag.builder()
+                    .tagName(hashTagDto.getTagName())
+                    .build();
+            HashTagMapping hashTagMapping = HashTagMapping.builder()
+                    .post(postEntity)
+                    .hashTag(hashTag)
+                    .build();
+            hashTagRepository.save(hashTag);
+            hashTagMappingRepository.save(hashTagMapping);
+        }
+
         postRepository.save(postEntity);
-        PostDto response = modelMapper.map(postEntity, PostDto.class);
-        return response;
+        PostDto resData = modelMapper.map(postEntity, PostDto.class);
+        resData.setHashTagList(postDto.getHashTagList());
+
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Add Post")
+                .data(resData)
+                .build();
     }
 
     @Override
