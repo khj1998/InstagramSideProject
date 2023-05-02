@@ -48,9 +48,11 @@ public class FriendServiceImpl implements FriendService {
             Member toMember = memberRepository.findById(friendDto.getId())
                     .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
             Long toMemberId = toMember.getId();
-            Friend friend = new Friend();
-            friend.setFromMember(fromMember);
-            friend.setToMember(toMember);
+
+            Friend friend = Friend.builder()
+                    .fromMember(fromMember)
+                    .toMember(toMember)
+                    .build();
 
             Optional<Friend> myFriend = friendRepository.findByFromMemberIdAndToMemberId(fromMemberId,toMemberId);
             myFriend.ifPresent(m -> {

@@ -3,6 +3,7 @@ package CloneProject.InstagramClone.InstagramService.entity.comment;
 import CloneProject.InstagramClone.InstagramService.entity.comment.Comment;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -24,11 +25,9 @@ public class CommentLike {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    public void setMember(Member member) {
+    @Builder
+    public CommentLike(Member member,Comment comment) {
         this.member = member;
-    }
-
-    public void setComment(Comment comment) {
         this.comment = comment;
     }
 }

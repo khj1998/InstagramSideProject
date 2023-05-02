@@ -39,9 +39,13 @@ public class PostServiceImpl implements PostService {
     private final HashTagRepository hashTagRepository;
     private final HashTagMappingRepository hashTagMappingRepository;
 
+    /**
+     * 같은 해시태그 중복 카운팅 방지
+     */
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> AddPost(PostDto postDto) throws JwtExpiredException {
+        List<String> sameTagChecker = new ArrayList<>();
         Member memberEntity = tokenService.FindMemberByToken(postDto.getAccessToken());
         Post postEntity = Post.builder()
                 .member(memberEntity)
@@ -67,8 +71,12 @@ public class PostServiceImpl implements PostService {
                     .post(postEntity)
                     .hashTag(hashTag)
                     .build();
-            hashTagRepository.save(hashTag);
-            hashTagMappingRepository.save(hashTagMapping);
+
+            if (!sameTagChecker.contains(hashTag.getTagName())) {
+                sameTagChecker.add(hashTag.getTagName());
+                hashTagRepository.save(hashTag);
+                hashTagMappingRepository.save(hashTagMapping);
+            }
         }
 
         postRepository.save(postEntity);
@@ -168,9 +176,11 @@ public class PostServiceImpl implements PostService {
         PostLike postLike = postLikeRepository.findByMemberIdAndPostId(memberEntity.getId(),postLikeDto.getPostId());
 
         if (postLike==null) {
-            PostLike newPostLike = new PostLike();
-            newPostLike.setMember(memberEntity);
-            newPostLike.setPost(postEntity);
+            PostLike newPostLike = PostLike.builder()
+                    .member(memberEntity)
+                    .post(postEntity)
+                    .build();
+
             postLikeDto.setPostTitle(postEntity.getTitle());
             postLikeRepository.save(newPostLike);
             response = new ApiResponse.ApiResponseBuilder<>()

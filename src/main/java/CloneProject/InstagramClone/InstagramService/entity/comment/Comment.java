@@ -3,6 +3,7 @@ package CloneProject.InstagramClone.InstagramService.entity.comment;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.entity.post.Post;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -41,20 +42,14 @@ public class Comment {
     @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL)
     private List<CommentLike> commentLikeList = new ArrayList<>();
 
-    public void setMember(Member member) {
+    @Builder
+    public Comment(Member member,Post post,String content) {
         this.member = member;
-    }
-
-    public void setPost(Post post) {
         this.post = post;
-    }
-
-    public void setContent(String content) {
         this.content = content;
     }
 
-    public void AddCommentLike(CommentLike commentLike) {
-        commentLike.setComment(this);
-        this.getCommentLikeList().add(commentLike);
+    public void ChangeContent(String content) {
+        this.content = content;
     }
 }

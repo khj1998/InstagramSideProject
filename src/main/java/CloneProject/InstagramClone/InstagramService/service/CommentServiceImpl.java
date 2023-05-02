@@ -35,27 +35,9 @@ public class CommentServiceImpl implements CommentService {
 
     private final ModelMapper modelMapper;
     private final TokenService tokenService;
-    private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
-
-    @Override
-    @Transactional
-    public ResponseEntity<ApiResponse> EditComment(CommentDto commentDto) {
-        Comment commentEntity = commentRepository
-                .findById(commentDto.getCommentId())
-                .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
-        commentEntity.setContent(commentDto.getContent());
-        commentRepository.save(commentEntity);
-        CommentDto resDto =  modelMapper.map(commentEntity,CommentDto.class);
-
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Comment Edit")
-                .data(resDto)
-                .build();
-    }
 
     /**
      * 댓글 쓴 Member, 댓글 - Member, 글 - 댓글 연관관계 매핑
@@ -67,16 +49,35 @@ public class CommentServiceImpl implements CommentService {
                 .findById(commentDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
         Member memberEntity = tokenService.FindMemberByToken(commentDto.getAccessToken());
-        Comment commentEntity = modelMapper.map(commentDto, Comment.class);
+        Comment commentEntity = Comment.builder()
+                .post(postEntity)
+                .member(memberEntity)
+                .content(commentDto.getContent())
+                .build();
 
         commentRepository.save(commentEntity);
-        postRepository.save(postEntity);
-        memberRepository.save(memberEntity);
 
         CommentDto resDto =  modelMapper.map(commentEntity, CommentDto.class);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Comment")
+                .data(resDto)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<ApiResponse> EditComment(CommentDto commentDto) {
+        Comment commentEntity = commentRepository
+                .findById(commentDto.getCommentId())
+                .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
+        commentEntity.ChangeContent(commentDto.getContent());
+        commentRepository.save(commentEntity);
+        CommentDto resDto =  modelMapper.map(commentEntity,CommentDto.class);
+
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Comment Edit")
                 .data(resDto)
                 .build();
     }
@@ -89,12 +90,13 @@ public class CommentServiceImpl implements CommentService {
         Comment commentEntity = commentRepository
                 .findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
-        CommentLike commentLike = new CommentLike();
         CommentLike commentLikeEntity = commentLikeRepository.findByMemberIdAndCommentId(memberEntity.getId(),commentEntity.getId());
 
         if (commentLikeEntity == null) {
-            commentLike.setComment(commentEntity);
-            commentLike.setMember(memberEntity);
+            CommentLike commentLike = CommentLike.builder()
+                    .comment(commentEntity)
+                    .member(memberEntity)
+                    .build();
             commentLikeRepository.save(commentLike);
 
             return new ApiResponse.ApiResponseBuilder<>()

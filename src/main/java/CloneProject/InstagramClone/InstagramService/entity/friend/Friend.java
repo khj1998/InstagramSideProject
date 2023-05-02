@@ -2,6 +2,7 @@ package CloneProject.InstagramClone.InstagramService.entity.friend;
 
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -29,11 +30,9 @@ public class Friend {
     @JoinColumn(name = "to_friend_fk")
     private Member toMember;
 
-    public void setFromMember(Member fromMember) {
+    @Builder
+    public Friend(Member fromMember,Member toMember) {
         this.fromMember = fromMember;
-    }
-
-    public void setToMember(Member toMember) {
         this.toMember = toMember;
     }
 }
