@@ -9,6 +9,7 @@ import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFai
 import CloneProject.InstagramClone.InstagramService.exception.friend.DuplicatedFriendException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendMinSelectException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendNoFoundException;
+import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagLimitException;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNameNotValidException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
@@ -137,6 +138,14 @@ public class ExceptionControllerAdvice {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid hash tag request")
                 .setException_message("Hashtag name must be started with #")
+                .build();
+    }
+
+    @ExceptionHandler(HashTagLimitException.class)
+    public ResponseEntity<ExceptionResponse> handleHashTagLimitException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid hash tag numbers")
+                .setException_message("HastTag limit(30) exceeded")
                 .build();
     }
 

@@ -9,6 +9,7 @@ import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTagMappin
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.entity.post.Post;
 import CloneProject.InstagramClone.InstagramService.entity.post.PostLike;
+import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagLimitException;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNameNotValidException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
@@ -48,6 +49,10 @@ public class PostServiceImpl implements PostService {
                 .content(postDto.getTitle())
                 .imageUrl(postDto.getImageUrl())
                 .build();
+
+        if (postDto.getHashTagList().size() >= 30) {
+            throw new HashTagLimitException("HashTagLimitException occurred");
+        }
 
         for (HashTagDto hashTagDto : postDto.getHashTagList()) {
 
