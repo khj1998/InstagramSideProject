@@ -1,7 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
 import static CloneProject.InstagramClone.InstagramService.config.SpringConst.*;
-import CloneProject.InstagramClone.InstagramService.dto.follow.BlockUserDto;
+import CloneProject.InstagramClone.InstagramService.dto.follow.BlockMemberDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.FollowResponse;
@@ -138,16 +138,19 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     @Transactional
-    public ResponseEntity<FollowResponse> blockUser(BlockUserDto blockUserDto) {
-        String accessToken = blockUserDto.getAccessToken();
+    public ResponseEntity<FollowResponse> blockUser(BlockMemberDto blockMemberDto) {
+        String accessToken = blockMemberDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken); // 차단 거는쪽
         Member toMember = memberRepository
-                .findById(blockUserDto.getId())
+                .findById(blockMemberDto.getId())
                 .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred")); //차단 대상
 
         if (fromMember.getId().equals(toMember.getId())) {
             throw new BlockMySelfException("BanMySelfException occurred");
         }
+
+        BlockMemberDto fromMemberDto = modelMapper.map(fromMember, BlockMemberDto.class);
+        BlockMemberDto toMemberDto = modelMapper.map(toMember, BlockMemberDto.class);
 
         BlockedMember blockedUser = BlockedMember.builder()
                 .email(toMember.getEmail())
@@ -156,24 +159,24 @@ public class FollowServiceImpl implements FollowService {
                 .build();
 
         blockedMemberRepository.save(blockedUser);
-        BlockUserDto result = modelMapper.map(blockedUser, BlockUserDto.class);
-        result.setId(blockUserDto.getId());
+        BlockMemberDto result = modelMapper.map(blockedUser, BlockMemberDto.class);
+        result.setId(blockMemberDto.getId());
 
         return new FollowResponse.FollowResponseBuilder<>()
                 .success(true)
                 .message("blocking member")
-                .fromMember("")
-                .toMember("")
+                .fromMember(fromMemberDto)
+                .toMember(toMemberDto)
                 .build();
     }
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> unBlockUser(BlockUserDto blockUserDto) {
-        String accessToken = blockUserDto.getAccessToken();
+    public ResponseEntity<ApiResponse> unBlockUser(BlockMemberDto blockMemberDto) {
+        String accessToken = blockMemberDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
         Member toMember = memberRepository
-                .findById(blockUserDto.getId())
+                .findById(blockMemberDto.getId())
                 .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
 
         BlockedMember blockedUser = blockedMemberRepository
@@ -181,12 +184,12 @@ public class FollowServiceImpl implements FollowService {
                 .orElseThrow(() -> new UnBlockFailedException("UnBlockedFailedException occurred"));
         blockedMemberRepository.delete(blockedUser);
 
-        BlockUserDto result = modelMapper.map(blockedUser, BlockUserDto.class);
+        BlockMemberDto result = modelMapper.map(blockedUser, BlockMemberDto.class);
         result.setId(blockedUser.getId());
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
-                .message("unblock user email : " + blockUserDto.getEmail())
+                .message("unblock user Id : " + blockMemberDto.getId())
                 .build();
     }
 
@@ -196,11 +199,11 @@ public class FollowServiceImpl implements FollowService {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
-        List<BlockUserDto> responseDtoList = new ArrayList<>();
+        List<BlockMemberDto> responseDtoList = new ArrayList<>();
         List<BlockedMember> blockedMemberList = memberEntity.getBlockingList();
 
         for (BlockedMember blockedMember : blockedMemberList) {
-            responseDtoList.add(modelMapper.map(blockedMember.getToMember(),BlockUserDto.class));
+            responseDtoList.add(modelMapper.map(blockedMember.getToMember(), BlockMemberDto.class));
         }
 
         return new ApiResponse.ApiResponseBuilder<>()
@@ -216,11 +219,11 @@ public class FollowServiceImpl implements FollowService {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
-        List<BlockUserDto> responseDtoList = new ArrayList<>();
+        List<BlockMemberDto> responseDtoList = new ArrayList<>();
         List<BlockedMember> blockedMemberList = memberEntity.getBlockedList();
 
         for (BlockedMember blockedMember : blockedMemberList) {
-            responseDtoList.add(modelMapper.map(blockedMember.getFromMember(), BlockUserDto.class));
+            responseDtoList.add(modelMapper.map(blockedMember.getFromMember(), BlockMemberDto.class));
         }
 
         return new ApiResponse.ApiResponseBuilder<>()

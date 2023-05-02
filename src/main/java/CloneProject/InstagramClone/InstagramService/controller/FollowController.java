@@ -1,6 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
-import CloneProject.InstagramClone.InstagramService.dto.follow.BlockUserDto;
+import CloneProject.InstagramClone.InstagramService.dto.follow.BlockMemberDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.FollowResponse;
@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -32,13 +30,13 @@ public class FollowController {
     }
 
     @PostMapping("/users/blocking")
-    public ResponseEntity<FollowResponse> blockUser(@RequestBody BlockUserDto blockUserDto) {
-        return followService.blockUser(blockUserDto);
+    public ResponseEntity<FollowResponse> blockUser(@RequestBody BlockMemberDto blockMemberDto) {
+        return followService.blockUser(blockMemberDto);
     }
 
     @DeleteMapping("/users/unblocking")
-    public ResponseEntity<ApiResponse> unblockUser(@RequestBody BlockUserDto blockUserDto) {
-        return followService.unBlockUser(blockUserDto);
+    public ResponseEntity<ApiResponse> unblockUser(@RequestBody BlockMemberDto blockMemberDto) {
+        return followService.unBlockUser(blockMemberDto);
     }
 
     @GetMapping("/followings/list")

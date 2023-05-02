@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class BlockUserDto {
+public class BlockMemberDto {
     private String accessToken;
     private Long id;
     private String email;
