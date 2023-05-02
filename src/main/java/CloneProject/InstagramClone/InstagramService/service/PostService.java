@@ -14,9 +14,9 @@ import java.util.List;
 public interface PostService {
     ResponseEntity<ApiResponse> AddPost(PostDto postDto);
     ResponseEntity<ApiResponse> FindPost(HttpServletRequest req,Long postId);
-    PostDto EditPost(PostDto postDto);
-    void DeletePost(String postId);
+    ResponseEntity<ApiResponse> EditPost(PostDto postDto);
+    ResponseEntity<ApiResponse> DeletePost(String postId);
     ResponseEntity<ApiResponse> AddPostLike(PostLikeDto postLikeDto);
-    List<PostDto> GetMyPosts(HttpServletRequest req);
-    List<PostDto> GetPostLikeList(HttpServletRequest req);
+    ResponseEntity<ApiResponse> GetMyPosts(HttpServletRequest req);
+    ResponseEntity<ApiResponse> GetPostLikeList(HttpServletRequest req);
 }

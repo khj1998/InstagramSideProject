@@ -9,6 +9,7 @@ import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTagMappin
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.entity.post.Post;
 import CloneProject.InstagramClone.InstagramService.entity.post.PostLike;
+import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNameNotValidException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.*;
@@ -20,7 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -47,6 +50,11 @@ public class PostServiceImpl implements PostService {
                 .build();
 
         for (HashTagDto hashTagDto : postDto.getHashTagList()) {
+
+            if (!hashTagDto.getTagName().startsWith("#")) {
+                throw new HashTagNameNotValidException("HashTagNameNotValidException occurred");
+            }
+
             HashTag hashTag = HashTag.builder()
                     .tagName(hashTagDto.getTagName())
                     .build();
@@ -97,7 +105,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostDto EditPost(PostDto postDto) {
+    public ResponseEntity<ApiResponse> EditPost(PostDto postDto) {
         Post postEntity = postRepository
                 .findById(postDto.getId())
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
@@ -106,12 +114,18 @@ public class PostServiceImpl implements PostService {
         postEntity.ChangeImageUrl(postDto.getImageUrl());
 
         postRepository.save(postEntity);
-        return modelMapper.map(postEntity,PostDto.class);
+        PostDto resDto = modelMapper.map(postEntity,PostDto.class);
+
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("edited post number : "+postDto.getId())
+                .data(resDto)
+                .build();
     }
 
     @Override
     @Transactional
-    public void DeletePost(String postId) {
+    public ResponseEntity<ApiResponse> DeletePost(String postId) {
         Long id = Long.parseLong(postId);
         Post postEntity = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
@@ -122,6 +136,15 @@ public class PostServiceImpl implements PostService {
             hashTagMappingRepository.delete(hashTagMapping);
         }
         postRepository.deleteById(id);
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+        Date date = new Date(System.currentTimeMillis());
+
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Delete postId : "+postId)
+                .updatedAt(formatter.format(date))
+                .build();
     }
 
     /**
@@ -164,31 +187,39 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PostDto> GetMyPosts(HttpServletRequest req) throws JwtExpiredException {
-        List<PostDto> result = new ArrayList<>();
+    public ResponseEntity<ApiResponse> GetMyPosts(HttpServletRequest req) throws JwtExpiredException {
+        List<PostDto> resDtoList = new ArrayList<>();
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Post> postList = memberEntity.getPostList();
 
         for (Post post : postList) {
-            result.add(modelMapper.map(post, PostDto.class));
+            resDtoList.add(modelMapper.map(post, PostDto.class));
         }
 
-        return result;
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("내가 작성한 게시물들 리스트")
+                .data(resDtoList)
+                .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PostDto> GetPostLikeList(HttpServletRequest req) throws JwtExpiredException {
-        List<PostDto> result = new ArrayList<>();
+    public ResponseEntity<ApiResponse> GetPostLikeList(HttpServletRequest req) throws JwtExpiredException {
+        List<PostDto> resDtoList = new ArrayList<>();
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<PostLike> postLikeList = memberEntity.getPostLikeList();
         for (PostLike postLike : postLikeList) {
-            result.add(modelMapper.map(postLike.getPost(), PostDto.class));
+            resDtoList.add(modelMapper.map(postLike.getPost(), PostDto.class));
         }
 
-        return result;
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("내가 좋아요를 누른 글 리스트")
+                .data(resDtoList)
+                .build();
     }
 }

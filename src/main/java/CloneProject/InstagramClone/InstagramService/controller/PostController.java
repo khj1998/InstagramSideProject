@@ -29,12 +29,7 @@ public class PostController {
 
     @GetMapping("/myposts")
     public ResponseEntity<ApiResponse> getMyPosts(HttpServletRequest req) {
-        List<PostDto> resDtoList = postService.GetMyPosts(req);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("내가 작성한 게시물들 리스트")
-                .data(resDtoList)
-                .build();
+        return postService.GetMyPosts(req);
     }
 
     @PostMapping("/add")
@@ -44,22 +39,12 @@ public class PostController {
 
     @PostMapping("/edit")
     public ResponseEntity<ApiResponse> getPost(@RequestBody PostDto postDto) {
-        PostDto resDto = postService.EditPost(postDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("edited post number : "+postDto.getId())
-                .data(resDto)
-                .build();
+        return postService.EditPost(postDto);
     }
 
     @GetMapping("/likes/list")
     public ResponseEntity<ApiResponse> getLikeList(HttpServletRequest req) {
-        List<PostDto> resDtoList = postService.GetPostLikeList(req);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("내가 좋아요를 누른 글 리스트")
-                .data(resDtoList)
-                .build();
+        return postService.GetPostLikeList(req);
     }
 
     @PostMapping("/likes/add")
@@ -69,13 +54,6 @@ public class PostController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse> deletePost(@RequestParam("postId") String postId) {
-        postService.DeletePost(postId);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
-        Date date = new Date(System.currentTimeMillis());
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Delete postId : "+postId)
-                .data(formatter.format(date))
-                .build();
+        return postService.DeletePost(postId);
     }
 }

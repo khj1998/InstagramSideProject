@@ -1,6 +1,5 @@
 package CloneProject.InstagramClone.InstagramService.controller.exceptioncontroller;
 
-import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.ExceptionResponse;
 import CloneProject.InstagramClone.InstagramService.exception.comment.CommentNotFoundException;
 import CloneProject.InstagramClone.InstagramService.exception.follow.BlockMySelfException;
@@ -10,6 +9,7 @@ import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFai
 import CloneProject.InstagramClone.InstagramService.exception.friend.DuplicatedFriendException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendMinSelectException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendNoFoundException;
+import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNameNotValidException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
@@ -129,6 +129,14 @@ public class ExceptionControllerAdvice {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid add friend request")
                 .setException_message("Duplicated friend")
+                .build();
+    }
+
+    @ExceptionHandler(HashTagNameNotValidException.class)
+    public ResponseEntity<ExceptionResponse> handleHashTagNameNotValidException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid hash tag request")
+                .setException_message("Hashtag name must be started with #")
                 .build();
     }
 
