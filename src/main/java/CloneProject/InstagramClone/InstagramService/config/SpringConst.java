@@ -10,5 +10,6 @@ public class SpringConst {
             "/comments/add","/login/success","/service","/posts/add","/posts/likes/add","/posts/likes/list","/posts/myposts","/comments/likes/add","/comments/likes"
     ,"/posts/edit","/posts","/comments/edit","/comments/mycomments","/comments/delete","/posts/delete","/follow/following","/follow/unfollowing",
     "/follow/followings/list","/follow/followers/list","/follow/users/blocking","/follow/users/unblocking","/follow/users/blocked","/follow/users/blocked",
-    "/friends/add","/friends/delete","/friends/all"};
+    "/friends/add","/friends/delete","/friends/all",
+    "/hashtags/find"};
 }

@@ -10,4 +10,5 @@ import java.util.Date;
 public class HashTagDto {
     private String tagName;
     private Date createdAt;
+    private Long hashTagCount;
 }

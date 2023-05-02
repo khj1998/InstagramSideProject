@@ -22,6 +22,8 @@ public class HashTag {
 
     private String tagName;
 
+    private Long tagCount;
+
     @CreationTimestamp
     private Date createdAt;
 
@@ -29,7 +31,12 @@ public class HashTag {
     private List<HashTagMapping> hashTagMappingList = new ArrayList<>();
 
     @Builder
-    public HashTag(String tagName) {
+    public HashTag(String tagName,Long tagCount) {
         this.tagName = tagName;
+        this.tagCount = tagCount;
+    }
+
+    public void UpdateTagCount() {
+        this.tagCount+=1;
     }
 }

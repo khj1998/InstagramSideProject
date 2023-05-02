@@ -64,18 +64,26 @@ public class PostServiceImpl implements PostService {
                 throw new HashTagNameNotValidException("HashTagNameNotValidException occurred");
             }
 
-            HashTag hashTag = HashTag.builder()
-                    .tagName(hashTagDto.getTagName())
-                    .build();
-            HashTagMapping hashTagMapping = HashTagMapping.builder()
-                    .post(postEntity)
-                    .hashTag(hashTag)
-                    .build();
+            HashTag hashTag = hashTagRepository.findByTagName(hashTagDto.getTagName());
+            HashTagMapping hashTagMapping;
+
+            if (hashTag == null) {
+                hashTag = HashTag.builder()
+                        .tagName(hashTagDto.getTagName())
+                        .tagCount(1L)
+                        .build();
+                hashTagMapping = HashTagMapping.builder()
+                        .post(postEntity)
+                        .hashTag(hashTag)
+                        .build();
+                hashTagMappingRepository.save(hashTagMapping);
+            } else {
+                hashTag.UpdateTagCount();
+            }
 
             if (!sameTagChecker.contains(hashTag.getTagName())) {
                 sameTagChecker.add(hashTag.getTagName());
                 hashTagRepository.save(hashTag);
-                hashTagMappingRepository.save(hashTagMapping);
             }
         }
 
@@ -93,10 +101,8 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> FindPost(HttpServletRequest req,Long postId) {
-        //Long id = Long.parseLong(postId);
         String accessToken = tokenService.ExtractTokenFromReq(req);
         tokenService.isTokenValid(accessToken);
-        List<HashTagDto> hashTagDtoList = new ArrayList<>();
         Post postEntity = postRepository
                 .findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
