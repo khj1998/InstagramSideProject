@@ -4,7 +4,7 @@ import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
-import CloneProject.InstagramClone.InstagramService.entity.Member;
+import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,22 +21,12 @@ public class UserController {
 
     @PostMapping("/users/register")
     public ResponseEntity<ApiResponse> SignUpUser(@RequestBody SignUpDto signUpDto) {
-        userService.CreateUser(signUpDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Sign Up Success")
-                .data(signUpDto)
-                .build();
+        return userService.CreateUser(signUpDto);
     }
 
     @GetMapping("/login/success")
-    public ResponseEntity<ApiResponse> login(@RequestParam String username) {
-        AuthResponse authResponse = userService.CreateJwtToken(username);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Login Success")
-                .data(authResponse)
-                .build();
+    public ResponseEntity<AuthResponse> login(@RequestParam String username) {
+        return userService.LogInSuccessProcess(username);
     }
 
     @GetMapping("/login/failure")
@@ -48,13 +38,8 @@ public class UserController {
     }
 
     @PostMapping("/access-token/re-allocation")
-    public ResponseEntity<ApiResponse> allocateAccessToken(@RequestBody AuthDto authDto) {
-        AuthResponse authResponse = userService.ReallocateAccessToken(authDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Reallocate Access Token")
-                .data(authResponse)
-                .build();
+    public ResponseEntity<AuthResponse> allocateAccessToken(@RequestBody AuthDto authDto) {
+        return userService.ReallocateAccessToken(authDto);
     }
 
     @GetMapping("/service")

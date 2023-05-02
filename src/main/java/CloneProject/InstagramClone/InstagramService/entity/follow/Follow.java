@@ -1,5 +1,6 @@
-package CloneProject.InstagramClone.InstagramService.entity;
+package CloneProject.InstagramClone.InstagramService.entity.follow;
 
+import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,15 +24,15 @@ public class Follow {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "following_id")
-    private Member following;
+    private Member fromMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follower_id")
-    private Member follower;
+    private Member toMember;
 
     @Builder
-    public Follow(Member following,Member follower) {
-        this.following = following;
-        this.follower = follower;
+    public Follow(Member fromMember,Member toMember) {
+        this.fromMember = fromMember;
+        this.toMember = toMember;
     }
 }

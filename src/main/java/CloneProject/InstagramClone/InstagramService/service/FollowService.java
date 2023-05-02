@@ -1,17 +1,19 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
-import CloneProject.InstagramClone.InstagramService.dto.follow.BlockUserDto;
+import CloneProject.InstagramClone.InstagramService.dto.follow.BlockMemberDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
+import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.FollowResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.List;
+import org.springframework.http.ResponseEntity;
 
 public interface FollowService {
-    FollowDto addFollow(FollowDto followDto);
-    FollowDto unFollow(FollowDto followDto);
-    List<FollowDto> getFollowings(HttpServletRequest req);
-    List<FollowDto> getFollowers(HttpServletRequest req);
-    BlockUserDto blockUser(BlockUserDto blockUserDto);
-    BlockUserDto unBlockUser(BlockUserDto blockUserDto);
-    List<BlockUserDto> getBlockedUsers(HttpServletRequest req);
-    List<BlockUserDto> getBlockingUsers(HttpServletRequest req);
+    ResponseEntity<FollowResponse> addFollow(FollowDto followDto);
+    ResponseEntity<FollowResponse> unFollow(FollowDto followDto);
+    ResponseEntity<ApiResponse> getFollowings(HttpServletRequest req);
+    ResponseEntity<ApiResponse> getFollowers(HttpServletRequest req);
+    ResponseEntity<FollowResponse> blockUser(BlockMemberDto blockMemberDto);
+    ResponseEntity<ApiResponse> unBlockUser(BlockMemberDto blockMemberDto);
+    ResponseEntity<ApiResponse> getBlockedUsers(HttpServletRequest req);
+    ResponseEntity<ApiResponse> getBlockingUsers(HttpServletRequest req);
 }

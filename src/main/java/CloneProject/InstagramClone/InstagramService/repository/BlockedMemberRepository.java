@@ -1,6 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.repository;
 
-import CloneProject.InstagramClone.InstagramService.entity.BlockedMember;
+import CloneProject.InstagramClone.InstagramService.entity.member.BlockedMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

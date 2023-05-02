@@ -1,10 +1,12 @@
-package CloneProject.InstagramClone.InstagramService.entity;
+package CloneProject.InstagramClone.InstagramService.entity.post;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import CloneProject.InstagramClone.InstagramService.entity.comment.Comment;
+import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTagMapping;
+import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -45,29 +47,26 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostLike> postLikeList = new ArrayList<>();
 
-    public void AddPostLike(PostLike postLike) {
-        postLike.setPost(this);
-        this.getPostLikeList().add(postLike);
-    }
+    @OneToMany(mappedBy = "post")
+    private List<HashTagMapping> hashTagMappingList = new ArrayList<>();
 
-    public void AddComment(Comment comment) {
-        comment.setPost(this);
-        this.getCommentList().add(comment);
-    }
-
-    public void setMember(Member member) {
+    @Builder
+    public Post(Member member,String title,String content,String imageUrl) {
         this.member = member;
+        this.title = title;
+        this.content = content;
+        this.imageUrl = imageUrl;
     }
 
-    public void setTitle(String title) {
+    public void ChangeTitle(String title) {
         this.title = title;
     }
 
-    public void setContent(String content) {
+    public void ChangeContent(String content) {
         this.content = content;
     }
 
-    public void setImageUrl(String imageUrl) {
+    public void ChangeImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 }

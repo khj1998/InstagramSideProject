@@ -1,9 +1,10 @@
-package CloneProject.InstagramClone.InstagramService.entity;
+package CloneProject.InstagramClone.InstagramService.entity.comment;
 
+import CloneProject.InstagramClone.InstagramService.entity.comment.Comment;
+import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Entity
@@ -22,6 +23,10 @@ public class CommentLike {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id")
     private Comment comment;
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
 
     public void setComment(Comment comment) {
         this.comment = comment;

@@ -2,14 +2,17 @@ package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
+import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface CommentService {
-    CommentDto AddComment(CommentDto commentDto);
-    CommentDto EditComment(CommentDto commentDto);
-    CommentLikeDto AddCommentLike(CommentLikeDto commentLikeDto);
-    void DeleteComment(String commentId);
-    List<CommentDto> GetMyComments(HttpServletRequest req);
+    ResponseEntity<ApiResponse> AddComment(CommentDto commentDto);
+    ResponseEntity<ApiResponse> EditComment(CommentDto commentDto);
+    ResponseEntity<ApiResponse> AddCommentLike(CommentLikeDto commentLikeDto);
+    ResponseEntity<ApiResponse> DeleteComment(String commentId);
+    ResponseEntity<ApiResponse> GetMyComments(HttpServletRequest req);
+    ResponseEntity<ApiResponse> GetMyCommentLikes(HttpServletRequest req);
 }

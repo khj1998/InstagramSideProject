@@ -1,7 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.config.SpringConst;
-import CloneProject.InstagramClone.InstagramService.entity.Member;
+import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
@@ -11,6 +11,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TokenService implements InitializingBean {
@@ -39,7 +41,7 @@ public class TokenService implements InitializingBean {
         this.refresh_key = Keys.hmacShaKeyFor(refreshKeyBytes);
     }
 
-    public String ExtractToken(HttpServletRequest req) {
+    public String ExtractTokenFromReq(HttpServletRequest req) {
         String authorizationHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
         if (authorizationHeader.isBlank() || !authorizationHeader.startsWith("Bearer ")) {
             throw new JwtIllegalException("인증 토큰이 유효하지 않습니다.");
