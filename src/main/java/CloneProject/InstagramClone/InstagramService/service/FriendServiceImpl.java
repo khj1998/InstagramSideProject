@@ -1,6 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.friend.FriendDto;
+import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.entity.friend.Friend;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.exception.friend.DuplicatedFriendException;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +34,7 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     @Transactional
-    public List<FriendDto> AddFriend(List<FriendDto> friendDtoList) {
+    public ResponseEntity<ApiResponse> AddFriend(List<FriendDto> friendDtoList) {
         if (friendDtoList.size() == 0) {
             throw new FriendMinSelectException("FriendMinSelectException occurred");
         }
@@ -40,7 +42,7 @@ public class FriendServiceImpl implements FriendService {
         String accessToken = friendDtoList.get(0).getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
         Long fromMemberId = fromMember.getId();
-        List<FriendDto> resDtoList = new ArrayList<>();
+        List<FriendDto> responseDtoList = new ArrayList<>();
 
         for (FriendDto friendDto : friendDtoList) {
             Member toMember = memberRepository.findById(friendDto.getId())
@@ -58,15 +60,19 @@ public class FriendServiceImpl implements FriendService {
             friendRepository.save(friend);
             FriendDto f = modelMapper.map(friend.getToMember(),FriendDto.class);
             f.setCreatedAt(friend.getCreatedAt());
-            resDtoList.add(f);
+            responseDtoList.add(f);
         }
 
-        return resDtoList;
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Add Friends")
+                .data(responseDtoList)
+                .build();
     }
 
     @Override
     @Transactional
-    public void DeleteFriend(List<FriendDto> friendDtoList) {
+    public ResponseEntity<ApiResponse> DeleteFriend(List<FriendDto> friendDtoList) {
         if (friendDtoList.size() == 0) {
             throw new FriendMinSelectException("FriendMinSelectException occurred");
         }
@@ -81,21 +87,30 @@ public class FriendServiceImpl implements FriendService {
                     .orElseThrow(()->new FriendNoFoundException("FriendNoFoundException occurred"));
             friendRepository.delete(friend);
         }
+
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Delete Friends")
+                .build();
     }
 
     @Override
-    public List<FriendDto> GetFriendList(HttpServletRequest req) {
+    public ResponseEntity<ApiResponse> GetFriendList(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Friend> friendList = memberEntity.getFriendList();
-        List<FriendDto> friendDtoList = new ArrayList<>();
+        List<FriendDto> responseDtoList = new ArrayList<>();
 
         for (Friend friend : friendList) {
             FriendDto friendDto = modelMapper.map(friend.getToMember(),FriendDto.class);
             friendDto.setCreatedAt(friend.getCreatedAt());
-            friendDtoList.add(friendDto);
+            responseDtoList.add(friendDto);
         }
 
-        return friendDtoList;
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Get Friends")
+                .data(responseDtoList)
+                .build();
     }
 }

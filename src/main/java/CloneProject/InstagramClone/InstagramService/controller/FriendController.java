@@ -21,30 +21,16 @@ public class FriendController {
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse> GetFriend(HttpServletRequest req) {
-        List<FriendDto> resDto = friendService.GetFriendList(req);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Get Friends")
-                .data(resDto)
-                .build();
+        return friendService.GetFriendList(req);
     }
 
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> AddFriend(@RequestBody List<FriendDto> friendDtoList) {
-        List<FriendDto> resDto = friendService.AddFriend(friendDtoList);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Add Friends")
-                .data(resDto)
-                .build();
+        return friendService.AddFriend(friendDtoList);
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResponse> DeleteFriend(@RequestBody List<FriendDto> friendDtoList) {
-        friendService.DeleteFriend(friendDtoList);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Delete Friends")
-                .build();
+        return friendService.DeleteFriend(friendDtoList);
     }
 }

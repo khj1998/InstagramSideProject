@@ -22,23 +22,12 @@ public class UserController {
 
     @PostMapping("/users/register")
     public ResponseEntity<ApiResponse> SignUpUser(@RequestBody SignUpDto signUpDto) {
-        userService.CreateUser(signUpDto);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Sign Up Success")
-                .data(signUpDto)
-                .build();
+        return userService.CreateUser(signUpDto);
     }
 
     @GetMapping("/login/success")
     public ResponseEntity<AuthResponse> login(@RequestParam String username) {
-        String accessToken = userService.CreateJwtToken(username);
-        return new AuthResponse
-                .AuthResponseBuilder(true,"Bearer")
-                .setAccessToken(accessToken)
-                .setExpiresIn(ACCESS_TOKEN_EXPIRATION_TIME/1000)
-                .setMessage("Login Success")
-                .build();
+        return userService.LogInSuccessProcess(username);
     }
 
     @GetMapping("/login/failure")
@@ -51,13 +40,7 @@ public class UserController {
 
     @PostMapping("/access-token/re-allocation")
     public ResponseEntity<AuthResponse> allocateAccessToken(@RequestBody AuthDto authDto) {
-        String accessToken = userService.ReallocateAccessToken(authDto);
-        return new AuthResponse
-                .AuthResponseBuilder(true,"Bearer")
-                .setAccessToken(accessToken)
-                .setExpiresIn(ACCESS_TOKEN_EXPIRATION_TIME/1000)
-                .setMessage("create access token")
-                .build();
+        return userService.ReallocateAccessToken(authDto);
     }
 
     @GetMapping("/service")

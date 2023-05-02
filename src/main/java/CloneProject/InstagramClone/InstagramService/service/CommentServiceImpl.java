@@ -23,7 +23,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -40,14 +42,19 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentDto EditComment(CommentDto commentDto) {
+    public ResponseEntity<ApiResponse> EditComment(CommentDto commentDto) {
         Comment commentEntity = commentRepository
                 .findById(commentDto.getCommentId())
                 .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
         commentEntity.setContent(commentDto.getContent());
         commentRepository.save(commentEntity);
+        CommentDto resDto =  modelMapper.map(commentEntity,CommentDto.class);
 
-        return modelMapper.map(commentEntity,CommentDto.class);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Comment Edit")
+                .data(resDto)
+                .build();
     }
 
     /**
@@ -55,7 +62,7 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     @Transactional
-    public CommentDto AddComment(CommentDto commentDto) throws JwtExpiredException,UsernameNotFoundException {
+    public ResponseEntity<ApiResponse> AddComment(CommentDto commentDto) throws JwtExpiredException,UsernameNotFoundException {
         Post postEntity = postRepository
                 .findById(commentDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
@@ -66,7 +73,12 @@ public class CommentServiceImpl implements CommentService {
         postRepository.save(postEntity);
         memberRepository.save(memberEntity);
 
-        return modelMapper.map(commentEntity, CommentDto.class);
+        CommentDto resDto =  modelMapper.map(commentEntity, CommentDto.class);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Add Comment")
+                .data(resDto)
+                .build();
     }
 
     @Override
@@ -102,39 +114,55 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void DeleteComment(String commentId) {
+    public ResponseEntity<ApiResponse> DeleteComment(String commentId) {
         Long id = Long.parseLong(commentId);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+        Date date = new Date(System.currentTimeMillis());
         commentRepository.deleteById(id);
+
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Delete CommentId : "+commentId)
+                .updatedAt(formatter.format(date))
+                .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CommentDto> GetMyComments(HttpServletRequest req) throws JwtExpiredException,UsernameNotFoundException {
-        List<CommentDto> result = new ArrayList<>();
+    public ResponseEntity<ApiResponse> GetMyComments(HttpServletRequest req) throws JwtExpiredException,UsernameNotFoundException {
+        List<CommentDto> commentDtoList = new ArrayList<>();
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Comment> commentList = memberEntity.getCommentList();
 
         for (Comment comment : commentList) {
-            result.add(modelMapper.map(comment, CommentDto.class));
+            commentDtoList.add(modelMapper.map(comment, CommentDto.class));
         }
 
-        return result;
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Get My Comments")
+                .data(commentDtoList)
+                .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<CommentDto> GetMyCommentLikes(HttpServletRequest req) {
-        List<CommentDto> result = new ArrayList<>();
+    public ResponseEntity<ApiResponse> GetMyCommentLikes(HttpServletRequest req) {
+        List<CommentDto> resDto = new ArrayList<>();
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<CommentLike> commentLikeList = memberEntity.getCommentLikeList();
 
         for (CommentLike commentLike : commentLikeList) {
-            result.add(modelMapper.map(commentLike.getComment(),CommentDto.class));
+            resDto.add(modelMapper.map(commentLike.getComment(),CommentDto.class));
         }
 
-        return result;
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("좋아요를 누른 댓글 리스트 조회")
+                .data(resDto)
+                .build();
     }
 }

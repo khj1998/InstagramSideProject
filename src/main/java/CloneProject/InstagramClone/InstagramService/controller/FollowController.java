@@ -28,70 +28,36 @@ public class FollowController {
 
     @DeleteMapping("/unfollowing")
     public ResponseEntity<FollowResponse> unFollowing(@RequestBody FollowDto followDto) {
-        followService.unFollow(followDto);
-        return new FollowResponse.FollowResponseBuilder<>()
-                .success(true)
-                .message("Un Following Id : "+followDto.getId())
-                .build();
+        return followService.unFollow(followDto);
     }
 
     @PostMapping("/users/blocking")
     public ResponseEntity<FollowResponse> blockUser(@RequestBody BlockUserDto blockUserDto) {
-        BlockUserDto resDto = followService.blockUser(blockUserDto);
-        return new FollowResponse.FollowResponseBuilder<>()
-                .success(true)
-                .message("blocking member")
-                .fromMember("")
-                .toMember("")
-                .build();
+        return followService.blockUser(blockUserDto);
     }
 
     @DeleteMapping("/users/unblocking")
     public ResponseEntity<ApiResponse> unblockUser(@RequestBody BlockUserDto blockUserDto) {
-        followService.unBlockUser(blockUserDto);
-        return  new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("unblock user email : " + blockUserDto.getEmail())
-                .build();
+        return followService.unBlockUser(blockUserDto);
     }
 
     @GetMapping("/followings/list")
     public ResponseEntity<ApiResponse> getFollowings(HttpServletRequest req) {
-        List<FollowDto> followingList = followService.getFollowings(req);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Get User Following List")
-                .data(followingList)
-                .build();
+        return followService.getFollowings(req);
     }
 
     @GetMapping("/followers/list")
     public ResponseEntity<ApiResponse> getFollowers(HttpServletRequest req) {
-        List<FollowDto> followerList = followService.getFollowers(req);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Get User Follower List")
-                .data(followerList)
-                .build();
+        return followService.getFollowers(req);
     }
 
     @GetMapping("/users/blocked")
     public ResponseEntity<ApiResponse> getBlockedUsers(HttpServletRequest req) {
-        List<BlockUserDto> resDto = followService.getBlockedUsers(req);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("get all blocked users")
-                .data(resDto)
-                .build();
+        return followService.getBlockedUsers(req);
     }
 
     @GetMapping("/users/blocking")
     public ResponseEntity<ApiResponse> getBlockingUsers(HttpServletRequest req) {
-        List<BlockUserDto> resDto = followService.getBlockingUsers(req);
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("users who blocking my account")
-                .data(resDto)
-                .build();
+        return followService.getBlockingUsers(req);
     }
 }

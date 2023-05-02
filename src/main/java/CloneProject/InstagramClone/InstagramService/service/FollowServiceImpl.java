@@ -3,6 +3,7 @@ package CloneProject.InstagramClone.InstagramService.service;
 import static CloneProject.InstagramClone.InstagramService.config.SpringConst.*;
 import CloneProject.InstagramClone.InstagramService.dto.follow.BlockUserDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
+import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.FollowResponse;
 import CloneProject.InstagramClone.InstagramService.entity.member.BlockedMember;
 import CloneProject.InstagramClone.InstagramService.entity.follow.Follow;
@@ -75,7 +76,7 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     @Transactional
-    public void unFollow(FollowDto followDto) throws JwtExpiredException {
+    public ResponseEntity<FollowResponse> unFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
         Member toMember = memberRepository
@@ -89,11 +90,16 @@ public class FollowServiceImpl implements FollowService {
         followRepository.delete(follow);
         FollowDto result = modelMapper.map(follow,FollowDto.class);
         result.setId(followDto.getId());
+
+        return new FollowResponse.FollowResponseBuilder<>()
+                .success(true)
+                .message("Un Following Id : "+followDto.getId())
+                .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<FollowDto> getFollowings(HttpServletRequest req) throws JwtExpiredException {
+    public ResponseEntity<ApiResponse> getFollowings(HttpServletRequest req) throws JwtExpiredException {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
@@ -103,27 +109,36 @@ public class FollowServiceImpl implements FollowService {
         for (Follow follow : followingList) {
             result.add(modelMapper.map(follow.getToMember(),FollowDto.class));
         }
-        return result;
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Get User Following List")
+                .data(followingList)
+                .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<FollowDto> getFollowers(HttpServletRequest req) throws JwtExpiredException {
+    public ResponseEntity<ApiResponse> getFollowers(HttpServletRequest req) throws JwtExpiredException {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
-        List<FollowDto> result = new ArrayList<>();
+        List<FollowDto> resDtoList = new ArrayList<>();
         List<Follow> followerList = memberEntity.getFollowerList();
 
         for (Follow follower : followerList) {
-            result.add(modelMapper.map(follower.getFromMember(),FollowDto.class));
+            resDtoList.add(modelMapper.map(follower.getFromMember(),FollowDto.class));
         }
-        return result;
+
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Get User Follower List")
+                .data(resDtoList)
+                .build();
     }
 
     @Override
     @Transactional
-    public BlockUserDto blockUser(BlockUserDto blockUserDto) {
+    public ResponseEntity<FollowResponse> blockUser(BlockUserDto blockUserDto) {
         String accessToken = blockUserDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken); // 차단 거는쪽
         Member toMember = memberRepository
@@ -144,12 +159,17 @@ public class FollowServiceImpl implements FollowService {
         BlockUserDto result = modelMapper.map(blockedUser, BlockUserDto.class);
         result.setId(blockUserDto.getId());
 
-        return result;
+        return new FollowResponse.FollowResponseBuilder<>()
+                .success(true)
+                .message("blocking member")
+                .fromMember("")
+                .toMember("")
+                .build();
     }
 
     @Override
     @Transactional
-    public void unBlockUser(BlockUserDto blockUserDto) {
+    public ResponseEntity<ApiResponse> unBlockUser(BlockUserDto blockUserDto) {
         String accessToken = blockUserDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
         Member toMember = memberRepository
@@ -163,37 +183,50 @@ public class FollowServiceImpl implements FollowService {
 
         BlockUserDto result = modelMapper.map(blockedUser, BlockUserDto.class);
         result.setId(blockedUser.getId());
+
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("unblock user email : " + blockUserDto.getEmail())
+                .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<BlockUserDto> getBlockedUsers(HttpServletRequest req) {
+    public ResponseEntity<ApiResponse> getBlockedUsers(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
-        List<BlockUserDto> result = new ArrayList<>();
+        List<BlockUserDto> responseDtoList = new ArrayList<>();
         List<BlockedMember> blockedMemberList = memberEntity.getBlockingList();
 
         for (BlockedMember blockedMember : blockedMemberList) {
-            result.add(modelMapper.map(blockedMember.getToMember(),BlockUserDto.class));
+            responseDtoList.add(modelMapper.map(blockedMember.getToMember(),BlockUserDto.class));
         }
 
-        return result;
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("get all blocked users")
+                .data(responseDtoList)
+                .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<BlockUserDto> getBlockingUsers(HttpServletRequest req) {
+    public ResponseEntity<ApiResponse> getBlockingUsers(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
-        List<BlockUserDto> result = new ArrayList<>();
+        List<BlockUserDto> responseDtoList = new ArrayList<>();
         List<BlockedMember> blockedMemberList = memberEntity.getBlockedList();
 
         for (BlockedMember blockedMember : blockedMemberList) {
-            result.add(modelMapper.map(blockedMember.getFromMember(), BlockUserDto.class));
+            responseDtoList.add(modelMapper.map(blockedMember.getFromMember(), BlockUserDto.class));
         }
 
-        return result;
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("users who blocking my account")
+                .data(responseDtoList)
+                .build();
     }
 }
