@@ -113,6 +113,14 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void DeletePost(String postId) {
         Long id = Long.parseLong(postId);
+        Post postEntity = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
+        List<HashTagMapping> hashTagMappingList = postEntity.getHashTagMappingList();
+
+        for (HashTagMapping hashTagMapping : hashTagMappingList) {
+            hashTagRepository.delete(hashTagMapping.getHashTag());
+            hashTagMappingRepository.delete(hashTagMapping);
+        }
         postRepository.deleteById(id);
     }
 

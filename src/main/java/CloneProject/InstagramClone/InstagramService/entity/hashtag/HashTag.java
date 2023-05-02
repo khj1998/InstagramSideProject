@@ -25,7 +25,7 @@ public class HashTag {
     @CreationTimestamp
     private Date createdAt;
 
-    @OneToMany(mappedBy = "hashTag",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "hashTag")
     private List<HashTagMapping> hashTagMappingList = new ArrayList<>();
 
     @Builder
