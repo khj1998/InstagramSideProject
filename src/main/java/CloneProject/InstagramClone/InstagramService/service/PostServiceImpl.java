@@ -86,8 +86,8 @@ public class PostServiceImpl implements PostService {
                 hashTagRepository.save(hashTag);
             }
         }
-
         postRepository.save(postEntity);
+
         PostDto resData = modelMapper.map(postEntity, PostDto.class);
         resData.setHashTagList(postDto.getHashTagList());
 
