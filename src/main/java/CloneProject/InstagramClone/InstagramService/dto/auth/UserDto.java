@@ -1,6 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.lang.Nullable;
@@ -8,7 +9,7 @@ import org.springframework.lang.Nullable;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto {
-    @NotBlank
+    @Email
     private String email;
 
     @NotBlank

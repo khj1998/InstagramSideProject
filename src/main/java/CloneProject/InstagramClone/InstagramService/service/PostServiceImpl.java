@@ -99,7 +99,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> FindPost(HttpServletRequest req,Long postId) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         tokenService.isTokenValid(accessToken);

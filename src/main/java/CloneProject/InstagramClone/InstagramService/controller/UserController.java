@@ -2,6 +2,7 @@ package CloneProject.InstagramClone.InstagramService.controller;
 
 import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
+import CloneProject.InstagramClone.InstagramService.dto.auth.UserDto;
 import CloneProject.InstagramClone.InstagramService.service.UserService;
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;

@@ -2,12 +2,14 @@ package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
+import CloneProject.InstagramClone.InstagramService.dto.auth.UserDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
 import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
+import CloneProject.InstagramClone.InstagramService.exception.user.IllegalUserIdException;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
 import CloneProject.InstagramClone.InstagramService.entity.member.Role;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
@@ -82,15 +84,16 @@ public class UserServiceImpl implements UserService{
     @Transactional
     public ResponseEntity<AuthResponse> ReallocateAccessToken(AuthDto authDto) {
 
-        String username = tokenService.extractUsername(authDto.getAccessToken());
-        if (username == null) {
-            throw new JwtExpiredException("Invalid AccessToken");
+        Long userId = authDto.getUserId();
+        if (userId == null) {
+            throw new IllegalUserIdException("IllegalUserIdException occurred");
         }
-        
+
         Member member = memberRepository
-                .findByEmail(username)
+                .findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
-        String refreshToken = (String) redisTemplate.opsForValue().get(username);
+        String userName = member.getUsername();
+        String refreshToken = (String) redisTemplate.opsForValue().get(userName);
         String accessToken;
 
         try {
@@ -98,7 +101,7 @@ public class UserServiceImpl implements UserService{
             tokenService.isRefreshTokenValid(refreshToken);
             accessToken = tokenService.generateAccessToken(member);
             refreshToken = tokenService.generateRefreshToken(member);
-            redisTemplate.opsForValue().set(username,refreshToken);
+            redisTemplate.opsForValue().set(userName,refreshToken);
         } catch (ExpiredJwtException e) {
             throw new JwtExpiredException("RefreshToken Expired");
         } catch (IllegalArgumentException e) {

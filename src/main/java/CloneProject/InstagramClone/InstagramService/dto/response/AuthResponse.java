@@ -5,16 +5,18 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.springframework.http.ResponseEntity;
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@JsonPropertyOrder({"success","message","accessToken","tokenType","expiresIn"})
+@JsonPropertyOrder({"success","userId","message","accessToken","tokenType","expiresIn"})
 public class AuthResponse {
-    public boolean success;
-    public String accessToken;
-    public String tokenType;
-    public Integer expiresIn;
-    public String message;
+    private final boolean success;
+    private final Long userId;
+    private final String accessToken;
+    private final String tokenType;
+    private final Integer expiresIn;
+    private final String message;
 
     private AuthResponse(AuthResponseBuilder builder) {
         this.success = builder.success;
+        this.userId = builder.userId;
         this.accessToken = builder.accessToken;
         this.tokenType = builder.tokenType;
         this.expiresIn = builder.expiresIn;
@@ -23,6 +25,10 @@ public class AuthResponse {
 
     public boolean getSuccess() {
         return this.success;
+    }
+
+    public Long getUserId() {
+        return this.userId;
     }
 
     public String getAccessToken() {
@@ -43,6 +49,7 @@ public class AuthResponse {
 
     public static class AuthResponseBuilder {
         private boolean success;
+        private Long userId;
         private String accessToken;
         private String tokenType;
         private Integer expiresIn;
@@ -51,6 +58,11 @@ public class AuthResponse {
         public AuthResponseBuilder(boolean success, String tokenType) {
             this.success = success;
             this.tokenType = tokenType;
+        }
+
+        public AuthResponseBuilder setUserId(Long userId) {
+            this.userId = userId;
+            return this;
         }
 
         public AuthResponseBuilder setAccessToken(String accessToken) {

@@ -17,6 +17,7 @@ import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalExce
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
 import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
 import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
+import CloneProject.InstagramClone.InstagramService.exception.user.IllegalUserIdException;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotAuthenticated;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,14 @@ public class ExceptionControllerAdvice {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid authentication request")
                 .setException_message("user principal not exists")
+                .build();
+    }
+
+    @ExceptionHandler(IllegalUserIdException.class)
+    public ResponseEntity<ExceptionResponse> handleIllegalUserIdException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid user id request")
+                .setException_message("user id must not be null")
                 .build();
     }
 

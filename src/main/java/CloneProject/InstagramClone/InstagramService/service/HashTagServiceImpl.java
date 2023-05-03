@@ -8,10 +8,16 @@ import CloneProject.InstagramClone.InstagramService.repository.HashTagRepository
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.asm.IModelFilter;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -23,6 +29,7 @@ public class HashTagServiceImpl implements HashTagService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> GetHashTag(HttpServletRequest req,String hashTagName) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         tokenService.isTokenValid(accessToken);
@@ -39,6 +46,27 @@ public class HashTagServiceImpl implements HashTagService {
                 .success(true)
                 .message("Get HashTag Count")
                 .data(resDto)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<ApiResponse> GetPopularHashTag(HttpServletRequest req) {
+        String accessToken = tokenService.ExtractTokenFromReq(req);
+        tokenService.isTokenValid(accessToken);
+        Slice<HashTag> hashTagList = hashTagRepository.findSliceBy(PageRequest.of(0,3, Sort.by(Sort.Direction.DESC,"tagCount")));
+        List<HashTagDto> resDtoList = new ArrayList<>();
+
+        List<HashTag> hashTags = hashTagList.getContent();
+
+        for (HashTag hashTag : hashTags) {
+            resDtoList.add(modelMapper.map(hashTag, HashTagDto.class));
+        }
+
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Get Popular HashTag")
+                .data(resDtoList)
                 .build();
     }
 }

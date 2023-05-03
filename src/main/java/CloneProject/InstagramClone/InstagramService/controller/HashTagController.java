@@ -16,10 +16,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/hashtags")
 @RequiredArgsConstructor
 public class HashTagController {
-
     private final HashTagService hashTagService;
+
     @GetMapping("/find")
-    public ResponseEntity<ApiResponse> getHashTagCounts(HttpServletRequest req,@RequestParam("hashTag") String hashTag) {
+    public ResponseEntity<ApiResponse> getHashTagCounts(HttpServletRequest req,
+                                                        @RequestParam("hashTag") String hashTag) {
         return hashTagService.GetHashTag(req,hashTag);
+    }
+
+    @GetMapping("/popular-tags")
+    public ResponseEntity<ApiResponse> getPopularTags(HttpServletRequest req) {
+        return hashTagService.GetPopularHashTag(req);
     }
 }
