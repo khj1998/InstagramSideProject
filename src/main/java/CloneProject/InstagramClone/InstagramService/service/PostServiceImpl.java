@@ -78,7 +78,7 @@ public class PostServiceImpl implements PostService {
                         .build();
                 hashTagMappingRepository.save(hashTagMapping);
             } else {
-                hashTag.UpdateTagCount();
+                hashTag.AddTagCount();
             }
 
             if (!sameTagChecker.contains(hashTag.getTagName())) {
@@ -131,6 +131,49 @@ public class PostServiceImpl implements PostService {
         postEntity.ChangeTitle(postDto.getTitle());
         postEntity.ChangeContent(postDto.getContent());
         postEntity.ChangeImageUrl(postDto.getImageUrl());
+
+        List<HashTagMapping> hashTagMappingList = postEntity.getHashTagMappingList();
+        List<HashTag> hashTagList = new ArrayList<>();
+        List<HashTagDto> hashDtoList = postDto.getHashTagList();
+
+        for (HashTagMapping hashTagMapping : hashTagMappingList) {
+            hashTagList.add(hashTagMapping.getHashTag());
+        }
+
+        for (HashTagDto hashTagDto : hashDtoList) {
+            HashTag hashTag = HashTag.builder()
+                    .tagName(hashTagDto.getTagName())
+                    .build();
+
+            if (!hashTagList.contains(hashTag)) {
+                hashTag = hashTagRepository.findByTagName(hashTagDto.getTagName());
+                if (hashTag == null) {
+                    hashTag = HashTag.builder()
+                            .tagName(hashTagDto.getTagName())
+                            .tagCount(1L)
+                            .build();
+                } else {
+                    hashTag.AddTagCount();
+                }
+                hashTagRepository.save(hashTag);
+            }
+        }
+
+        for (HashTag tag : hashTagList) {
+            boolean isRemoved = true;
+            for (HashTagDto hashTagDto : hashDtoList) {
+                if (tag.getTagName().equals(hashTagDto.getTagName())) {
+                    isRemoved = false;
+                    break;
+                }
+            }
+            if (isRemoved) {
+                if (tag.getTagCount()>=2) {
+                    tag.MinusTagCount();
+                }
+                hashTagRepository.delete(tag);
+            }
+        }
 
         postRepository.save(postEntity);
         PostDto resDto = modelMapper.map(postEntity,PostDto.class);

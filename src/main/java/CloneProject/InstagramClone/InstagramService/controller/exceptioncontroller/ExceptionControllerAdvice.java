@@ -12,6 +12,7 @@ import CloneProject.InstagramClone.InstagramService.exception.friend.FriendNoFou
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagLimitException;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNameNotValidException;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNotFoundException;
+import CloneProject.InstagramClone.InstagramService.exception.hashtag.NotHashTagEntityException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
@@ -164,6 +165,14 @@ public class ExceptionControllerAdvice {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid hashtag request")
                 .setException_message("Such HashTag not found")
+                .build();
+    }
+
+    @ExceptionHandler(NotHashTagEntityException.class)
+    public ResponseEntity<ExceptionResponse> handleNotHashTagEntityException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid entity request")
+                .setException_message("Hashtag Entity required")
                 .build();
     }
 

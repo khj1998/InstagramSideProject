@@ -1,5 +1,6 @@
 package CloneProject.InstagramClone.InstagramService.entity.hashtag;
 
+import CloneProject.InstagramClone.InstagramService.exception.hashtag.NotHashTagEntityException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,7 +37,24 @@ public class HashTag {
         this.tagCount = tagCount;
     }
 
-    public void UpdateTagCount() {
+    public void AddTagCount() {
         this.tagCount+=1;
+    }
+
+    public void MinusTagCount() {
+        this.tagCount-=1;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof HashTag)) {
+            throw new NotHashTagEntityException("NotHashTagEntityException occurred");
+        }
+        return ((HashTag) obj).getTagName().equals(this.tagName);
+    }
+
+    @Override
+    public int hashCode() {
+        return 23 + Integer.parseInt(this.tagName);
     }
 }
