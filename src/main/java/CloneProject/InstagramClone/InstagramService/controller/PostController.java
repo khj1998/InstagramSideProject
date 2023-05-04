@@ -53,7 +53,7 @@ public class PostController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<ApiResponse> deletePost(@RequestParam("postId") String postId) {
+    public ResponseEntity<ApiResponse> deletePost(@RequestParam("postId") Long postId) {
         return postService.DeletePost(postId);
     }
 }

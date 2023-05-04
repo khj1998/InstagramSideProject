@@ -15,7 +15,7 @@ public interface PostService {
     ResponseEntity<ApiResponse> AddPost(PostDto postDto);
     ResponseEntity<ApiResponse> FindPost(HttpServletRequest req,Long postId);
     ResponseEntity<ApiResponse> EditPost(PostDto postDto);
-    ResponseEntity<ApiResponse> DeletePost(String postId);
+    ResponseEntity<ApiResponse> DeletePost(Long postId);
     ResponseEntity<ApiResponse> AddPostLike(PostLikeDto postLikeDto);
     ResponseEntity<ApiResponse> GetMyPosts(HttpServletRequest req);
     ResponseEntity<ApiResponse> GetPostLikeList(HttpServletRequest req);

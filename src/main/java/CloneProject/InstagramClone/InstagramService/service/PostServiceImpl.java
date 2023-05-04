@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 @Slf4j
@@ -170,8 +171,10 @@ public class PostServiceImpl implements PostService {
             if (isRemoved) {
                 if (tag.getTagCount()>=2) {
                     tag.MinusTagCount();
+                    hashTagRepository.save(tag);
+                } else {
+                    hashTagRepository.delete(tag);
                 }
-                hashTagRepository.delete(tag);
             }
         }
 
@@ -187,17 +190,10 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> DeletePost(String postId) {
-        Long id = Long.parseLong(postId);
-        Post postEntity = postRepository.findById(id)
+    public ResponseEntity<ApiResponse> DeletePost(Long postId) {
+        Post postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
-        List<HashTagMapping> hashTagMappingList = postEntity.getHashTagMappingList();
-
-        for (HashTagMapping hashTagMapping : hashTagMappingList) {
-            hashTagRepository.delete(hashTagMapping.getHashTag());
-            hashTagMappingRepository.delete(hashTagMapping);
-        }
-        postRepository.deleteById(id);
+        postRepository.delete(postEntity);
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
         Date date = new Date(System.currentTimeMillis());
