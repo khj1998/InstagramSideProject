@@ -179,19 +179,18 @@ public class PostServiceImpl implements PostService {
             boolean isRemoved = true;
             for (HashTagDto hashTagDto : hashDtoList) {
                 if (!hashTagDto.getTagName().startsWith("#")){
-                    throw new HashTagNameNotValidException("HashTagNameNotValidException occured");
+                    throw new HashTagNameNotValidException("HashTagNameNotValidException occurred");
                 }
 
-                log.info("비교할 기존 해시태그 {}, 업데이트 해시 태그{}",tag.getTagName(),hashTagDto.getTagName());
                 if (tag.getTagName().equals(hashTagDto.getTagName())) {
                     isRemoved = false;
                     break;
                 }
             }
             if (isRemoved) {
-                log.info("삭제할 기존 해시태그 {}",tag.getTagName());
                 hashTagMapping = hashTagMappingRepository.findByPostIdAndHashTagId(postEntity.getId(),tag.getId())
                         .orElseThrow(() -> new HashTagMappingNotFoundException("HashTagMappingNotFoundException occurred"));
+                log.info("삭제할 태그 조회 : {}",hashTagMapping.getHashTag().getTagName());
 
                 if (tag.getTagCount()>=2) {
                     tag.MinusTagCount();
