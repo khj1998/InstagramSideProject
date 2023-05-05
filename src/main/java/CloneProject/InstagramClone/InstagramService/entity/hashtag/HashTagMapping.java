@@ -20,7 +20,7 @@ public class HashTagMapping {
     @JoinColumn(name = "post_fk")
     private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     @JoinColumn(name = "hashtag_fk")
     private HashTag hashTag;
 

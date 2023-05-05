@@ -29,7 +29,7 @@ public class HashTag {
     @CreationTimestamp
     private Date createdAt;
 
-    @OneToMany(mappedBy = "hashTag",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "hashTag",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<HashTagMapping> hashTagMappingList = new ArrayList<>();
 
     public void setHashTagMappingList(List<HashTagMapping> hashTagMappingList) {

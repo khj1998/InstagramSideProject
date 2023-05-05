@@ -195,9 +195,9 @@ public class PostServiceImpl implements PostService {
                     tag.MinusTagCount();
                     hashTagRepository.save(tag);
                 } else {
-                    hashTagRepository.delete(tag);
+                    hashTagRepository.deleteById(tag.getId());
                 }
-                hashTagMappingRepository.delete(hashTagMapping);
+                //hashTagMappingRepository.deleteById(hashTagMapping.getId());
             }
         }
         PostDto resDto = modelMapper.map(postEntity,PostDto.class);
