@@ -190,7 +190,6 @@ public class PostServiceImpl implements PostService {
             if (isRemoved) {
                 hashTagMapping = hashTagMappingRepository.findByPostIdAndHashTagId(postEntity.getId(),tag.getId())
                         .orElseThrow(() -> new HashTagMappingNotFoundException("HashTagMappingNotFoundException occurred"));
-                log.info("삭제할 태그 조회 : {}",hashTagMapping.getHashTag().getTagName());
 
                 if (tag.getTagCount()>=2) {
                     tag.MinusTagCount();
@@ -273,14 +272,15 @@ public class PostServiceImpl implements PostService {
     public ResponseEntity<ApiResponse> GetMyPosts(HttpServletRequest req) throws JwtExpiredException {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
+
         HashTag hashTag;
-        List<HashTagMapping> hashTagMappingList;
         PostDto postDto;
+        List<HashTagMapping> hashTagMappingList;
         List<PostDto> resDtoList = new ArrayList<>();
         List<Post> postList = memberEntity.getPostList();
-        List<HashTagDto> HashTagDtoList = new ArrayList<>();
 
         for (Post post : postList) {
+            List<HashTagDto> HashTagDtoList = new ArrayList<>();
             hashTagMappingList = post.getHashTagMappingList();
             for (HashTagMapping hashTagMapping : hashTagMappingList) {
                 hashTag = hashTagMapping.getHashTag();
