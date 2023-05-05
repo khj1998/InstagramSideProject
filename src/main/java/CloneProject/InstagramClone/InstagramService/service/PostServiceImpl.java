@@ -93,9 +93,14 @@ public class PostServiceImpl implements PostService {
             hashTagMappingRepository.save(hashTagMapping);
         }
         postRepository.save(postEntity);
-
         PostDto resData = modelMapper.map(postEntity, PostDto.class);
-        resData.setHashTagList(postDto.getHashTagList());
+
+        for (HashTag hashTag : sameTagChecker) {
+            HashTagDto hashTagDto = HashTagDto.builder()
+                    .tagName(hashTag.getTagName())
+                    .build();
+            resData.getHashTagList().add(hashTagDto);
+        }
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
