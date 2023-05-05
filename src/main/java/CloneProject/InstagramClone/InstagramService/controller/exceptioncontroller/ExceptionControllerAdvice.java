@@ -9,10 +9,7 @@ import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFai
 import CloneProject.InstagramClone.InstagramService.exception.friend.DuplicatedFriendException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendMinSelectException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendNoFoundException;
-import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagLimitException;
-import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNameNotValidException;
-import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNotFoundException;
-import CloneProject.InstagramClone.InstagramService.exception.hashtag.NotHashTagEntityException;
+import CloneProject.InstagramClone.InstagramService.exception.hashtag.*;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
@@ -176,10 +173,18 @@ public class ExceptionControllerAdvice {
                 .build();
     }
 
+    @ExceptionHandler(HashTagMappingNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleNotHashTagMappingException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid HashTagMapping Entity find process")
+                .setException_message("Such HashTagMapping Entity not exists")
+                .build();
+    }
+
     @ExceptionHandler(JwtExpiredException.class)
     public ResponseEntity<ExceptionResponse> handleJwtExpiredException() {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
-                .setException("invalid_request")
+                .setException("invalid jwt request")
                 .setException_message("Request with expired Json Web Token")
                 .build();
     }

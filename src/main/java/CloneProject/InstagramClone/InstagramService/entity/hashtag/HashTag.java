@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.ArrayList;
@@ -30,6 +31,10 @@ public class HashTag {
 
     @OneToMany(mappedBy = "hashTag",cascade = CascadeType.ALL)
     private List<HashTagMapping> hashTagMappingList = new ArrayList<>();
+
+    public void setHashTagMappingList(List<HashTagMapping> hashTagMappingList) {
+        this.hashTagMappingList = hashTagMappingList;
+    }
 
     @Builder
     public HashTag(String tagName,Long tagCount) {

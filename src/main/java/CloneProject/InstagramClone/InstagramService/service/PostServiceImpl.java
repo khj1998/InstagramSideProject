@@ -10,6 +10,7 @@ import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.entity.post.Post;
 import CloneProject.InstagramClone.InstagramService.entity.post.PostLike;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagLimitException;
+import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagMappingNotFoundException;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNameNotValidException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
@@ -46,7 +47,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> AddPost(PostDto postDto) throws JwtExpiredException {
-        List<String> sameTagChecker = new ArrayList<>();
+        List<HashTag> sameTagChecker = new ArrayList<>();
         Member memberEntity = tokenService.FindMemberByToken(postDto.getAccessToken());
         Post postEntity = Post.builder()
                 .member(memberEntity)
@@ -60,7 +61,6 @@ public class PostServiceImpl implements PostService {
         }
 
         for (HashTagDto hashTagDto : postDto.getHashTagList()) {
-
             if (!hashTagDto.getTagName().startsWith("#")) {
                 throw new HashTagNameNotValidException("HashTagNameNotValidException occurred");
             }
@@ -68,7 +68,7 @@ public class PostServiceImpl implements PostService {
             HashTag hashTag = hashTagRepository.findByTagName(hashTagDto.getTagName());
             HashTagMapping hashTagMapping;
 
-            if (hashTag == null) {
+            if (hashTag == null) { // 게시글에 추가되지 않았고, DB 에도 해당 해시태그 정보가 없는 상태
                 hashTag = HashTag.builder()
                         .tagName(hashTagDto.getTagName())
                         .tagCount(1L)
@@ -77,15 +77,20 @@ public class PostServiceImpl implements PostService {
                         .post(postEntity)
                         .hashTag(hashTag)
                         .build();
-                hashTagMappingRepository.save(hashTagMapping);
-            } else {
+                sameTagChecker.add(hashTag);
+            } else if (!sameTagChecker.contains(hashTag)) { // DB에 해시태그 정보가 있지만, 해당 게시글에는 추가되지 않은 상태
+                sameTagChecker.add(hashTag);
                 hashTag.AddTagCount();
+                hashTagMapping = HashTagMapping.builder()
+                        .post(postEntity)
+                        .hashTag(hashTag)
+                        .build();
+            } else { // 이미 게시글에 추가된 해시태그이고, DB에도 있는 해시태그.
+                continue;
             }
 
-            if (!sameTagChecker.contains(hashTag.getTagName())) {
-                sameTagChecker.add(hashTag.getTagName());
-                hashTagRepository.save(hashTag);
-            }
+            hashTagRepository.save(hashTag);
+            hashTagMappingRepository.save(hashTagMapping);
         }
         postRepository.save(postEntity);
 
@@ -132,13 +137,15 @@ public class PostServiceImpl implements PostService {
         postEntity.ChangeTitle(postDto.getTitle());
         postEntity.ChangeContent(postDto.getContent());
         postEntity.ChangeImageUrl(postDto.getImageUrl());
+        postRepository.save(postEntity);
 
         List<HashTagMapping> hashTagMappingList = postEntity.getHashTagMappingList();
         List<HashTag> hashTagList = new ArrayList<>();
         List<HashTagDto> hashDtoList = postDto.getHashTagList();
+        HashTagMapping hashTagMapping;
 
-        for (HashTagMapping hashTagMapping : hashTagMappingList) {
-            hashTagList.add(hashTagMapping.getHashTag());
+        for (HashTagMapping hashTagMappingEntity : hashTagMappingList) {
+            hashTagList.add(hashTagMappingEntity.getHashTag());
         }
 
         for (HashTagDto hashTagDto : hashDtoList) {
@@ -153,8 +160,11 @@ public class PostServiceImpl implements PostService {
                             .tagName(hashTagDto.getTagName())
                             .tagCount(1L)
                             .build();
-                } else {
-                    hashTag.AddTagCount();
+                    hashTagMapping = HashTagMapping.builder()
+                            .hashTag(hashTag)
+                            .post(postEntity)
+                            .build();
+                    hashTagMappingRepository.save(hashTagMapping);
                 }
                 hashTagRepository.save(hashTag);
             }
@@ -163,23 +173,32 @@ public class PostServiceImpl implements PostService {
         for (HashTag tag : hashTagList) {
             boolean isRemoved = true;
             for (HashTagDto hashTagDto : hashDtoList) {
+                if (!hashTagDto.getTagName().startsWith("#")){
+                    throw new HashTagNameNotValidException("HashTagNameNotValidException occured");
+                }
+
+                log.info("비교할 기존 해시태그 {}, 업데이트 해시 태그{}",tag.getTagName(),hashTagDto.getTagName());
                 if (tag.getTagName().equals(hashTagDto.getTagName())) {
                     isRemoved = false;
                     break;
                 }
             }
             if (isRemoved) {
+                log.info("삭제할 기존 해시태그 {}",tag.getTagName());
+                hashTagMapping = hashTagMappingRepository.findByPostIdAndHashTagId(postEntity.getId(),tag.getId())
+                        .orElseThrow(() -> new HashTagMappingNotFoundException("HashTagMappingNotFoundException occurred"));
+
                 if (tag.getTagCount()>=2) {
                     tag.MinusTagCount();
                     hashTagRepository.save(tag);
                 } else {
                     hashTagRepository.delete(tag);
                 }
+                hashTagMappingRepository.delete(hashTagMapping);
             }
         }
-
-        postRepository.save(postEntity);
         PostDto resDto = modelMapper.map(postEntity,PostDto.class);
+        resDto.setHashTagList(postDto.getHashTagList());
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
@@ -248,13 +267,24 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> GetMyPosts(HttpServletRequest req) throws JwtExpiredException {
-        List<PostDto> resDtoList = new ArrayList<>();
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
+        HashTag hashTag;
+        List<HashTagMapping> hashTagMappingList;
+        PostDto postDto;
+        List<PostDto> resDtoList = new ArrayList<>();
         List<Post> postList = memberEntity.getPostList();
+        List<HashTagDto> HashTagDtoList = new ArrayList<>();
 
         for (Post post : postList) {
-            resDtoList.add(modelMapper.map(post, PostDto.class));
+            hashTagMappingList = post.getHashTagMappingList();
+            for (HashTagMapping hashTagMapping : hashTagMappingList) {
+                hashTag = hashTagMapping.getHashTag();
+                HashTagDtoList.add(modelMapper.map(hashTag, HashTagDto.class));
+            }
+            postDto = modelMapper.map(post, PostDto.class);
+            postDto.setHashTagList(HashTagDtoList);
+            resDtoList.add(postDto);
         }
 
         return new ApiResponse.ApiResponseBuilder<>()

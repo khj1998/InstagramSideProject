@@ -4,7 +4,10 @@ import CloneProject.InstagramClone.InstagramService.dto.hashtag.HashTagDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTag;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNotFoundException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
+import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.repository.HashTagRepository;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +56,14 @@ public class HashTagServiceImpl implements HashTagService {
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> GetPopularHashTag(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
-        tokenService.isTokenValid(accessToken);
+        try {
+            tokenService.isTokenValid(accessToken);
+        } catch (ExpiredJwtException e) {
+            throw new JwtExpiredException("JwtExpiredException occurred");
+        } catch (Exception e){
+            throw new JwtIllegalException("JwtIllegalException occurred");
+        }
+
         Slice<HashTag> hashTagList = hashTagRepository.findSliceBy(PageRequest.of(0,3, Sort.by(Sort.Direction.DESC,"tagCount")));
         List<HashTagDto> resDtoList = new ArrayList<>();
 
