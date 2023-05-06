@@ -88,11 +88,8 @@ public class PostServiceImpl implements PostService {
             } else { // 이미 게시글에 추가된 해시태그이고, DB에도 있는 해시태그.
                 continue;
             }
-
-            hashTagRepository.save(hashTag);
             hashTagMappingRepository.save(hashTagMapping);
         }
-        postRepository.save(postEntity);
         PostDto resData = modelMapper.map(postEntity, PostDto.class);
 
         for (HashTag hashTag : sameTagChecker) {
@@ -195,6 +192,7 @@ public class PostServiceImpl implements PostService {
                     tag.MinusTagCount();
                     hashTagRepository.save(tag);
                 } else {
+                    log.info("{} 삭제",tag.getTagName());
                     hashTagRepository.deleteById(tag.getId());
                 }
                 //hashTagMappingRepository.deleteById(hashTagMapping.getId());
