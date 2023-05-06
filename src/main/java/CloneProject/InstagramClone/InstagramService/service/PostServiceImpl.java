@@ -142,20 +142,35 @@ public class PostServiceImpl implements PostService {
         postRepository.save(postEntity);
 
         List<HashTagMapping> hashTagMappingList = postEntity.getHashTagMappingList();
-        List<HashTag> hashTagList = new ArrayList<>();
+        List<HashTag> nowHashTagList = new ArrayList<>();
         List<HashTagDto> hashDtoList = postDto.getHashTagList();
-        HashTagMapping hashTagMapping;
 
         for (HashTagMapping hashTagMappingEntity : hashTagMappingList) {
-            hashTagList.add(hashTagMappingEntity.getHashTag());
+            nowHashTagList.add(hashTagMappingEntity.getHashTag());
         }
+
+        checkNewHashTag(postEntity,hashDtoList,nowHashTagList);
+        checkRemovedHashTag(nowHashTagList,hashDtoList);
+
+        PostDto resDto = modelMapper.map(postEntity,PostDto.class);
+        resDto.setHashTagList(postDto.getHashTagList());
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("edited post number : "+postDto.getId())
+                .data(resDto)
+                .build();
+    }
+
+    @Transactional
+    private void checkNewHashTag(Post postEntity,List<HashTagDto> hashDtoList,List<HashTag> nowHashTagList) {
+        HashTagMapping hashTagMapping;
 
         for (HashTagDto hashTagDto : hashDtoList) {
             HashTag hashTag = HashTag.builder()
                     .tagName(hashTagDto.getTagName())
                     .build();
 
-            if (!hashTagList.contains(hashTag)) {
+            if (!nowHashTagList.contains(hashTag)) {
                 hashTag = hashTagRepository.findByTagName(hashTagDto.getTagName());
                 if (hashTag == null) {
                     hashTag = HashTag.builder()
@@ -168,11 +183,13 @@ public class PostServiceImpl implements PostService {
                             .build();
                     hashTagMappingRepository.save(hashTagMapping);
                 }
-                hashTagRepository.save(hashTag);
             }
         }
+    }
 
-        for (HashTag tag : hashTagList) {
+    @Transactional
+    private void checkRemovedHashTag(List<HashTag> nowHashTagList,List<HashTagDto> hashDtoList) {
+        for (HashTag tag : nowHashTagList) {
             boolean isRemoved = true;
             for (HashTagDto hashTagDto : hashDtoList) {
                 if (!hashTagDto.getTagName().startsWith("#")){
@@ -184,28 +201,16 @@ public class PostServiceImpl implements PostService {
                     break;
                 }
             }
-            if (isRemoved) {
-                hashTagMapping = hashTagMappingRepository.findByPostIdAndHashTagId(postEntity.getId(),tag.getId())
-                        .orElseThrow(() -> new HashTagMappingNotFoundException("HashTagMappingNotFoundException occurred"));
 
+            if (isRemoved) {
                 if (tag.getTagCount()>=2) {
                     tag.MinusTagCount();
                     hashTagRepository.save(tag);
                 } else {
-                    log.info("{} 삭제",tag.getTagName());
-                    hashTagRepository.deleteById(tag.getId());
+                    hashTagRepository.delete(tag);
                 }
-                //hashTagMappingRepository.deleteById(hashTagMapping.getId());
             }
         }
-        PostDto resDto = modelMapper.map(postEntity,PostDto.class);
-        resDto.setHashTagList(postDto.getHashTagList());
-
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("edited post number : "+postDto.getId())
-                .data(resDto)
-                .build();
     }
 
     @Override

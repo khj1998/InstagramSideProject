@@ -29,12 +29,8 @@ public class HashTag {
     @CreationTimestamp
     private Date createdAt;
 
-    @OneToMany(mappedBy = "hashTag",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "hashTag",cascade = CascadeType.REMOVE,orphanRemoval = true)
     private List<HashTagMapping> hashTagMappingList = new ArrayList<>();
-
-    public void setHashTagMappingList(List<HashTagMapping> hashTagMappingList) {
-        this.hashTagMappingList = hashTagMappingList;
-    }
 
     @Builder
     public HashTag(String tagName,Long tagCount) {

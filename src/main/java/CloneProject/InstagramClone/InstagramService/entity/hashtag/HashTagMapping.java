@@ -16,11 +16,11 @@ public class HashTagMapping {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "post_fk")
     private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "hashtag_fk")
     private HashTag hashTag;
 
