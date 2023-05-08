@@ -3,6 +3,7 @@ package CloneProject.InstagramClone.InstagramService.service;
 import CloneProject.InstagramClone.InstagramService.dto.hashtag.HashTagDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTag;
+import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNotAssignedException;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNotFoundException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
@@ -65,6 +66,9 @@ public class HashTagServiceImpl implements HashTagService {
         }
 
         Slice<HashTag> hashTagList = hashTagRepository.findSliceBy(PageRequest.of(0,3, Sort.by(Sort.Direction.DESC,"tagCount")));
+        if (hashTagList.getSize() == 0) {
+            throw new HashTagNotAssignedException("HashTagNotAssignedException occurred");
+        }
         List<HashTagDto> resDtoList = new ArrayList<>();
 
         List<HashTag> hashTags = hashTagList.getContent();

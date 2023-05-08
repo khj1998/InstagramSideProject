@@ -2,10 +2,7 @@ package CloneProject.InstagramClone.InstagramService.entity.hashtag;
 
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.NotHashTagEntityException;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.ArrayList;
@@ -15,7 +12,7 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "hashtags")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class HashTag {
     @Id
     @Column(name = "hashtag_id")

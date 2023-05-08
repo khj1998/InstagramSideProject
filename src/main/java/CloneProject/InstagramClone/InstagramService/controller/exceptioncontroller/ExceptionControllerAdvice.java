@@ -181,6 +181,14 @@ public class ExceptionControllerAdvice {
                 .build();
     }
 
+    @ExceptionHandler(HashTagNotAssignedException.class)
+    public ResponseEntity<ExceptionResponse> handleNotHashTagNotAssignedException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid find popular hashtag request")
+                .setException_message("Any HashTag not assigned yet")
+                .build();
+    }
+
     @ExceptionHandler(JwtExpiredException.class)
     public ResponseEntity<ExceptionResponse> handleJwtExpiredException() {
         return new ExceptionResponse.ExceptionResponseBuilder(false)

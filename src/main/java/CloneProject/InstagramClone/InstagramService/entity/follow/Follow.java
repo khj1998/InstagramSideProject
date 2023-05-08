@@ -2,6 +2,7 @@ package CloneProject.InstagramClone.InstagramService.entity.follow;
 
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import java.util.Date;
 @Getter
 @Entity
 @Table(name = "follows")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Follow {
 
     @Id

@@ -4,6 +4,7 @@ import CloneProject.InstagramClone.InstagramService.entity.comment.Comment;
 import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTagMapping;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "posts")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post {
     @Id
     @Column(name = "post_id")
