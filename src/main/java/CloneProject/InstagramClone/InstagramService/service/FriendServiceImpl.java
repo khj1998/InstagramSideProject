@@ -22,6 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * FriendServiceImpl Class for side project.
+ * This class is in charge of friend function.
+ * @author Quokka_khj
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -32,6 +37,14 @@ public class FriendServiceImpl implements FriendService {
     private final MemberRepository memberRepository;
     private final FriendRepository friendRepository;
 
+    /**
+     * A function that adds friend
+     * @param friendDtoList List of newly added friend account information.
+     * @return ResponseEntity<ApiResponse> Returns the friendDtoList as body.
+     * @throws FriendMinSelectException At least one friend information must be selected.
+     * @throws UserIdNotFoundException Cannot find user id in database
+     * @throws DuplicatedFriendException Cannot re-register an already registered friend.
+     */
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> AddFriend(List<FriendDto> friendDtoList) {
@@ -72,6 +85,13 @@ public class FriendServiceImpl implements FriendService {
                 .build();
     }
 
+    /**
+     * A function that deletes friend
+     * @param friendDtoList List of friends dto you want to delete
+     * @return ResponseEntity<ApiResponse> Returns the friend delete response
+     * @throws FriendMinSelectException At least one friend information must be selected.
+     * @throws FriendNoFoundException Unregistered friend.
+     */
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> DeleteFriend(List<FriendDto> friendDtoList) {
@@ -96,6 +116,11 @@ public class FriendServiceImpl implements FriendService {
                 .build();
     }
 
+    /**
+     * A function to get a list of registered friends
+     * @param req HttpServletRequest
+     * @return ResponseEntity<ApiResponse>
+     */
     @Override
     public ResponseEntity<ApiResponse> GetFriendList(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
