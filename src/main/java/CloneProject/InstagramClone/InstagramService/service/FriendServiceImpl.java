@@ -7,10 +7,9 @@ import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.exception.friend.DuplicatedFriendException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendMinSelectException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendNoFoundException;
-import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
+import CloneProject.InstagramClone.InstagramService.exception.user.UserIdNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.FriendRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -18,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +46,7 @@ public class FriendServiceImpl implements FriendService {
 
         for (FriendDto friendDto : friendDtoList) {
             Member toMember = memberRepository.findById(friendDto.getId())
-                    .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
+                    .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred"));
             Long toMemberId = toMember.getId();
 
             Friend friend = Friend.builder()

@@ -19,11 +19,13 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 
 @Configuration
@@ -67,20 +69,16 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         http.cors()
                 .configurationSource(corsConfigurationSource())
                 .and()
-                .csrf().disable()
+                .csrf().disable();
 
-                .authorizeHttpRequests()
-                .requestMatchers(SpringConst.PERMITTED_URIS)
-                .permitAll()
+        http.authorizeHttpRequests((uri -> uri.anyRequest().permitAll()));
 
-                .and()
-                .sessionManagement()
+        http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-                http
-                        .addFilterBefore(getCustomAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                        .addFilterAfter(customAuthorizationFilter, CustomAuthenticationFilter.class)
-                        .addFilterBefore(customJwtExceptionFilter, CustomAuthorizationFilter.class);
+        http.addFilterBefore(getCustomAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(customAuthorizationFilter, CustomAuthenticationFilter.class)
+                .addFilterBefore(customJwtExceptionFilter, CustomAuthorizationFilter.class);
 
         return http.build();
     }

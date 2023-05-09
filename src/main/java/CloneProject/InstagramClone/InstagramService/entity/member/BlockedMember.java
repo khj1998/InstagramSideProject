@@ -1,14 +1,14 @@
 package CloneProject.InstagramClone.InstagramService.entity.member;
 
-import CloneProject.InstagramClone.InstagramService.entity.member.Member;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 @Getter
@@ -23,6 +23,7 @@ public class BlockedMember {
     private Long id;
 
     @NotBlank
+    @Email
     private String email;
 
     @CreationTimestamp

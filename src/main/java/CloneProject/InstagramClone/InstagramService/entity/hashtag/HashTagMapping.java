@@ -1,11 +1,12 @@
 package CloneProject.InstagramClone.InstagramService.entity.hashtag;
 
 import CloneProject.InstagramClone.InstagramService.entity.post.Post;
-import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 
 @Getter
 @Entity

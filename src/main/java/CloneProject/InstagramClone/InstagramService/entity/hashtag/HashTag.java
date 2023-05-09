@@ -1,10 +1,10 @@
 package CloneProject.InstagramClone.InstagramService.entity.hashtag;
 
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.NotHashTagEntityException;
-import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

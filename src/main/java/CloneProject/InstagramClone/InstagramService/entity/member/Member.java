@@ -6,7 +6,6 @@ import CloneProject.InstagramClone.InstagramService.entity.follow.Follow;
 import CloneProject.InstagramClone.InstagramService.entity.friend.Friend;
 import CloneProject.InstagramClone.InstagramService.entity.post.Post;
 import CloneProject.InstagramClone.InstagramService.entity.post.PostLike;
-import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

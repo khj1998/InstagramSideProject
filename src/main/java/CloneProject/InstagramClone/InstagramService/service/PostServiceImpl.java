@@ -10,12 +10,10 @@ import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.entity.post.Post;
 import CloneProject.InstagramClone.InstagramService.entity.post.PostLike;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagLimitException;
-import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagMappingNotFoundException;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNameNotValidException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.*;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -23,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -108,7 +107,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> FindPost(HttpServletRequest req,Long postId) {
+    public ResponseEntity<ApiResponse> FindPost(HttpServletRequest req, Long postId) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         tokenService.isTokenValid(accessToken);
         Post postEntity = postRepository

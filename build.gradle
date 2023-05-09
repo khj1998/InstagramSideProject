@@ -1,12 +1,12 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.0.2'
-	id 'io.spring.dependency-management' version '1.1.0'
+	id 'org.springframework.boot' version '2.7.11'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
 group = 'CloneProject'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '17'
+sourceCompatibility = '11'
 
 configurations {
 	compileOnly {
@@ -16,6 +16,11 @@ configurations {
 
 repositories {
 	mavenCentral()
+}
+
+javadoc {
+	source = sourceSets.main.java.srcDirs
+	options.encoding = 'UTF-8'
 }
 
 dependencies {
@@ -29,7 +34,7 @@ dependencies {
 	implementation 'org.jetbrains:annotations:24.0.1'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
-	runtimeOnly 'mysql:mysql-connector-java'
+	runtimeOnly 'com.mysql:mysql-connector-j'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly	'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	compileOnly 'io.jsonwebtoken:jjwt-api:0.11.5'

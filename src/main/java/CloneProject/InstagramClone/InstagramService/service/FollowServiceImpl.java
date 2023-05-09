@@ -10,11 +10,10 @@ import CloneProject.InstagramClone.InstagramService.entity.follow.Follow;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.exception.follow.*;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
-import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
+import CloneProject.InstagramClone.InstagramService.exception.user.UserIdNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.BlockedMemberRepository;
 import CloneProject.InstagramClone.InstagramService.repository.FollowRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -23,9 +22,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * FollowService Class for side project.
+ * This class is in charge of user follow function and user block function.
+ * @author Quokka_khj
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,6 +42,13 @@ public class FollowServiceImpl implements FollowService {
     private final BlockedMemberRepository blockedMemberRepository;
     private final ModelMapper modelMapper;
 
+    /**
+     * A function that follow users
+     * @param followDto Objects that send follow-related data
+     * @return ResponseEntity<FollowResponse>
+     * @throws FollowMySelfException Cannot follow my account
+     * @throws FollowLimitException Account's following limit exceeded
+     */
     @Override
     @Transactional
     public ResponseEntity<FollowResponse> addFollow(FollowDto followDto) throws JwtExpiredException {
@@ -74,6 +86,12 @@ public class FollowServiceImpl implements FollowService {
                 .build();
     }
 
+    /**
+     * A function that unfollow users
+     * @param followDto Objects that send follow-related data
+     * @return ResponseEntity<FollowResponse>
+     * @throws UnfollowFailedException Unfollowing process failed
+     */
     @Override
     @Transactional
     public ResponseEntity<FollowResponse> unFollow(FollowDto followDto) throws JwtExpiredException {
@@ -97,6 +115,11 @@ public class FollowServiceImpl implements FollowService {
                 .build();
     }
 
+    /**
+     * A function that looks up a follow list in an account
+     * @param req HttpServletRequest
+     * @return ResponseEntity<ApiResponse>
+     */
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> getFollowings(HttpServletRequest req) throws JwtExpiredException {
@@ -116,6 +139,11 @@ public class FollowServiceImpl implements FollowService {
                 .build();
     }
 
+    /**
+     * A function to look up a list of followers in an account
+     * @param req HttpServletRequest
+     * @return ResponseEntity<ApiResponse>
+     */
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> getFollowers(HttpServletRequest req) throws JwtExpiredException {
@@ -136,6 +164,13 @@ public class FollowServiceImpl implements FollowService {
                 .build();
     }
 
+    /**
+     * A function that block users
+     * @param blockMemberDto Object that sends blocked user information
+     * @return ResponseEntity<ApiResponse>
+     * @throws UserIdNotFoundException Cannot find user id in database
+     * @throws BlockMySelfException Blocking my account is invalid
+     */
     @Override
     @Transactional
     public ResponseEntity<FollowResponse> blockUser(BlockMemberDto blockMemberDto) {
@@ -143,7 +178,7 @@ public class FollowServiceImpl implements FollowService {
         Member fromMember = tokenService.FindMemberByToken(accessToken); // 차단 거는쪽
         Member toMember = memberRepository
                 .findById(blockMemberDto.getId())
-                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred")); //차단 대상
+                .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred")); //차단 대상
 
         if (fromMember.getId().equals(toMember.getId())) {
             throw new BlockMySelfException("BanMySelfException occurred");
@@ -170,6 +205,13 @@ public class FollowServiceImpl implements FollowService {
                 .build();
     }
 
+    /**
+     * A function to turn off blocked users
+     * @param blockMemberDto Object that sends blocked user information
+     * @return ResponseEntity<ApiResponse>
+     * @throws UserIdNotFoundException Cannot find user id in database
+     * @throws UnBlockFailedException Unblocking process failed
+     */
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> unBlockUser(BlockMemberDto blockMemberDto) {
@@ -177,7 +219,7 @@ public class FollowServiceImpl implements FollowService {
         Member fromMember = tokenService.FindMemberByToken(accessToken);
         Member toMember = memberRepository
                 .findById(blockMemberDto.getId())
-                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
+                .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred"));
 
         BlockedMember blockedUser = blockedMemberRepository
                 .findByFromMemberIdAndToMemberId(fromMember.getId(), toMember.getId())
@@ -193,6 +235,12 @@ public class FollowServiceImpl implements FollowService {
                 .build();
     }
 
+    /**
+     * A function to query blocked users in my account
+     * @param req HttpServletRequest
+     * @return ResponseEntity<ApiResponse>
+     * @throws UsernameNotFoundException Cannot find username in database
+     */
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> getBlockedUsers(HttpServletRequest req) {
@@ -213,6 +261,12 @@ public class FollowServiceImpl implements FollowService {
                 .build();
     }
 
+    /**
+     * A function that looks up the user who blocked me
+     * @param req HttpServletRequest
+     * @return ResponseEntity<ApiResponse>
+     * @throws UsernameNotFoundException Cannot find username in database
+     */
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> getBlockingUsers(HttpServletRequest req) {

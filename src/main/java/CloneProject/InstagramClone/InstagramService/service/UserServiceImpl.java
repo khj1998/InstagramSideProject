@@ -2,7 +2,6 @@ package CloneProject.InstagramClone.InstagramService.service;
 
 import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
-import CloneProject.InstagramClone.InstagramService.dto.auth.UserDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
@@ -10,7 +9,7 @@ import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalExce
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
 import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.exception.user.IllegalUserIdException;
-import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
+import CloneProject.InstagramClone.InstagramService.exception.user.UserIdNotFoundException;
 import CloneProject.InstagramClone.InstagramService.entity.member.Role;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
@@ -140,7 +139,7 @@ public class UserServiceImpl implements UserService{
     public void logoutProcess(Long userId) {
         Member member = memberRepository
                 .findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
+                .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred"));
         String username = member.getUsername();
         redisTemplate.delete(username);
     }

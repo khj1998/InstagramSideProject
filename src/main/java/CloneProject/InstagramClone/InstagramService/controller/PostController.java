@@ -4,15 +4,12 @@ import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.service.PostService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @RestController
@@ -23,7 +20,7 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getPost(HttpServletRequest req,@RequestParam Long postId) {
+    public ResponseEntity<ApiResponse> getPost(HttpServletRequest req, @RequestParam Long postId) {
         return postService.FindPost(req,postId);
     }
 

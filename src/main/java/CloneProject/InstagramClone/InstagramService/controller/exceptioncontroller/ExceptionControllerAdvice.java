@@ -17,7 +17,7 @@ import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundE
 import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
 import CloneProject.InstagramClone.InstagramService.exception.user.IllegalUserIdException;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotAuthenticated;
-import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
+import CloneProject.InstagramClone.InstagramService.exception.user.UserIdNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -37,7 +37,7 @@ public class ExceptionControllerAdvice {
                 .build();
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(UserIdNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleUserNotFoundException() {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid request")
