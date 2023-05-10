@@ -40,9 +40,6 @@ public class PostServiceImpl implements PostService {
     private final HashTagRepository hashTagRepository;
     private final HashTagMappingRepository hashTagMappingRepository;
 
-    /**
-     * 같은 해시태그 중복 카운팅 방지
-     */
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> AddPost(PostDto postDto) throws JwtExpiredException {
@@ -140,19 +137,13 @@ public class PostServiceImpl implements PostService {
         postEntity.ChangeImageUrl(postDto.getImageUrl());
         postRepository.save(postEntity);
 
-        List<HashTagMapping> hashTagMappingList = postEntity.getHashTagMappingList();
-        List<HashTag> nowHashTagList = new ArrayList<>();
         List<HashTagDto> hashDtoList = postDto.getHashTagList();
-
-        for (HashTagMapping hashTagMappingEntity : hashTagMappingList) {
-            nowHashTagList.add(hashTagMappingEntity.getHashTag());
-        }
-
-        checkNewHashTag(postEntity,hashDtoList,nowHashTagList);
-        checkRemovedHashTag(nowHashTagList,hashDtoList);
+        checkNewHashTag(postEntity,hashDtoList);
+        checkRemovedHashTag(postEntity,hashDtoList);
 
         PostDto resDto = modelMapper.map(postEntity,PostDto.class);
         resDto.setHashTagList(postDto.getHashTagList());
+
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("edited post number : "+postDto.getId())
@@ -160,55 +151,78 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
-    @Transactional
-    private void checkNewHashTag(Post postEntity,List<HashTagDto> hashDtoList,List<HashTag> nowHashTagList) {
-        HashTagMapping hashTagMapping;
+    private void checkNewHashTag(Post postEntity,List<HashTagDto> hashDtoList) {
+        List<HashTag> nowHashTagList = getNowPostHashTagList(postEntity);
+        boolean isNewHashTag;
 
         for (HashTagDto hashTagDto : hashDtoList) {
             HashTag hashTag = HashTag.builder()
                     .tagName(hashTagDto.getTagName())
                     .build();
+            isNewHashTag = nowHashTagList.contains(hashTag);
+            createNewHashTag(isNewHashTag,postEntity,hashTagDto.getTagName());
+        }
+    }
 
-            if (!nowHashTagList.contains(hashTag)) {
-                hashTag = hashTagRepository.findByTagName(hashTagDto.getTagName());
-                if (hashTag == null) {
-                    hashTag = HashTag.builder()
-                            .tagName(hashTagDto.getTagName())
-                            .tagCount(1L)
-                            .build();
-                    hashTagMapping = HashTagMapping.builder()
-                            .hashTag(hashTag)
-                            .post(postEntity)
-                            .build();
-                    hashTagMappingRepository.save(hashTagMapping);
-                }
+    private void createNewHashTag(boolean isNewHashTag,Post nowPostEntity,String hashTagName) {
+        if (!isNewHashTag) return;
+
+        HashTag findHashTag;
+        HashTag newHashTag;
+        HashTagMapping newHashTagMapping;
+        findHashTag = hashTagRepository.findByTagName(hashTagName);
+
+        if (findHashTag == null) {
+            newHashTag = HashTag.builder()
+                    .tagName(hashTagName)
+                    .tagCount(1L)
+                    .build();
+            newHashTagMapping = HashTagMapping.builder()
+                    .hashTag(newHashTag)
+                    .post(nowPostEntity)
+                    .build();
+            hashTagMappingRepository.save(newHashTagMapping);
+        }
+    }
+
+    private void checkRemovedHashTag(Post nowPostEntity,List<HashTagDto> hashTagDtoList) {
+        List<HashTag> nowHashTagList = getNowPostHashTagList(nowPostEntity);
+
+        for (HashTag hashTag : nowHashTagList) {
+            hashTag = compareHashTagAndHashTagDto(hashTag,hashTagDtoList);
+
+            if (hashTag!=null) {
+                removeHashTag(hashTag);
             }
         }
     }
 
-    @Transactional
-    private void checkRemovedHashTag(List<HashTag> nowHashTagList,List<HashTagDto> hashDtoList) {
-        for (HashTag tag : nowHashTagList) {
-            boolean isRemoved = true;
-            for (HashTagDto hashTagDto : hashDtoList) {
-                if (!hashTagDto.getTagName().startsWith("#")){
-                    throw new HashTagNameNotValidException("HashTagNameNotValidException occurred");
-                }
+    private HashTag compareHashTagAndHashTagDto(HashTag hashTag,List<HashTagDto> hashTagDtoList) {
+        String nowHashTagName;
+        boolean isRemoved = true;
 
-                if (tag.getTagName().equals(hashTagDto.getTagName())) {
-                    isRemoved = false;
-                    break;
-                }
+        for (HashTagDto hashTagDto : hashTagDtoList) {
+            if (!hashTagDto.getTagName().startsWith("#")){
+                throw new HashTagNameNotValidException("HashTagNameNotValidException occurred");
             }
 
-            if (isRemoved) {
-                if (tag.getTagCount()>=2) {
-                    tag.MinusTagCount();
-                    hashTagRepository.save(tag);
-                } else {
-                    hashTagRepository.delete(tag);
-                }
+            nowHashTagName = hashTag.getTagName();
+            if (nowHashTagName.equals(hashTagDto.getTagName())) {
+                isRemoved = false;
+                break;
             }
+        }
+
+        return isRemoved ? hashTag:null;
+    }
+
+    private void removeHashTag(HashTag hashTag) {
+        if (hashTag.getTagCount() >= 2) {
+            hashTag.MinusTagCount();
+            hashTagRepository.save(hashTag);
+        }
+        else {
+            hashTagRepository.delete(hashTag);
         }
     }
 
@@ -317,5 +331,17 @@ public class PostServiceImpl implements PostService {
                 .message("내가 좋아요를 누른 글 리스트")
                 .data(resDtoList)
                 .build();
+    }
+
+    private List<HashTag> getNowPostHashTagList(Post nowPostEntity) {
+
+        List<HashTag> nowHashTagList = new ArrayList<>();
+        List<HashTagMapping> hashTagMappingList = nowPostEntity.getHashTagMappingList();
+
+        for (HashTagMapping hashTagMappingEntity : hashTagMappingList) {
+            nowHashTagList.add(hashTagMappingEntity.getHashTag());
+        }
+
+        return nowHashTagList;
     }
 }
