@@ -232,7 +232,6 @@ public class PostServiceImpl implements PostService {
         Post postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
         postRepository.delete(postEntity);
-
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
         Date date = new Date(System.currentTimeMillis());
 
@@ -249,38 +248,38 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> AddPostLike(PostLikeDto postLikeDto) throws JwtExpiredException {
-        ResponseEntity<ApiResponse> response;
         Member memberEntity = tokenService.FindMemberByToken(postLikeDto.getAccessToken());
-
         Post postEntity = postRepository
                 .findById(postLikeDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
-
         PostLike postLike = postLikeRepository.findByMemberIdAndPostId(memberEntity.getId(),postLikeDto.getPostId());
 
-        if (postLike==null) {
-            PostLike newPostLike = PostLike.builder()
-                    .member(memberEntity)
-                    .post(postEntity)
-                    .build();
+        return postLike==null ?
+                addLikeToPost(postEntity,memberEntity) :
+                removeLikeToPost(postLike);
+    }
 
-            postLikeDto.setPostTitle(postEntity.getTitle());
-            postLikeRepository.save(newPostLike);
-            response = new ApiResponse.ApiResponseBuilder<>()
-                    .success(true)
-                    .message(postEntity.getTitle()+"번 글에 좋아요를 등록하였습니다.")
-                    .data(postLikeDto)
-                    .build();
-        } else {
-            postLikeRepository.delete(postLike);
-            response = new ApiResponse.ApiResponseBuilder<>()
-                    .success(true)
-                    .message(postEntity.getTitle()+"번 글에 좋아요를 취소하였습니다.")
-                    .data(postLikeDto)
-                    .build();
-        }
+    private ResponseEntity<ApiResponse> addLikeToPost(Post nowPostEntity,Member memberEntity) {
+        PostLike newPostLike = PostLike.builder()
+                .member(memberEntity)
+                .post(nowPostEntity)
+                .build();
+        postLikeRepository.save(newPostLike);
 
-        return response;
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message(nowPostEntity.getId()+"번 글에 좋아요를 등록하였습니다.")
+                .data(modelMapper.map(newPostLike, PostLikeDto.class))
+                .build();
+    }
+
+    private ResponseEntity<ApiResponse> removeLikeToPost(PostLike postLike) {
+        postLikeRepository.delete(postLike);
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message(postLike.getPost().getId()+"번 글의 좋아요를 취소하였습니다.")
+                .data(modelMapper.map(postLike, PostLikeDto.class))
+                .build();
     }
 
     @Override
