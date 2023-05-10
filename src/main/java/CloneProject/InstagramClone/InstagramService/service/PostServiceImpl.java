@@ -168,16 +168,14 @@ public class PostServiceImpl implements PostService {
         if (!isNewHashTag) return;
 
         HashTag findHashTag;
-        HashTag newHashTag;
-        HashTagMapping newHashTagMapping;
         findHashTag = hashTagRepository.findByTagName(hashTagName);
 
         if (findHashTag == null) {
-            newHashTag = HashTag.builder()
+            HashTag newHashTag = HashTag.builder()
                     .tagName(hashTagName)
                     .tagCount(1L)
                     .build();
-            newHashTagMapping = HashTagMapping.builder()
+            HashTagMapping newHashTagMapping = HashTagMapping.builder()
                     .hashTag(newHashTag)
                     .post(nowPostEntity)
                     .build();
@@ -195,6 +193,18 @@ public class PostServiceImpl implements PostService {
                 removeHashTag(hashTag);
             }
         }
+    }
+
+    private List<HashTag> getNowPostHashTagList(Post nowPostEntity) {
+
+        List<HashTag> nowHashTagList = new ArrayList<>();
+        List<HashTagMapping> hashTagMappingList = nowPostEntity.getHashTagMappingList();
+
+        for (HashTagMapping hashTagMappingEntity : hashTagMappingList) {
+            nowHashTagList.add(hashTagMappingEntity.getHashTag());
+        }
+
+        return nowHashTagList;
     }
 
     private HashTag compareHashTagAndHashTagDto(HashTag hashTag,List<HashTagDto> hashTagDtoList) {
@@ -290,29 +300,42 @@ public class PostServiceImpl implements PostService {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
-        HashTag hashTag;
-        PostDto postDto;
-        List<HashTagMapping> hashTagMappingList;
-        List<PostDto> resDtoList = new ArrayList<>();
+        List<PostDto> postDtoList;
         List<Post> postList = memberEntity.getPostList();
-
-        for (Post post : postList) {
-            List<HashTagDto> HashTagDtoList = new ArrayList<>();
-            hashTagMappingList = post.getHashTagMappingList();
-            for (HashTagMapping hashTagMapping : hashTagMappingList) {
-                hashTag = hashTagMapping.getHashTag();
-                HashTagDtoList.add(modelMapper.map(hashTag, HashTagDto.class));
-            }
-            postDto = modelMapper.map(post, PostDto.class);
-            postDto.setHashTagList(HashTagDtoList);
-            resDtoList.add(postDto);
-        }
+        postDtoList = revertPostToPostDto(postList);
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("내가 작성한 게시물들 리스트")
-                .data(resDtoList)
+                .data(postDtoList)
                 .build();
+    }
+
+    private List<PostDto> revertPostToPostDto(List<Post> postList) {
+        PostDto postDto;
+        List<HashTagMapping> hashTagMappingList;
+        List<HashTagDto> hashTagDtoList;
+        List<PostDto> postDtoList = new ArrayList<>();
+
+        for (Post post : postList) {
+            hashTagMappingList = post.getHashTagMappingList();
+            hashTagDtoList = getHashTagDto(hashTagMappingList);
+            postDto = modelMapper.map(post,PostDto.class);
+            postDto.setHashTagList(hashTagDtoList);
+            postDtoList.add(postDto);
+        }
+        return postDtoList;
+    }
+
+    private List<HashTagDto> getHashTagDto(List<HashTagMapping> hashTagMappingList) {
+        HashTag hashTag;
+        List<HashTagDto> HashTagDtoList = new ArrayList<>();
+
+        for (HashTagMapping hashTagMapping : hashTagMappingList) {
+            hashTag = hashTagMapping.getHashTag();
+            HashTagDtoList.add(modelMapper.map(hashTag, HashTagDto.class));
+        }
+        return HashTagDtoList;
     }
 
     @Override
@@ -332,17 +355,5 @@ public class PostServiceImpl implements PostService {
                 .message("내가 좋아요를 누른 글 리스트")
                 .data(resDtoList)
                 .build();
-    }
-
-    private List<HashTag> getNowPostHashTagList(Post nowPostEntity) {
-
-        List<HashTag> nowHashTagList = new ArrayList<>();
-        List<HashTagMapping> hashTagMappingList = nowPostEntity.getHashTagMappingList();
-
-        for (HashTagMapping hashTagMappingEntity : hashTagMappingList) {
-            nowHashTagList.add(hashTagMappingEntity.getHashTag());
-        }
-
-        return nowHashTagList;
     }
 }
