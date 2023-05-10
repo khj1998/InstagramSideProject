@@ -126,18 +126,23 @@ public class FriendServiceImpl implements FriendService {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Friend> friendList = memberEntity.getFriendList();
-        List<FriendDto> responseDtoList = new ArrayList<>();
-
-        for (Friend friend : friendList) {
-            FriendDto friendDto = modelMapper.map(friend.getToMember(),FriendDto.class);
-            friendDto.setCreatedAt(friend.getCreatedAt());
-            responseDtoList.add(friendDto);
-        }
+        List<FriendDto> friendDtoList = getFriendDtoList(friendList);
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get Friends")
-                .data(responseDtoList)
+                .data(friendDtoList)
                 .build();
+    }
+
+    private List<FriendDto> getFriendDtoList(List<Friend> friendList) {
+        List<FriendDto> friendDtoList = new ArrayList<>();
+
+        for (Friend friend : friendList) {
+            FriendDto friendDto = modelMapper.map(friend.getToMember(),FriendDto.class);
+            friendDto.setCreatedAt(friend.getCreatedAt());
+            friendDtoList.add(friendDto);
+        }
+        return friendDtoList;
     }
 }
