@@ -107,23 +107,32 @@ public class PostServiceImpl implements PostService {
     public ResponseEntity<ApiResponse> FindPost(HttpServletRequest req, Long postId) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         tokenService.isTokenValid(accessToken);
-        Post postEntity = postRepository
+
+        Post foundPostEntity = postRepository
                 .findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
-
-        PostDto resData = modelMapper.map(postEntity,PostDto.class);
-        List<HashTagMapping> hashTagMappingList = postEntity.getHashTagMappingList();
-
-        for (HashTagMapping hashTagMapping : hashTagMappingList) {
-            HashTagDto hashTagDto = modelMapper.map(hashTagMapping.getHashTag(), HashTagDto.class);
-            resData.getHashTagList().add(hashTagDto);
-        }
+        PostDto foundPostDto = getFoundPostDto(foundPostEntity);
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("get post Id : "+postId)
-                .data(resData)
+                .data(foundPostDto)
                 .build();
+    }
+
+    private PostDto getFoundPostDto(Post foundPostEntity) {
+        PostDto foundPostDto = modelMapper.map(foundPostEntity,PostDto.class);
+        addHashTagToPostDto(foundPostEntity,foundPostDto);
+        return foundPostDto;
+    }
+
+    private void addHashTagToPostDto(Post foundPostEntity,PostDto foundPostDto) {
+        List<HashTagMapping> hashTagMappingList = foundPostEntity.getHashTagMappingList();
+
+        for (HashTagMapping hashTagMapping : hashTagMappingList) {
+            HashTagDto hashTagDto = modelMapper.map(hashTagMapping.getHashTag(), HashTagDto.class);
+            foundPostDto.getHashTagList().add(hashTagDto);
+        }
     }
 
     @Override
