@@ -40,7 +40,7 @@ public class PostController {
     }
 
     @GetMapping("/likes/list")
-    public ResponseEntity<ApiResponse> getLikeList(HttpServletRequest req) {
+    public ResponseEntity<ApiResponse> getPostLikeList(HttpServletRequest req) {
         return postService.GetPostLikeList(req);
     }
 

@@ -341,19 +341,27 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> GetPostLikeList(HttpServletRequest req) throws JwtExpiredException {
-        List<PostDto> resDtoList = new ArrayList<>();
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
-
         List<PostLike> postLikeList = memberEntity.getPostLikeList();
-        for (PostLike postLike : postLikeList) {
-            resDtoList.add(modelMapper.map(postLike.getPost(), PostDto.class));
-        }
+        List<PostDto> postLikeDtoList = getPostDtoList(postLikeList);
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("내가 좋아요를 누른 글 리스트")
-                .data(resDtoList)
+                .data(postLikeDtoList)
                 .build();
+    }
+
+    private List<PostDto> getPostDtoList(List<PostLike> postLikeList) {
+        List<PostDto> postLikeDtoList = new ArrayList<>();
+        PostDto postDto;
+
+        for (PostLike postLike : postLikeList) {
+            postDto = modelMapper.map(postLike.getPost(), PostDto.class);
+            postLikeDtoList.add(postDto);
+        }
+
+        return postLikeDtoList;
     }
 }
