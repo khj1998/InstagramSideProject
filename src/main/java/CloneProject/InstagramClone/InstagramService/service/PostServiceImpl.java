@@ -232,19 +232,21 @@ public class PostServiceImpl implements PostService {
         Post postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
         postRepository.delete(postEntity);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
-        Date date = new Date(System.currentTimeMillis());
+        String deletedAt = getDeletedDate();
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Delete postId : "+postId)
-                .updatedAt(formatter.format(date))
+                .updatedAt(deletedAt)
                 .build();
     }
 
-    /**
-     * 이미 좋아요를 추가한 상태라면 좋아요 취소
-     */
+    private String getDeletedDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+        Date date = new Date(System.currentTimeMillis());
+        return formatter.format(date);
+    }
+
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> AddPostLike(PostLikeDto postLikeDto) throws JwtExpiredException {
