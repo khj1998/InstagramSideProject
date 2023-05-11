@@ -138,17 +138,10 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> EditPost(PostDto postDto) {
-        Post postEntity = postRepository
-                .findById(postDto.getId())
-                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
-        postEntity.ChangeTitle(postDto.getTitle());
-        postEntity.ChangeContent(postDto.getContent());
-        postEntity.ChangeImageUrl(postDto.getImageUrl());
-        postRepository.save(postEntity);
-
+        Post postEntity = updatePostWithoutHashTag(postDto);
         List<HashTagDto> hashDtoList = postDto.getHashTagList();
-        checkNewHashTag(postEntity,hashDtoList);
-        checkRemovedHashTag(postEntity,hashDtoList);
+        updateNewHashTag(postEntity,hashDtoList);
+        updateRemovedHashTag(postEntity,hashDtoList);
 
         PostDto resDto = modelMapper.map(postEntity,PostDto.class);
         resDto.setHashTagList(postDto.getHashTagList());
@@ -160,7 +153,19 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
-    private void checkNewHashTag(Post postEntity,List<HashTagDto> hashDtoList) {
+    private Post updatePostWithoutHashTag(PostDto postDto) {
+        Post postEntity = postRepository
+                .findById(postDto.getId())
+                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
+        postEntity.ChangeTitle(postDto.getTitle());
+        postEntity.ChangeContent(postDto.getContent());
+        postEntity.ChangeImageUrl(postDto.getImageUrl());
+        postRepository.save(postEntity);
+
+        return postEntity;
+    }
+
+    private void updateNewHashTag(Post postEntity,List<HashTagDto> hashDtoList) {
         List<HashTag> nowHashTagList = getNowPostHashTagList(postEntity);
         boolean isNewHashTag;
 
@@ -184,15 +189,19 @@ public class PostServiceImpl implements PostService {
                     .tagName(hashTagName)
                     .tagCount(1L)
                     .build();
-            HashTagMapping newHashTagMapping = HashTagMapping.builder()
-                    .hashTag(newHashTag)
-                    .post(nowPostEntity)
-                    .build();
-            hashTagMappingRepository.save(newHashTagMapping);
+            saveHashTagMapping(newHashTag,nowPostEntity);
         }
     }
 
-    private void checkRemovedHashTag(Post nowPostEntity,List<HashTagDto> hashTagDtoList) {
+    private void saveHashTagMapping(HashTag newHashTag,Post nowPostEntity) {
+        HashTagMapping newHashTagMapping = HashTagMapping.builder()
+                .hashTag(newHashTag)
+                .post(nowPostEntity)
+                .build();
+        hashTagMappingRepository.save(newHashTagMapping);
+    }
+
+    private void updateRemovedHashTag(Post nowPostEntity,List<HashTagDto> hashTagDtoList) {
         List<HashTag> nowHashTagList = getNowPostHashTagList(nowPostEntity);
 
         for (HashTag hashTag : nowHashTagList) {

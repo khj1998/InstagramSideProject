@@ -54,35 +54,34 @@ public class FriendServiceImpl implements FriendService {
 
         String accessToken = friendDtoList.get(0).getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
-        Long fromMemberId = fromMember.getId();
-        List<FriendDto> responseDtoList = new ArrayList<>();
+        List<FriendDto> addFriendDtoList = getAddFriendDtoList();
 
         for (FriendDto friendDto : friendDtoList) {
             Member toMember = memberRepository.findById(friendDto.getId())
                     .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred"));
-            Long toMemberId = toMember.getId();
 
             Friend friend = Friend.builder()
                     .fromMember(fromMember)
                     .toMember(toMember)
                     .build();
 
-            Optional<Friend> myFriend = friendRepository.findByFromMemberIdAndToMemberId(fromMemberId,toMemberId);
-            myFriend.ifPresent(m -> {
-                throw new DuplicatedFriendException("DuplicatedFriendException occurred");
-            });
-
             friendRepository.save(friend);
             FriendDto f = modelMapper.map(friend.getToMember(),FriendDto.class);
             f.setCreatedAt(friend.getCreatedAt());
-            responseDtoList.add(f);
+            addFriendDtoList.add(f);
         }
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Friends")
-                .data(responseDtoList)
+                .data(addFriendDtoList)
                 .build();
+    }
+
+    private List<FriendDto> getAddFriendDtoList() {
+        List<FriendDto> addFriendDtoList = new ArrayList<>();
+
+        return null;
     }
 
     /**
@@ -98,22 +97,27 @@ public class FriendServiceImpl implements FriendService {
         if (friendDtoList.size() == 0) {
             throw new FriendMinSelectException("FriendMinSelectException occurred");
         }
-
         String accessToken = friendDtoList.get(0).getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
-        Long fromMemberId = fromMember.getId();
-
-        for (FriendDto friendDto : friendDtoList) {
-            Long toMemberId = friendDto.getId();
-            Friend friend = friendRepository.findByFromMemberIdAndToMemberId(fromMemberId,toMemberId)
-                    .orElseThrow(()->new FriendNoFoundException("FriendNoFoundException occurred"));
-            friendRepository.delete(friend);
-        }
+        List<Friend> deleteFriendList = findDeletedFriend(fromMember,friendDtoList);
+        friendRepository.deleteAll(deleteFriendList);
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Delete Friends")
                 .build();
+    }
+
+    private List<Friend> findDeletedFriend(Member fromMember, List<FriendDto> friendDtoList) {
+        List<Friend> deleteFriendList = new ArrayList<>();
+
+        for (FriendDto friendDto : friendDtoList) {
+            Long toMemberId = friendDto.getId();
+            Friend friend = friendRepository.findByFromMemberIdAndToMemberId(fromMember.getId(),toMemberId)
+                    .orElseThrow(()->new FriendNoFoundException("FriendNoFoundException occurred"));
+            deleteFriendList.add(friend);
+        }
+        return deleteFriendList;
     }
 
     /**
