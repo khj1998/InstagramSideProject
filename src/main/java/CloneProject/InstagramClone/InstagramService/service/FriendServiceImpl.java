@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * FriendServiceImpl Class for side project.
+ * FriendServiceImpl class for side project.
  * This class is in charge of friend function.
  * @author Quokka_khj
  */
@@ -40,7 +40,7 @@ public class FriendServiceImpl implements FriendService {
     /**
      * A function that adds friend
      * @param friendDtoList List of newly added friend account information.
-     * @return ResponseEntity<ApiResponse> Returns the friendDtoList as body.
+     * @return ResponseEntity<ApiResponse> ResponseEntity returned when adding a friend is successful
      * @throws FriendMinSelectException At least one friend information must be selected.
      * @throws UserIdNotFoundException Cannot find user id in database
      * @throws DuplicatedFriendException Cannot re-register an already registered friend.
@@ -66,6 +66,13 @@ public class FriendServiceImpl implements FriendService {
                 .build();
     }
 
+    /**
+     * A function that returns the list of friends to add
+     * @param friendDtoList Dto list of friends to add
+     * @param fromMember Current member entity to add a friend to add a friend
+     * @return List<Friend> Friend entity list to add to friend storage
+     * @throws UserIdNotFoundException Cannot find user id in database
+     */
     private List<Friend> getAddFriendList(List<FriendDto> friendDtoList,Member fromMember) {
         List<Friend> addFriendList = new ArrayList<>();
 
@@ -78,6 +85,12 @@ public class FriendServiceImpl implements FriendService {
         return addFriendList;
     }
 
+    /**
+     * A function that creates friend entity
+     * @param fromMember Current member entity to add a friend to add a friend
+     * @param toMember Friend entity to be added to friend storage
+     * @return Friend A friend entity
+     */
     private Friend createFriendEntity(Member fromMember, Member toMember) {
         return Friend.builder()
                 .fromMember(fromMember)
@@ -85,6 +98,11 @@ public class FriendServiceImpl implements FriendService {
                 .build();
     }
 
+    /**
+     * A Function that generate friendDtoList to be included in the response body
+     * @param addFriendList List of friend entities to be converted to Dto
+     * @return List<FriendDto> friendDtoList to be included in the response body
+     */
     private List<FriendDto> getAddFriendDtoList(List<Friend> addFriendList) {
         List<FriendDto> addFriendDtoList = new ArrayList<>();
 
@@ -99,7 +117,7 @@ public class FriendServiceImpl implements FriendService {
     /**
      * A function that deletes friend
      * @param friendDtoList List of friends dto you want to delete
-     * @return ResponseEntity<ApiResponse> Returns the friend delete response
+     * @return ResponseEntity<ApiResponse> ResponseEntity returned when friend deletion is successful
      * @throws FriendMinSelectException At least one friend information must be selected.
      * @throws FriendNoFoundException Unregistered friend.
      */
@@ -120,6 +138,13 @@ public class FriendServiceImpl implements FriendService {
                 .build();
     }
 
+    /**
+     * A function to delete registered friends
+     * @param fromMember Subject entity deleting friends
+     * @param friendDtoList A function that converts the requested friend Dto list to be deleted into a friend entity list
+     * @return List<Friend> Friend entity list to be deleted
+     * @throws FriendNoFoundException Unregistered friend.
+     */
     private List<Friend> findDeletedFriend(Member fromMember, List<FriendDto> friendDtoList) {
         List<Friend> deleteFriendList = new ArrayList<>();
 
@@ -135,7 +160,7 @@ public class FriendServiceImpl implements FriendService {
     /**
      * A function to get a list of registered friends
      * @param req HttpServletRequest
-     * @return ResponseEntity<ApiResponse>
+     * @return ResponseEntity<ApiResponse> ResponseEntity returned when a friend list lookup is successful
      */
     @Override
     public ResponseEntity<ApiResponse> GetFriendList(HttpServletRequest req) {
@@ -151,6 +176,11 @@ public class FriendServiceImpl implements FriendService {
                 .build();
     }
 
+    /**
+     * A function that generates a friendDtoList to enter the response body
+     * @param friendList List of friend entities to be converted to Dto
+     * @return List<FriendDto>
+     */
     private List<FriendDto> getFriendDtoList(List<Friend> friendList) {
         List<FriendDto> friendDtoList = new ArrayList<>();
 

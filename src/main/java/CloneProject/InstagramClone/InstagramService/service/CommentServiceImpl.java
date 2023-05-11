@@ -55,7 +55,6 @@ public class CommentServiceImpl implements CommentService {
                 .build();
 
         commentRepository.save(commentEntity);
-
         CommentDto resDto =  modelMapper.map(commentEntity, CommentDto.class);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)

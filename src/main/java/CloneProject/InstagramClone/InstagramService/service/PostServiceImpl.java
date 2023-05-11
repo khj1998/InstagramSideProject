@@ -28,6 +28,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * PostServiceImpl class for side project.
+ * This class is in charge of post function
+ * @author Quokka_khj
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -40,9 +45,15 @@ public class PostServiceImpl implements PostService {
     private final HashTagRepository hashTagRepository;
     private final HashTagMappingRepository hashTagMappingRepository;
 
+    /**
+     * A function that adds post
+     * @param postDto Posts to be added as requested Dto
+     * @return ResponseEntity<ApiResponse> ResponseEntity returned upon successful post addition
+     * @throws HashTagLimitException Occurs when the hashtag limit is exceeded
+     */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> AddPost(PostDto postDto) throws JwtExpiredException {
+    public ResponseEntity<ApiResponse> AddPost(PostDto postDto) {
         List<HashTag> sameTagChecker = new ArrayList<>();
         Member memberEntity = tokenService.FindMemberByToken(postDto.getAccessToken());
         Post postEntity = createPost(memberEntity,postDto);
@@ -106,6 +117,13 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
+    /**
+     * A function to find posts by request-on-id value
+     * @param req HttpServletRequest
+     * @param postId Unique id of the post to find
+     * @return ResponseEntity<ApiResponse> ResponseEntity returned when a post is successfully found
+     * @throws PostNotFoundException Occurs when a post is not found
+     */
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> FindPost(HttpServletRequest req, Long postId) {
@@ -124,21 +142,36 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
+    /**
+     * A function that converts and returns entities in a found post to Dto
+     * @param foundPostEntity Post entity that found in database
+     * @return PostDto Dto of the found post entity
+     */
     private PostDto getFoundPostDto(Post foundPostEntity) {
-        PostDto foundPostDto = modelMapper.map(foundPostEntity,PostDto.class);
-        addHashTagToPostDto(foundPostEntity,foundPostDto);
-        return foundPostDto;
+        return addHashTagToPostDto(foundPostEntity);
     }
 
-    private void addHashTagToPostDto(Post foundPostEntity,PostDto foundPostDto) {
+    /**
+     * A function to add hashtags to found post Dto
+     * @param foundPostEntity Post entity that found in database
+     * @return PostDto Post Dto with hashtag included
+     */
+    private PostDto addHashTagToPostDto(Post foundPostEntity) {
+        PostDto foundPostDto = modelMapper.map(foundPostEntity,PostDto.class);
         List<HashTagMapping> hashTagMappingList = foundPostEntity.getHashTagMappingList();
 
         for (HashTagMapping hashTagMapping : hashTagMappingList) {
             HashTagDto hashTagDto = modelMapper.map(hashTagMapping.getHashTag(), HashTagDto.class);
             foundPostDto.getHashTagList().add(hashTagDto);
         }
+        return foundPostDto;
     }
 
+    /**
+     * A Function that modifies posts
+     * @param postDto Dto of the post will be modified that came in as a request
+     * @return ResponseEntity<ApiResponse> ResponseEntity returned upon successful post modification
+     */
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> EditPost(PostDto postDto) {
@@ -157,6 +190,12 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
+    /**
+     * A function that modifies data related to posts other than hashtags
+     * @param postDto PostDto with data change information for post
+     * @return Post Modified post Entity
+     * @throws PostNotFoundException Occurs when a post is not found
+     */
     private Post updatePostWithoutHashTag(PostDto postDto) {
         Post postEntity = postRepository
                 .findById(postDto.getId())
@@ -169,6 +208,11 @@ public class PostServiceImpl implements PostService {
         return postEntity;
     }
 
+    /**
+     * A function to find newly added hashtags to posts
+     * @param postEntity Post entity before hashtag update
+     * @param hashDtoList Hashtag Dto list of posts forwarded in request
+     */
     private void updateNewHashTag(Post postEntity,List<HashTagDto> hashDtoList) {
         List<HashTag> nowHashTagList = getNowPostHashTagList(postEntity);
         boolean isNewHashTag;
@@ -182,6 +226,12 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    /**
+     * A function that stores hashtags in database that are not in existing posts
+     * @param isNewHashTag Variable that determines hashtag that is not in the database
+     * @param nowPostEntity Current Post Entity
+     * @param hashTagName Representing hashtag's name
+     */
     private void createNewHashTag(boolean isNewHashTag,Post nowPostEntity,String hashTagName) {
         if (!isNewHashTag) return;
 
@@ -197,6 +247,11 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    /**
+     * A function that creates an intermediate entity that connects posts and hashtags.
+     * @param newHashTag New hashtag that does not exist in DB
+     * @param nowPostEntity Current post entity to which hashtag will be added
+     */
     private void saveHashTagMapping(HashTag newHashTag,Post nowPostEntity) {
         HashTagMapping newHashTagMapping = HashTagMapping.builder()
                 .hashTag(newHashTag)
@@ -205,6 +260,11 @@ public class PostServiceImpl implements PostService {
         hashTagMappingRepository.save(newHashTagMapping);
     }
 
+    /**
+     * A function to update hashtag removed from the post
+     * @param nowPostEntity  Current Post Entity
+     * @param hashTagDtoList A list of hashtags that came in requests to compare with existing hashtags in the post
+     */
     private void updateRemovedHashTag(Post nowPostEntity,List<HashTagDto> hashTagDtoList) {
         List<HashTag> nowHashTagList = getNowPostHashTagList(nowPostEntity);
 
@@ -217,6 +277,11 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    /**
+     * A function that returns a list of hashtags for the current post
+     * @param nowPostEntity Current Post Entity
+     * @return A list of hashtags for the current post
+     */
     private List<HashTag> getNowPostHashTagList(Post nowPostEntity) {
 
         List<HashTag> nowHashTagList = new ArrayList<>();
@@ -229,6 +294,13 @@ public class PostServiceImpl implements PostService {
         return nowHashTagList;
     }
 
+    /**
+     * A function that compares the hashtag of the current post with the hashtag delivered in the request to find the removed hashtag.
+     * @param hashTag Hashtag entity to be determined if removed
+     * @param hashTagDtoList List of hashtags Dto that came in as a request
+     * @return Removed hashtag entity, null if not removed
+     * @throws HashTagNameNotValidException Occurs when hashtag name is not valid
+     */
     private HashTag compareHashTagAndHashTagDto(HashTag hashTag,List<HashTagDto> hashTagDtoList) {
         String nowHashTagName;
         boolean isRemoved = true;
@@ -248,6 +320,11 @@ public class PostServiceImpl implements PostService {
         return isRemoved ? hashTag:null;
     }
 
+    /**
+     * A function that removes the hashtag.
+     * Delete hashtags from DB that are not used outside the current post
+     * @param hashTag hashtag entity to be removed
+     */
     private void removeHashTag(HashTag hashTag) {
         if (hashTag.getTagCount() >= 2) {
             hashTag.MinusTagCount();
@@ -258,6 +335,12 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    /**
+     * A function to delete a post
+     * @param postId The id value of the post to be deleted
+     * @return ResponseEntity<ApiResponse> ResponseEntity returned when a post is deleted successfully
+     * @throws PostNotFoundException Occurs when a post is not found
+     */
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> DeletePost(Long postId) {
@@ -273,15 +356,25 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
+    /**
+     * A function that returns the date the post was deleted
+     * @return formatter Date format in the form yyyy-MM-dd HH:mm:ssz (deletion date)
+     */
     private String getDeletedDate() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
         Date date = new Date(System.currentTimeMillis());
         return formatter.format(date);
     }
 
+    /**
+     * A function to add likes to a post
+     * @param postLikeDto Dto which used for adding like to a post
+     * @return ResponseEntity<ApiResponse> ResponseEntity returned when likes are successfully added to a post.
+     * @throws PostNotFoundException Occurs when a post is not found
+     */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> AddPostLike(PostLikeDto postLikeDto) throws JwtExpiredException {
+    public ResponseEntity<ApiResponse> AddPostLike(PostLikeDto postLikeDto) {
         Member memberEntity = tokenService.FindMemberByToken(postLikeDto.getAccessToken());
         Post postEntity = postRepository
                 .findById(postLikeDto.getPostId())
@@ -293,6 +386,13 @@ public class PostServiceImpl implements PostService {
                 removeLikeToPost(postLike);
     }
 
+    /**
+     * A function that works when user didn't add like to post.
+     * Add like to post.
+     * @param nowPostEntity Current Post Entity
+     * @param memberEntity Member's entity to add like to post.
+     * @return ResponseEntity<ApiResponse> ResponseEntity returned when successfully add like to a post
+     */
     private ResponseEntity<ApiResponse> addLikeToPost(Post nowPostEntity,Member memberEntity) {
         PostLike newPostLike = PostLike.builder()
                 .member(memberEntity)
@@ -307,6 +407,11 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
+    /**
+     * A function that cancels like if a post has already been registered like.
+     * @param postLike PostLike entity has already been registered.
+     * @return ResponseEntity<ApiResponse> ResponseEntity returned if successfully cancelled the likes in the post
+     */
     private ResponseEntity<ApiResponse> removeLikeToPost(PostLike postLike) {
         postLikeRepository.delete(postLike);
         return new ApiResponse.ApiResponseBuilder<>()
@@ -316,9 +421,14 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
+    /**
+     * A function that looks up user's posts
+     * @param req HttpServletRequest
+     * @return ResponseEntity returned if successfully queried his or her post.
+     */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetMyPosts(HttpServletRequest req) throws JwtExpiredException {
+    public ResponseEntity<ApiResponse> GetMyPosts(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
@@ -333,6 +443,11 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
+    /**
+     * A function that converts a user's Post list into a PostDto list.
+     * @param postList Post list posted by user.
+     * @return List<PostDto> List of Posts that store the converted PostDto for response
+     */
     private List<PostDto> revertPostToPostDto(List<Post> postList) {
         PostDto postDto;
         List<HashTagMapping> hashTagMappingList;
@@ -349,6 +464,11 @@ public class PostServiceImpl implements PostService {
         return postDtoList;
     }
 
+    /**
+     * A function that converts hashtags to Dto and returns a HashTagDtoList.
+     * @param hashTagMappingList HashTagMapping list that links posts to hashtags.
+     * @return List<HashTagDto>
+     */
     private List<HashTagDto> getHashTagDto(List<HashTagMapping> hashTagMappingList) {
         HashTag hashTag;
         List<HashTagDto> HashTagDtoList = new ArrayList<>();
@@ -360,30 +480,40 @@ public class PostServiceImpl implements PostService {
         return HashTagDtoList;
     }
 
+    /**
+     * A function that looks up posts that users like.
+     * @param req HttpServletRequest
+     * @return ResponseEntity<ApiResponse> ResponseEntity returned if the posts user posted were successfully viewed.
+     */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetPostLikeList(HttpServletRequest req) throws JwtExpiredException {
+    public ResponseEntity<ApiResponse> GetPostLikeList(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<PostLike> postLikeList = memberEntity.getPostLikeList();
-        List<PostDto> postLikeDtoList = getPostDtoList(postLikeList);
+        List<PostDto> postDtoList = getPostDtoList(postLikeList);
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("내가 좋아요를 누른 글 리스트")
-                .data(postLikeDtoList)
+                .data(postDtoList)
                 .build();
     }
 
+    /**
+     * A function that converts PostEntity associated with PostLike to Dto.
+     * @param postLikeList List of PostLike entities to be converted to Dto
+     * @return List<PostDto> PostDto list to be used for response body
+     */
     private List<PostDto> getPostDtoList(List<PostLike> postLikeList) {
-        List<PostDto> postLikeDtoList = new ArrayList<>();
+        List<PostDto> postDtoList = new ArrayList<>();
         PostDto postDto;
 
         for (PostLike postLike : postLikeList) {
             postDto = modelMapper.map(postLike.getPost(), PostDto.class);
-            postLikeDtoList.add(postDto);
+            postDtoList.add(postDto);
         }
 
-        return postLikeDtoList;
+        return postDtoList;
     }
 }
