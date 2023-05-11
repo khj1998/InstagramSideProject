@@ -45,12 +45,7 @@ public class PostServiceImpl implements PostService {
     public ResponseEntity<ApiResponse> AddPost(PostDto postDto) throws JwtExpiredException {
         List<HashTag> sameTagChecker = new ArrayList<>();
         Member memberEntity = tokenService.FindMemberByToken(postDto.getAccessToken());
-        Post postEntity = Post.builder()
-                .member(memberEntity)
-                .title(postDto.getTitle())
-                .content(postDto.getTitle())
-                .imageUrl(postDto.getImageUrl())
-                .build();
+        Post postEntity = createPost(memberEntity,postDto);
 
         if (postDto.getHashTagList().size() >= 30) {
             throw new HashTagLimitException("HashTagLimitException occurred");
@@ -99,6 +94,15 @@ public class PostServiceImpl implements PostService {
                 .success(true)
                 .message("Add Post")
                 .data(resData)
+                .build();
+    }
+
+    private Post createPost(Member memberEntity, PostDto postDto) {
+        return Post.builder()
+                .member(memberEntity)
+                .title(postDto.getTitle())
+                .content(postDto.getTitle())
+                .imageUrl(postDto.getImageUrl())
                 .build();
     }
 

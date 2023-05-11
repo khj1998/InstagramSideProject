@@ -53,24 +53,12 @@ public class FriendServiceImpl implements FriendService {
         }
 
         String accessToken = friendDtoList.get(0).getAccessToken();
+        tokenService.isTokenValid(accessToken);
         Member fromMember = tokenService.FindMemberByToken(accessToken);
-        List<FriendDto> addFriendDtoList = getAddFriendDtoList();
+        List<Friend> addFriendList = getAddFriendList(friendDtoList,fromMember);
+        friendRepository.saveAll(addFriendList);
 
-        for (FriendDto friendDto : friendDtoList) {
-            Member toMember = memberRepository.findById(friendDto.getId())
-                    .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred"));
-
-            Friend friend = Friend.builder()
-                    .fromMember(fromMember)
-                    .toMember(toMember)
-                    .build();
-
-            friendRepository.save(friend);
-            FriendDto f = modelMapper.map(friend.getToMember(),FriendDto.class);
-            f.setCreatedAt(friend.getCreatedAt());
-            addFriendDtoList.add(f);
-        }
-
+        List<FriendDto> addFriendDtoList = getAddFriendDtoList(addFriendList);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Friends")
@@ -78,10 +66,34 @@ public class FriendServiceImpl implements FriendService {
                 .build();
     }
 
-    private List<FriendDto> getAddFriendDtoList() {
+    private List<Friend> getAddFriendList(List<FriendDto> friendDtoList,Member fromMember) {
+        List<Friend> addFriendList = new ArrayList<>();
+
+        for (FriendDto friendDto : friendDtoList) {
+            Member toMember = memberRepository.findById(friendDto.getId())
+                    .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred"));
+            Friend friend = createFriendEntity(fromMember,toMember);
+            addFriendList.add(friend);
+        }
+        return addFriendList;
+    }
+
+    private Friend createFriendEntity(Member fromMember, Member toMember) {
+        return Friend.builder()
+                .fromMember(fromMember)
+                .toMember(toMember)
+                .build();
+    }
+
+    private List<FriendDto> getAddFriendDtoList(List<Friend> addFriendList) {
         List<FriendDto> addFriendDtoList = new ArrayList<>();
 
-        return null;
+        for (Friend friend : addFriendList) {
+            FriendDto friendDto = modelMapper.map(friend,FriendDto.class);
+            friendDto.setCreatedAt(friend.getCreatedAt());
+        }
+
+        return addFriendDtoList;
     }
 
     /**

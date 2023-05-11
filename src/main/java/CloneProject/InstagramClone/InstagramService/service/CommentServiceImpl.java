@@ -89,28 +89,39 @@ public class CommentServiceImpl implements CommentService {
         Comment commentEntity = commentRepository
                 .findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
-        CommentLike commentLikeEntity = commentLikeRepository.findByMemberIdAndCommentId(memberEntity.getId(),commentEntity.getId());
+        CommentLike findCommentLikeEntity = commentLikeRepository.findByMemberIdAndCommentId(memberEntity.getId(),commentEntity.getId());
+        CommentLike newCommentLike = findCommentLikeEntity==null ? addCommentLike(commentEntity,memberEntity) : deleteCommentLike(findCommentLikeEntity);
 
-        if (commentLikeEntity == null) {
-            CommentLike commentLike = CommentLike.builder()
-                    .comment(commentEntity)
-                    .member(memberEntity)
-                    .build();
-            commentLikeRepository.save(commentLike);
+        return newCommentLike==null ? createAddCommentLikeResponse(commentEntity) : createDeleteCommentLikeResponse(commentEntity);
+    }
 
-            return new ApiResponse.ApiResponseBuilder<>()
-                    .success(true)
-                    .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 누르셨습니다")
-                    .data(modelMapper.map(commentEntity, CommentDto.class))
-                    .build();
-        } else {
-            commentLikeRepository.delete(commentLikeEntity);
-            return new ApiResponse.ApiResponseBuilder<>()
-                    .success(true)
-                    .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 취소하셨습니다.")
-                    .data(modelMapper.map(commentEntity, CommentDto.class))
-                    .build();
-        }
+    private CommentLike addCommentLike(Comment commentEntity,Member memberEntity) {
+        CommentLike commentLike = CommentLike.builder()
+                        .comment(commentEntity)
+                        .member(memberEntity)
+                        .build();
+        commentLikeRepository.save(commentLike);
+        return commentLike;
+    }
+
+    private CommentLike deleteCommentLike(CommentLike commentLike) {
+        commentLikeRepository.delete(commentLike);
+        return null;
+    }
+
+    private ResponseEntity<ApiResponse> createAddCommentLikeResponse(Comment commentEntity) {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 누르셨습니다")
+                .data(modelMapper.map(commentEntity, CommentDto.class))
+                .build();
+    }
+
+    private ResponseEntity<ApiResponse> createDeleteCommentLikeResponse(Comment commentEntity) {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 취소하셨습니다.")
+                .build();
     }
 
     @Override
