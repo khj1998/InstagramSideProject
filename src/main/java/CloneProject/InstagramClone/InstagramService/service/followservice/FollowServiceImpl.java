@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.followservice;
 
 import static CloneProject.InstagramClone.InstagramService.config.SpringConst.*;
 import CloneProject.InstagramClone.InstagramService.dto.follow.BlockMemberDto;
@@ -14,6 +14,8 @@ import CloneProject.InstagramClone.InstagramService.exception.user.UserIdNotFoun
 import CloneProject.InstagramClone.InstagramService.repository.BlockedMemberRepository;
 import CloneProject.InstagramClone.InstagramService.repository.FollowRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
+import CloneProject.InstagramClone.InstagramService.service.TokenService;
+import CloneProject.InstagramClone.InstagramService.service.followservice.FollowService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;

@@ -3,7 +3,7 @@ package CloneProject.InstagramClone.InstagramService.controller;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
-import CloneProject.InstagramClone.InstagramService.service.PostService;
+import CloneProject.InstagramClone.InstagramService.service.postservice.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

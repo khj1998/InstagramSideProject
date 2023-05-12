@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.hashtagservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import org.springframework.http.ResponseEntity;

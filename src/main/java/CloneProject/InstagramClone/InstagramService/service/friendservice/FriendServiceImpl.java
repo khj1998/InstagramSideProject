@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.friendservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.friend.FriendDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
@@ -10,6 +10,8 @@ import CloneProject.InstagramClone.InstagramService.exception.friend.FriendNoFou
 import CloneProject.InstagramClone.InstagramService.exception.user.UserIdNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.FriendRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
+import CloneProject.InstagramClone.InstagramService.service.TokenService;
+import CloneProject.InstagramClone.InstagramService.service.friendservice.FriendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -20,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * FriendServiceImpl class for side project.
@@ -73,7 +74,7 @@ public class FriendServiceImpl implements FriendService {
      * @return List<Friend> Friend entity list to add to friend storage
      * @throws UserIdNotFoundException Cannot find user id in database
      */
-    private List<Friend> getAddFriendList(List<FriendDto> friendDtoList,Member fromMember) {
+    protected List<Friend> getAddFriendList(List<FriendDto> friendDtoList,Member fromMember) {
         List<Friend> addFriendList = new ArrayList<>();
 
         for (FriendDto friendDto : friendDtoList) {
@@ -91,7 +92,7 @@ public class FriendServiceImpl implements FriendService {
      * @param toMember Friend entity to be added to friend storage
      * @return Friend A friend entity
      */
-    private Friend createFriendEntity(Member fromMember, Member toMember) {
+    protected Friend createFriendEntity(Member fromMember, Member toMember) {
         return Friend.builder()
                 .fromMember(fromMember)
                 .toMember(toMember)
@@ -103,7 +104,7 @@ public class FriendServiceImpl implements FriendService {
      * @param addFriendList List of friend entities to be converted to Dto
      * @return List<FriendDto> friendDtoList to be included in the response body
      */
-    private List<FriendDto> getAddFriendDtoList(List<Friend> addFriendList) {
+    protected List<FriendDto> getAddFriendDtoList(List<Friend> addFriendList) {
         List<FriendDto> addFriendDtoList = new ArrayList<>();
 
         for (Friend friend : addFriendList) {
@@ -145,7 +146,7 @@ public class FriendServiceImpl implements FriendService {
      * @return List<Friend> Friend entity list to be deleted
      * @throws FriendNoFoundException Unregistered friend.
      */
-    private List<Friend> findDeletedFriend(Member fromMember, List<FriendDto> friendDtoList) {
+    protected List<Friend> findDeletedFriend(Member fromMember, List<FriendDto> friendDtoList) {
         List<Friend> deleteFriendList = new ArrayList<>();
 
         for (FriendDto friendDto : friendDtoList) {
@@ -181,7 +182,7 @@ public class FriendServiceImpl implements FriendService {
      * @param friendList List of friend entities to be converted to Dto
      * @return List<FriendDto>
      */
-    private List<FriendDto> getFriendDtoList(List<Friend> friendList) {
+    protected List<FriendDto> getFriendDtoList(List<Friend> friendList) {
         List<FriendDto> friendDtoList = new ArrayList<>();
 
         for (Friend friend : friendList) {

@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.friendservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.friend.FriendDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;

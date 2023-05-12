@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.userservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
@@ -13,6 +13,8 @@ import CloneProject.InstagramClone.InstagramService.exception.user.UserIdNotFoun
 import CloneProject.InstagramClone.InstagramService.entity.member.Role;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
+import CloneProject.InstagramClone.InstagramService.service.TokenService;
+import CloneProject.InstagramClone.InstagramService.service.userservice.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +33,7 @@ import static CloneProject.InstagramClone.InstagramService.config.SpringConst.AC
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     private final ModelMapper modelMapper;
     private final MemberRepository memberRepository;
@@ -135,6 +137,9 @@ public class UserServiceImpl implements UserService{
         user.setRole(Role.ROLE_USER);
     }
 
+    //userId 가 아니라 다음 프로세스에 따라 로그아웃을 진행한다.
+    //유저의 refreshToken이 만료되었을때
+    //유저가 로그아웃을 직접 진행했을때 => 로그아웃시 accessToken을 함께 보내, 해당 accessToken을 비활성화해야 한다.
     @Override
     public void logoutProcess(Long userId) {
         Member member = memberRepository

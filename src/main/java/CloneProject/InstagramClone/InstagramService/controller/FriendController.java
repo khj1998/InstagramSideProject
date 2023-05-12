@@ -2,7 +2,7 @@ package CloneProject.InstagramClone.InstagramService.controller;
 
 import CloneProject.InstagramClone.InstagramService.dto.friend.FriendDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
-import CloneProject.InstagramClone.InstagramService.service.FriendService;
+import CloneProject.InstagramClone.InstagramService.service.friendservice.FriendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

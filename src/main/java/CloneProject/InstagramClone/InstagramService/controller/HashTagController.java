@@ -1,7 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.controller;
 
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
-import CloneProject.InstagramClone.InstagramService.service.HashTagService;
+import CloneProject.InstagramClone.InstagramService.service.hashtagservice.HashTagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

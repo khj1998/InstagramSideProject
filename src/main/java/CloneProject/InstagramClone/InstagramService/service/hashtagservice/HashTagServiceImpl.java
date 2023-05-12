@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.hashtagservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.hashtag.HashTagDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
@@ -8,6 +8,8 @@ import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNot
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.repository.HashTagRepository;
+import CloneProject.InstagramClone.InstagramService.service.TokenService;
+import CloneProject.InstagramClone.InstagramService.service.hashtagservice.HashTagService;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

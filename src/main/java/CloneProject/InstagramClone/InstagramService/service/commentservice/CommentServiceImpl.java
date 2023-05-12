@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.commentservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
@@ -13,6 +13,8 @@ import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundE
 import CloneProject.InstagramClone.InstagramService.repository.CommentLikeRepository;
 import CloneProject.InstagramClone.InstagramService.repository.CommentRepository;
 import CloneProject.InstagramClone.InstagramService.repository.PostRepository;
+import CloneProject.InstagramClone.InstagramService.service.TokenService;
+import CloneProject.InstagramClone.InstagramService.service.commentservice.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -26,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -89,9 +92,11 @@ public class CommentServiceImpl implements CommentService {
                 .findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
         CommentLike findCommentLikeEntity = commentLikeRepository.findByMemberIdAndCommentId(memberEntity.getId(),commentEntity.getId());
-        CommentLike newCommentLike = findCommentLikeEntity==null ? addCommentLike(commentEntity,memberEntity) : deleteCommentLike(findCommentLikeEntity);
+        CommentLike newCommentLike = findCommentLikeEntity==null ?
+                addCommentLike(commentEntity,memberEntity) : deleteCommentLike(findCommentLikeEntity);
 
-        return newCommentLike==null ? createAddCommentLikeResponse(commentEntity) : createDeleteCommentLikeResponse(commentEntity);
+        return newCommentLike==null ?
+                createAddCommentLikeResponse(commentEntity) : createDeleteCommentLikeResponse(commentEntity);
     }
 
     private CommentLike addCommentLike(Comment commentEntity,Member memberEntity) {
@@ -141,20 +146,22 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> GetMyComments(HttpServletRequest req) throws JwtExpiredException,UsernameNotFoundException {
-        List<CommentDto> commentDtoList = new ArrayList<>();
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Comment> commentList = memberEntity.getCommentList();
-
-        for (Comment comment : commentList) {
-            commentDtoList.add(modelMapper.map(comment, CommentDto.class));
-        }
+        List<CommentDto> commentDtoList = getCommentDtoList(commentList);
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get My Comments")
                 .data(commentDtoList)
                 .build();
+    }
+
+    private List<CommentDto> getCommentDtoList(List<Comment> commentList) {
+        return commentList.stream()
+                .map(comment -> modelMapper.map(comment, CommentDto.class))
+                .collect(Collectors.toList());
     }
 
     @Override

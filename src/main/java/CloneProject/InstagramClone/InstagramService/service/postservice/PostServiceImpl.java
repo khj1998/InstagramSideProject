@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.postservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.hashtag.HashTagDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
@@ -11,9 +11,9 @@ import CloneProject.InstagramClone.InstagramService.entity.post.Post;
 import CloneProject.InstagramClone.InstagramService.entity.post.PostLike;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagLimitException;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNameNotValidException;
-import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.*;
+import CloneProject.InstagramClone.InstagramService.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -119,6 +118,7 @@ public class PostServiceImpl implements PostService {
 
     /**
      * A function to find posts by request-on-id value
+     * @see #getFoundPostDto(Post foundPostEntity)
      * @param req HttpServletRequest
      * @param postId Unique id of the post to find
      * @return ResponseEntity<ApiResponse> ResponseEntity returned when a post is successfully found
@@ -147,7 +147,7 @@ public class PostServiceImpl implements PostService {
      * @param foundPostEntity Post entity that found in database
      * @return PostDto Dto of the found post entity
      */
-    private PostDto getFoundPostDto(Post foundPostEntity) {
+    protected PostDto getFoundPostDto(Post foundPostEntity) {
         return addHashTagToPostDto(foundPostEntity);
     }
 
@@ -156,7 +156,7 @@ public class PostServiceImpl implements PostService {
      * @param foundPostEntity Post entity that found in database
      * @return PostDto Post Dto with hashtag included
      */
-    private PostDto addHashTagToPostDto(Post foundPostEntity) {
+    protected PostDto addHashTagToPostDto(Post foundPostEntity) {
         PostDto foundPostDto = modelMapper.map(foundPostEntity,PostDto.class);
         List<HashTagMapping> hashTagMappingList = foundPostEntity.getHashTagMappingList();
 
@@ -196,7 +196,7 @@ public class PostServiceImpl implements PostService {
      * @return Post Modified post Entity
      * @throws PostNotFoundException Occurs when a post is not found
      */
-    private Post updatePostWithoutHashTag(PostDto postDto) {
+    protected Post updatePostWithoutHashTag(PostDto postDto) {
         Post postEntity = postRepository
                 .findById(postDto.getId())
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
@@ -213,7 +213,7 @@ public class PostServiceImpl implements PostService {
      * @param postEntity Post entity before hashtag update
      * @param hashDtoList Hashtag Dto list of posts forwarded in request
      */
-    private void updateNewHashTag(Post postEntity,List<HashTagDto> hashDtoList) {
+    protected void updateNewHashTag(Post postEntity,List<HashTagDto> hashDtoList) {
         List<HashTag> nowHashTagList = getNowPostHashTagList(postEntity);
         boolean isNewHashTag;
 
@@ -232,7 +232,7 @@ public class PostServiceImpl implements PostService {
      * @param nowPostEntity Current Post Entity
      * @param hashTagName Representing hashtag's name
      */
-    private void createNewHashTag(boolean isNewHashTag,Post nowPostEntity,String hashTagName) {
+    protected void createNewHashTag(boolean isNewHashTag,Post nowPostEntity,String hashTagName) {
         if (!isNewHashTag) return;
 
         HashTag findHashTag;
@@ -252,7 +252,7 @@ public class PostServiceImpl implements PostService {
      * @param newHashTag New hashtag that does not exist in DB
      * @param nowPostEntity Current post entity to which hashtag will be added
      */
-    private void saveHashTagMapping(HashTag newHashTag,Post nowPostEntity) {
+    protected void saveHashTagMapping(HashTag newHashTag,Post nowPostEntity) {
         HashTagMapping newHashTagMapping = HashTagMapping.builder()
                 .hashTag(newHashTag)
                 .post(nowPostEntity)
@@ -265,7 +265,7 @@ public class PostServiceImpl implements PostService {
      * @param nowPostEntity  Current Post Entity
      * @param hashTagDtoList A list of hashtags that came in requests to compare with existing hashtags in the post
      */
-    private void updateRemovedHashTag(Post nowPostEntity,List<HashTagDto> hashTagDtoList) {
+    protected void updateRemovedHashTag(Post nowPostEntity,List<HashTagDto> hashTagDtoList) {
         List<HashTag> nowHashTagList = getNowPostHashTagList(nowPostEntity);
 
         for (HashTag hashTag : nowHashTagList) {
@@ -282,7 +282,7 @@ public class PostServiceImpl implements PostService {
      * @param nowPostEntity Current Post Entity
      * @return A list of hashtags for the current post
      */
-    private List<HashTag> getNowPostHashTagList(Post nowPostEntity) {
+    protected List<HashTag> getNowPostHashTagList(Post nowPostEntity) {
 
         List<HashTag> nowHashTagList = new ArrayList<>();
         List<HashTagMapping> hashTagMappingList = nowPostEntity.getHashTagMappingList();
@@ -301,7 +301,7 @@ public class PostServiceImpl implements PostService {
      * @return Removed hashtag entity, null if not removed
      * @throws HashTagNameNotValidException Occurs when hashtag name is not valid
      */
-    private HashTag compareHashTagAndHashTagDto(HashTag hashTag,List<HashTagDto> hashTagDtoList) {
+    protected HashTag compareHashTagAndHashTagDto(HashTag hashTag,List<HashTagDto> hashTagDtoList) {
         String nowHashTagName;
         boolean isRemoved = true;
 
@@ -325,7 +325,7 @@ public class PostServiceImpl implements PostService {
      * Delete hashtags from DB that are not used outside the current post
      * @param hashTag hashtag entity to be removed
      */
-    private void removeHashTag(HashTag hashTag) {
+    protected void removeHashTag(HashTag hashTag) {
         if (hashTag.getTagCount() >= 2) {
             hashTag.MinusTagCount();
             hashTagRepository.save(hashTag);
@@ -360,7 +360,7 @@ public class PostServiceImpl implements PostService {
      * A function that returns the date the post was deleted
      * @return formatter Date format in the form yyyy-MM-dd HH:mm:ssz (deletion date)
      */
-    private String getDeletedDate() {
+    protected String getDeletedDate() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
         Date date = new Date(System.currentTimeMillis());
         return formatter.format(date);
@@ -393,7 +393,7 @@ public class PostServiceImpl implements PostService {
      * @param memberEntity Member's entity to add like to post.
      * @return ResponseEntity<ApiResponse> ResponseEntity returned when successfully add like to a post
      */
-    private ResponseEntity<ApiResponse> addLikeToPost(Post nowPostEntity,Member memberEntity) {
+    protected ResponseEntity<ApiResponse> addLikeToPost(Post nowPostEntity,Member memberEntity) {
         PostLike newPostLike = PostLike.builder()
                 .member(memberEntity)
                 .post(nowPostEntity)
@@ -412,7 +412,7 @@ public class PostServiceImpl implements PostService {
      * @param postLike PostLike entity has already been registered.
      * @return ResponseEntity<ApiResponse> ResponseEntity returned if successfully cancelled the likes in the post
      */
-    private ResponseEntity<ApiResponse> removeLikeToPost(PostLike postLike) {
+    protected ResponseEntity<ApiResponse> removeLikeToPost(PostLike postLike) {
         postLikeRepository.delete(postLike);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
@@ -448,7 +448,7 @@ public class PostServiceImpl implements PostService {
      * @param postList Post list posted by user.
      * @return List<PostDto> List of Posts that store the converted PostDto for response
      */
-    private List<PostDto> revertPostToPostDto(List<Post> postList) {
+    protected List<PostDto> revertPostToPostDto(List<Post> postList) {
         PostDto postDto;
         List<HashTagMapping> hashTagMappingList;
         List<HashTagDto> hashTagDtoList;
@@ -469,7 +469,7 @@ public class PostServiceImpl implements PostService {
      * @param hashTagMappingList HashTagMapping list that links posts to hashtags.
      * @return List<HashTagDto>
      */
-    private List<HashTagDto> getHashTagDto(List<HashTagMapping> hashTagMappingList) {
+    protected List<HashTagDto> getHashTagDto(List<HashTagMapping> hashTagMappingList) {
         HashTag hashTag;
         List<HashTagDto> HashTagDtoList = new ArrayList<>();
 
@@ -505,7 +505,7 @@ public class PostServiceImpl implements PostService {
      * @param postLikeList List of PostLike entities to be converted to Dto
      * @return List<PostDto> PostDto list to be used for response body
      */
-    private List<PostDto> getPostDtoList(List<PostLike> postLikeList) {
+    protected List<PostDto> getPostDtoList(List<PostLike> postLikeList) {
         List<PostDto> postDtoList = new ArrayList<>();
         PostDto postDto;
 
