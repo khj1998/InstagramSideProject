@@ -100,21 +100,30 @@ public class FollowServiceImpl implements FollowService {
     public ResponseEntity<FollowResponse> unFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
-        Member toMember = memberRepository
-                .findById(followDto.getId())
-                .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred"));
+        Member toMember = getFollowerMember(followDto.getId());
 
-        Follow follow = followRepository
+        Follow follow = findFollowByFromMemberAndToMember(fromMember,toMember);
+        followRepository.delete(follow);
+
+        return createUnFollowResponse(followDto.getId());
+    }
+
+    private Member getFollowerMember(Long id) {
+        return memberRepository
+                .findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred"));
+    }
+
+    private Follow findFollowByFromMemberAndToMember(Member fromMember,Member toMember) {
+        return followRepository
                 .findByFromMemberIdAndToMemberId(fromMember.getId(), toMember.getId())
                 .orElseThrow(() -> new UnfollowFailedException("Unfollow failed exception occurred"));
+    }
 
-        followRepository.delete(follow);
-        FollowDto result = modelMapper.map(follow,FollowDto.class);
-        result.setId(followDto.getId());
-
+    private ResponseEntity<FollowResponse> createUnFollowResponse(Long id) {
         return new FollowResponse.FollowResponseBuilder<>()
                 .success(true)
-                .message("Un Following Id : "+followDto.getId())
+                .message("Un Following Id : "+id)
                 .build();
     }
 
