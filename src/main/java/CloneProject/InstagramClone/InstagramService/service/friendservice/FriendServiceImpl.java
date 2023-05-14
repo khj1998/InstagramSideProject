@@ -61,11 +61,7 @@ public class FriendServiceImpl implements FriendService {
         friendRepository.saveAll(addFriendList);
         List<FriendDto> addFriendDtoList = getAddFriendDtoList(addFriendList);
 
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Add Friends")
-                .data(addFriendDtoList)
-                .build();
+        return createAddFriendResponse(addFriendDtoList);
     }
 
     /**
@@ -111,6 +107,14 @@ public class FriendServiceImpl implements FriendService {
                 .collect(Collectors.toList());
     }
 
+    private ResponseEntity<ApiResponse> createAddFriendResponse(List<FriendDto> addFriendDtoList) {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Add Friends")
+                .data(addFriendDtoList)
+                .build();
+    }
+
     /**
      * A function that deletes friend
      * @param friendDtoList List of friends dto you want to delete
@@ -129,10 +133,7 @@ public class FriendServiceImpl implements FriendService {
         List<Friend> deleteFriendList = findDeletedFriend(fromMember,friendDtoList);
         friendRepository.deleteAll(deleteFriendList);
 
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Delete Friends")
-                .build();
+        return createDeleteFriend();
     }
 
     /**
@@ -154,6 +155,13 @@ public class FriendServiceImpl implements FriendService {
         return deleteFriendList;
     }
 
+    private ResponseEntity<ApiResponse> createDeleteFriend() {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Delete Friends")
+                .build();
+    }
+
     /**
      * A function to get a list of registered friends
      * @param req HttpServletRequest
@@ -166,11 +174,7 @@ public class FriendServiceImpl implements FriendService {
         List<Friend> friendList = memberEntity.getFriendList();
         List<FriendDto> friendDtoList = getFriendDtoList(friendList);
 
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Get Friends")
-                .data(friendDtoList)
-                .build();
+        return createAddFriendResponse(friendDtoList);
     }
 
     /**
@@ -182,5 +186,13 @@ public class FriendServiceImpl implements FriendService {
         return friendList.stream()
                 .map(friend -> modelMapper.map(friend.getToMember(),FriendDto.class))
                 .collect(Collectors.toList());
+    }
+
+    private ResponseEntity<ApiResponse> createGetFriendListResponse(List<FriendDto> friendDtoList) {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Get Friends")
+                .data(friendDtoList)
+                .build();
     }
 }

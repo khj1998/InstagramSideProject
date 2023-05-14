@@ -51,18 +51,26 @@ public class CommentServiceImpl implements CommentService {
                 .findById(commentDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
         Member memberEntity = tokenService.FindMemberByToken(commentDto.getAccessToken());
-        Comment commentEntity = Comment.builder()
+        Comment commentEntity = createCommentEntity(postEntity,memberEntity,commentDto.getContent());
+        commentRepository.save(commentEntity);
+
+        CommentDto responseCommentDto =  modelMapper.map(commentEntity, CommentDto.class);
+        return createAddCommentResponse(responseCommentDto);
+    }
+
+    private Comment createCommentEntity(Post postEntity,Member memberEntity,String content) {
+        return Comment.builder()
                 .post(postEntity)
                 .member(memberEntity)
-                .content(commentDto.getContent())
+                .content(content)
                 .build();
+    }
 
-        commentRepository.save(commentEntity);
-        CommentDto resDto =  modelMapper.map(commentEntity, CommentDto.class);
+    private ResponseEntity<ApiResponse> createAddCommentResponse(CommentDto commentDto) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Comment")
-                .data(resDto)
+                .data(commentDto)
                 .build();
     }
 
@@ -74,12 +82,16 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
         commentEntity.ChangeContent(commentDto.getContent());
         commentRepository.save(commentEntity);
-        CommentDto resDto =  modelMapper.map(commentEntity,CommentDto.class);
 
+        return createEditCommentResponse(commentEntity);
+    }
+
+    private ResponseEntity<ApiResponse> createEditCommentResponse(Comment commentEntity) {
+        CommentDto commentDto = modelMapper.map(commentEntity,CommentDto.class);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Comment Edit")
-                .data(resDto)
+                .data(commentDto)
                 .build();
     }
 
@@ -130,17 +142,24 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> DeleteComment(String commentId) {
-        Long id = Long.parseLong(commentId);
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
-        Date date = new Date(System.currentTimeMillis());
-        commentRepository.deleteById(id);
+    public ResponseEntity<ApiResponse> DeleteComment(Long commentId) {
+        commentRepository.deleteById(commentId);
+        return createDeleteCommentResponse(commentId);
+    }
 
+    private ResponseEntity<ApiResponse> createDeleteCommentResponse(Long commentId) {
+        String deleteDate = createDeleteDate();
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Delete CommentId : "+commentId)
-                .updatedAt(formatter.format(date))
+                .updatedAt(deleteDate)
                 .build();
+    }
+
+    private String createDeleteDate() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+        Date date = new Date(System.currentTimeMillis());
+        return formatter.format(date);
     }
 
     @Override
@@ -151,6 +170,10 @@ public class CommentServiceImpl implements CommentService {
         List<Comment> commentList = memberEntity.getCommentList();
         List<CommentDto> commentDtoList = getCommentDtoList(commentList);
 
+        return createGetMyCommentsResponse(commentDtoList);
+    }
+
+    private ResponseEntity<ApiResponse> createGetMyCommentsResponse(List<CommentDto> commentDtoList) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get My Comments")
@@ -172,15 +195,22 @@ public class CommentServiceImpl implements CommentService {
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
 
         List<CommentLike> commentLikeList = memberEntity.getCommentLikeList();
+        List<CommentDto> commentDtoList = createCommentDtoList(commentLikeList);
 
-        for (CommentLike commentLike : commentLikeList) {
-            resDto.add(modelMapper.map(commentLike.getComment(),CommentDto.class));
-        }
+        return createGetMyCommentLikeResponse(commentDtoList);
+    }
 
+    private List<CommentDto> createCommentDtoList(List<CommentLike> commentLikeList) {
+        return commentLikeList.stream()
+                .map(commentLike -> modelMapper.map(commentLike.getComment(),CommentDto.class))
+                .collect(Collectors.toList());
+    }
+
+    private ResponseEntity<ApiResponse> createGetMyCommentLikeResponse(List<CommentDto> commentDtoList) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("좋아요를 누른 댓글 리스트 조회")
-                .data(resDto)
+                .data(commentDtoList)
                 .build();
     }
 }

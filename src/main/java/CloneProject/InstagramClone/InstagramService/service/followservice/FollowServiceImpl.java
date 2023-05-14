@@ -15,7 +15,6 @@ import CloneProject.InstagramClone.InstagramService.repository.BlockedMemberRepo
 import CloneProject.InstagramClone.InstagramService.repository.FollowRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.service.TokenService;
-import CloneProject.InstagramClone.InstagramService.service.followservice.FollowService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,35 +55,45 @@ public class FollowServiceImpl implements FollowService {
     public ResponseEntity<FollowResponse> addFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
-        Member toMember = memberRepository
-                .findById(followDto.getId())
-                .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred"));
-
-        if (fromMember.getId().equals(toMember.getId())) {
-            throw new FollowMySelfException("Cannot follow myself exception occurred");
-        }
+        Member toMember = findToMemberById(followDto.getId());
 
         if (fromMember.getFollowingList().size() >= FOLLOW_LIMIT_NUMBER) {
             throw new FollowLimitException("FollowLimitException occurred");
         }
 
-        Follow follow = Follow.builder()
+        Follow follow = createFollowEntity(fromMember,toMember);
+        followRepository.save(follow);
+
+        FollowDto followerDto = createFollowerDto(fromMember);
+        FollowDto followingDto = createFollowingDto(toMember);
+        return createFollowResponse(followerDto,followingDto);
+    }
+
+    private Follow createFollowEntity(Member fromMember, Member toMember) {
+        return Follow.builder()
                 .fromMember(fromMember)
                 .toMember(toMember)
                 .build();
-        followRepository.save(follow);
+    }
 
+    private FollowDto createFollowingDto(Member toMember) {
         FollowDto toMemberDto = modelMapper.map(toMember,FollowDto.class);
         toMemberDto.setId(toMember.getId());
+        return toMemberDto;
+    }
 
+    private FollowDto createFollowerDto(Member fromMember) {
         FollowDto fromMemberDto = modelMapper.map(fromMember,FollowDto.class);
         fromMemberDto.setId(fromMember.getId());
+        return fromMemberDto;
+    }
 
+    private ResponseEntity<FollowResponse> createFollowResponse(FollowDto followerDto,FollowDto followingDto) {
         return new FollowResponse.FollowResponseBuilder<>()
                 .success(true)
                 .message("Add Following")
-                .fromMember(fromMemberDto)
-                .toMember(toMemberDto)
+                .fromMember(followerDto)
+                .toMember(followingDto)
                 .build();
     }
 
@@ -100,21 +108,30 @@ public class FollowServiceImpl implements FollowService {
     public ResponseEntity<FollowResponse> unFollow(FollowDto followDto) throws JwtExpiredException {
         String accessToken = followDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
-        Member toMember = memberRepository
-                .findById(followDto.getId())
-                .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred"));
+        Member toMember = getFollowerMember(followDto.getId());
 
-        Follow follow = followRepository
+        Follow follow = findFollowByFromMemberAndToMember(fromMember,toMember);
+        followRepository.delete(follow);
+
+        return createUnFollowResponse(followDto.getId());
+    }
+
+    private Member getFollowerMember(Long id) {
+        return memberRepository
+                .findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("UserNameNotFoundException occurred"));
+    }
+
+    private Follow findFollowByFromMemberAndToMember(Member fromMember,Member toMember) {
+        return followRepository
                 .findByFromMemberIdAndToMemberId(fromMember.getId(), toMember.getId())
                 .orElseThrow(() -> new UnfollowFailedException("Unfollow failed exception occurred"));
+    }
 
-        followRepository.delete(follow);
-        FollowDto result = modelMapper.map(follow,FollowDto.class);
-        result.setId(followDto.getId());
-
+    private ResponseEntity<FollowResponse> createUnFollowResponse(Long id) {
         return new FollowResponse.FollowResponseBuilder<>()
                 .success(true)
-                .message("Un Following Id : "+followDto.getId())
+                .message("Un Following Id : "+id)
                 .build();
     }
 
