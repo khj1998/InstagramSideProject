@@ -136,9 +136,13 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
         PostDto foundPostDto = getFoundPostDto(foundPostEntity);
 
+        return createFindPostResponse(foundPostDto);
+    }
+
+    private ResponseEntity<ApiResponse> createFindPostResponse(PostDto foundPostDto) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
-                .message("get post Id : "+postId)
+                .message("get post Id : "+foundPostDto.getId())
                 .data(foundPostDto)
                 .build();
     }
@@ -181,13 +185,17 @@ public class PostServiceImpl implements PostService {
         updateNewHashTag(postEntity,hashDtoList);
         updateRemovedHashTag(postEntity,hashDtoList);
 
-        PostDto resDto = modelMapper.map(postEntity,PostDto.class);
-        resDto.setHashTagList(postDto.getHashTagList());
+        PostDto resPostDto = modelMapper.map(postEntity,PostDto.class);
+        resPostDto.setHashTagList(postDto.getHashTagList());
 
+        return createEditPostResponse(resPostDto);
+    }
+
+    private ResponseEntity<ApiResponse> createEditPostResponse(PostDto postDto) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("edited post number : "+postDto.getId())
-                .data(resDto)
+                .data(postDto)
                 .build();
     }
 
@@ -348,6 +356,11 @@ public class PostServiceImpl implements PostService {
         Post postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
         postRepository.delete(postEntity);
+
+        return createDeletePostResponse(postId);
+    }
+
+    private ResponseEntity<ApiResponse> createDeletePostResponse(Long postId) {
         String deletedAt = getDeletedDate();
 
         return new ApiResponse.ApiResponseBuilder<>()
@@ -395,16 +408,26 @@ public class PostServiceImpl implements PostService {
      * @return ResponseEntity<ApiResponse> ResponseEntity returned when successfully add like to a post
      */
     protected ResponseEntity<ApiResponse> addLikeToPost(Post nowPostEntity,Member memberEntity) {
-        PostLike newPostLike = PostLike.builder()
+        PostLike newPostLike = createNewPostLike(nowPostEntity,memberEntity);
+        postLikeRepository.save(newPostLike);
+
+        return createAddPostLikeResponse(nowPostEntity,newPostLike);
+    }
+
+    private PostLike createNewPostLike(Post nowPostEntity,Member memberEntity) {
+        return PostLike.builder()
                 .member(memberEntity)
                 .post(nowPostEntity)
                 .build();
-        postLikeRepository.save(newPostLike);
+    }
+
+    private ResponseEntity<ApiResponse> createAddPostLikeResponse(Post nowPostEntity,PostLike newPostLike) {
+        PostLikeDto postLikeDto = modelMapper.map(newPostLike, PostLikeDto.class);
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
-                .message(nowPostEntity.getId()+"번 글에 좋아요를 등록하였습니다.")
-                .data(modelMapper.map(newPostLike, PostLikeDto.class))
+                .message(nowPostEntity.getId() + "번 글에 좋아요를 등록하였습니다.")
+                .data(postLikeDto)
                 .build();
     }
 
@@ -432,11 +455,13 @@ public class PostServiceImpl implements PostService {
     public ResponseEntity<ApiResponse> GetMyPosts(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
-
-        List<PostDto> postDtoList;
         List<Post> postList = memberEntity.getPostList();
-        postDtoList = revertPostToPostDto(postList);
+        List<PostDto> postDtoList = revertPostToPostDto(postList);
 
+        return createGetMyPostsResponse(postDtoList);
+    }
+
+    private ResponseEntity<ApiResponse> createGetMyPostsResponse(List<PostDto> postDtoList) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("내가 작성한 게시물들 리스트")
@@ -494,6 +519,10 @@ public class PostServiceImpl implements PostService {
         List<PostLike> postLikeList = memberEntity.getPostLikeList();
         List<PostDto> postDtoList = getPostDtoList(postLikeList);
 
+        return createGetPostLikeListResponse(postDtoList);
+    }
+
+    private ResponseEntity<ApiResponse> createGetPostLikeListResponse(List<PostDto> postDtoList) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("내가 좋아요를 누른 글 리스트")

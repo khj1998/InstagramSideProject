@@ -44,7 +44,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<ApiResponse> deleteComment(@RequestParam("commentId") String commentId) {
+    public ResponseEntity<ApiResponse> deleteComment(@RequestParam("commentId") Long commentId) {
         return commentService.DeleteComment(commentId);
     }
 }
