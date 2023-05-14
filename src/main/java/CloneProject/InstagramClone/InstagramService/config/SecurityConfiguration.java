@@ -23,7 +23,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import java.util.Arrays;
 
 @Configuration
@@ -67,20 +66,16 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         http.cors()
                 .configurationSource(corsConfigurationSource())
                 .and()
-                .csrf().disable()
+                .csrf().disable();
 
-                .authorizeHttpRequests()
-                .requestMatchers(SpringConst.PERMITTED_URIS)
-                .permitAll()
+        http.authorizeHttpRequests((uri -> uri.anyRequest().permitAll()));
 
-                .and()
-                .sessionManagement()
+        http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-                http
-                        .addFilterBefore(getCustomAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                        .addFilterAfter(customAuthorizationFilter, CustomAuthenticationFilter.class)
-                        .addFilterBefore(customJwtExceptionFilter, CustomAuthorizationFilter.class);
+        http.addFilterBefore(getCustomAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(customAuthorizationFilter, CustomAuthenticationFilter.class)
+                .addFilterBefore(customJwtExceptionFilter, CustomAuthorizationFilter.class);
 
         return http.build();
     }

@@ -1,15 +1,17 @@
 package CloneProject.InstagramClone.InstagramService.entity.post;
 
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
-import CloneProject.InstagramClone.InstagramService.entity.post.Post;
-import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 
 @Getter
 @Entity
 @Table(name = "postlike")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostLike {
     @Id
     @Column(name = "post_like_id")
@@ -24,11 +26,9 @@ public class PostLike {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    public void setMember(Member member) {
+    @Builder
+    public PostLike(Member member,Post post) {
         this.member = member;
-    }
-
-    public void setPost(Post post) {
         this.post = post;
     }
 }

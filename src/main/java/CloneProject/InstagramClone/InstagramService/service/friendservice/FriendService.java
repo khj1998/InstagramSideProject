@@ -1,10 +1,10 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.friendservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.friend.FriendDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface FriendService {

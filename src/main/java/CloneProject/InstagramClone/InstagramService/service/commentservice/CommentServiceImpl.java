@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.commentservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
@@ -12,9 +12,9 @@ import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredExce
 import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.CommentLikeRepository;
 import CloneProject.InstagramClone.InstagramService.repository.CommentRepository;
-import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.repository.PostRepository;
-import jakarta.servlet.http.HttpServletRequest;
+import CloneProject.InstagramClone.InstagramService.service.TokenService;
+import CloneProject.InstagramClone.InstagramService.service.commentservice.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -23,10 +23,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -35,27 +37,9 @@ public class CommentServiceImpl implements CommentService {
 
     private final ModelMapper modelMapper;
     private final TokenService tokenService;
-    private final MemberRepository memberRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
-
-    @Override
-    @Transactional
-    public ResponseEntity<ApiResponse> EditComment(CommentDto commentDto) {
-        Comment commentEntity = commentRepository
-                .findById(commentDto.getCommentId())
-                .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
-        commentEntity.setContent(commentDto.getContent());
-        commentRepository.save(commentEntity);
-        CommentDto resDto =  modelMapper.map(commentEntity,CommentDto.class);
-
-        return new ApiResponse.ApiResponseBuilder<>()
-                .success(true)
-                .message("Comment Edit")
-                .data(resDto)
-                .build();
-    }
 
     /**
      * 댓글 쓴 Member, 댓글 - Member, 글 - 댓글 연관관계 매핑
@@ -67,16 +51,34 @@ public class CommentServiceImpl implements CommentService {
                 .findById(commentDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
         Member memberEntity = tokenService.FindMemberByToken(commentDto.getAccessToken());
-        Comment commentEntity = modelMapper.map(commentDto, Comment.class);
+        Comment commentEntity = Comment.builder()
+                .post(postEntity)
+                .member(memberEntity)
+                .content(commentDto.getContent())
+                .build();
 
         commentRepository.save(commentEntity);
-        postRepository.save(postEntity);
-        memberRepository.save(memberEntity);
-
         CommentDto resDto =  modelMapper.map(commentEntity, CommentDto.class);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Comment")
+                .data(resDto)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<ApiResponse> EditComment(CommentDto commentDto) {
+        Comment commentEntity = commentRepository
+                .findById(commentDto.getCommentId())
+                .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
+        commentEntity.ChangeContent(commentDto.getContent());
+        commentRepository.save(commentEntity);
+        CommentDto resDto =  modelMapper.map(commentEntity,CommentDto.class);
+
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Comment Edit")
                 .data(resDto)
                 .build();
     }
@@ -89,27 +91,41 @@ public class CommentServiceImpl implements CommentService {
         Comment commentEntity = commentRepository
                 .findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
-        CommentLike commentLike = new CommentLike();
-        CommentLike commentLikeEntity = commentLikeRepository.findByMemberIdAndCommentId(memberEntity.getId(),commentEntity.getId());
+        CommentLike findCommentLikeEntity = commentLikeRepository.findByMemberIdAndCommentId(memberEntity.getId(),commentEntity.getId());
+        CommentLike newCommentLike = findCommentLikeEntity==null ?
+                addCommentLike(commentEntity,memberEntity) : deleteCommentLike(findCommentLikeEntity);
 
-        if (commentLikeEntity == null) {
-            commentLike.setComment(commentEntity);
-            commentLike.setMember(memberEntity);
-            commentLikeRepository.save(commentLike);
+        return newCommentLike==null ?
+                createAddCommentLikeResponse(commentEntity) : createDeleteCommentLikeResponse(commentEntity);
+    }
 
-            return new ApiResponse.ApiResponseBuilder<>()
-                    .success(true)
-                    .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 누르셨습니다")
-                    .data(modelMapper.map(commentEntity, CommentDto.class))
-                    .build();
-        } else {
-            commentLikeRepository.delete(commentLikeEntity);
-            return new ApiResponse.ApiResponseBuilder<>()
-                    .success(true)
-                    .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 취소하셨습니다.")
-                    .data(modelMapper.map(commentEntity, CommentDto.class))
-                    .build();
-        }
+    private CommentLike addCommentLike(Comment commentEntity,Member memberEntity) {
+        CommentLike commentLike = CommentLike.builder()
+                        .comment(commentEntity)
+                        .member(memberEntity)
+                        .build();
+        commentLikeRepository.save(commentLike);
+        return commentLike;
+    }
+
+    private CommentLike deleteCommentLike(CommentLike commentLike) {
+        commentLikeRepository.delete(commentLike);
+        return null;
+    }
+
+    private ResponseEntity<ApiResponse> createAddCommentLikeResponse(Comment commentEntity) {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 누르셨습니다")
+                .data(modelMapper.map(commentEntity, CommentDto.class))
+                .build();
+    }
+
+    private ResponseEntity<ApiResponse> createDeleteCommentLikeResponse(Comment commentEntity) {
+        return new ApiResponse.ApiResponseBuilder<>()
+                .success(true)
+                .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 취소하셨습니다.")
+                .build();
     }
 
     @Override
@@ -130,20 +146,22 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> GetMyComments(HttpServletRequest req) throws JwtExpiredException,UsernameNotFoundException {
-        List<CommentDto> commentDtoList = new ArrayList<>();
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Comment> commentList = memberEntity.getCommentList();
-
-        for (Comment comment : commentList) {
-            commentDtoList.add(modelMapper.map(comment, CommentDto.class));
-        }
+        List<CommentDto> commentDtoList = getCommentDtoList(commentList);
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get My Comments")
                 .data(commentDtoList)
                 .build();
+    }
+
+    private List<CommentDto> getCommentDtoList(List<Comment> commentList) {
+        return commentList.stream()
+                .map(comment -> modelMapper.map(comment, CommentDto.class))
+                .collect(Collectors.toList());
     }
 
     @Override

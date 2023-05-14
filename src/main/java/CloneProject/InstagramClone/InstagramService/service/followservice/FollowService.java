@@ -1,11 +1,12 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.followservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.follow.BlockMemberDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.FollowResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
+
+import javax.servlet.http.HttpServletRequest;
 
 public interface FollowService {
     ResponseEntity<FollowResponse> addFollow(FollowDto followDto);

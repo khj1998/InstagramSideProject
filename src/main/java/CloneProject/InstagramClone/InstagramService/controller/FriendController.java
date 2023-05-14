@@ -2,14 +2,14 @@ package CloneProject.InstagramClone.InstagramService.controller;
 
 import CloneProject.InstagramClone.InstagramService.dto.friend.FriendDto;
 import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
-import CloneProject.InstagramClone.InstagramService.service.FriendService;
-import jakarta.servlet.http.HttpServletRequest;
+import CloneProject.InstagramClone.InstagramService.service.friendservice.FriendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Slf4j

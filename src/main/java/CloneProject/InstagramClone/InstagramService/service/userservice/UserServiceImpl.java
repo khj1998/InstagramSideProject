@@ -1,4 +1,4 @@
-package CloneProject.InstagramClone.InstagramService.service;
+package CloneProject.InstagramClone.InstagramService.service.userservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
@@ -8,10 +8,13 @@ import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredExce
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
 import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
-import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
+import CloneProject.InstagramClone.InstagramService.exception.user.IllegalUserIdException;
+import CloneProject.InstagramClone.InstagramService.exception.user.UserIdNotFoundException;
 import CloneProject.InstagramClone.InstagramService.entity.member.Role;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
+import CloneProject.InstagramClone.InstagramService.service.TokenService;
+import CloneProject.InstagramClone.InstagramService.service.userservice.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +33,7 @@ import static CloneProject.InstagramClone.InstagramService.config.SpringConst.AC
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     private final ModelMapper modelMapper;
     private final MemberRepository memberRepository;
@@ -82,15 +85,16 @@ public class UserServiceImpl implements UserService{
     @Transactional
     public ResponseEntity<AuthResponse> ReallocateAccessToken(AuthDto authDto) {
 
-        String username = tokenService.extractUsername(authDto.getAccessToken());
-        if (username == null) {
-            throw new JwtExpiredException("Invalid AccessToken");
+        Long userId = authDto.getUserId();
+        if (userId == null) {
+            throw new IllegalUserIdException("IllegalUserIdException occurred");
         }
-        
+
         Member member = memberRepository
-                .findByEmail(username)
+                .findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
-        String refreshToken = (String) redisTemplate.opsForValue().get(username);
+        String userName = member.getUsername();
+        String refreshToken = (String) redisTemplate.opsForValue().get(userName);
         String accessToken;
 
         try {
@@ -98,7 +102,7 @@ public class UserServiceImpl implements UserService{
             tokenService.isRefreshTokenValid(refreshToken);
             accessToken = tokenService.generateAccessToken(member);
             refreshToken = tokenService.generateRefreshToken(member);
-            redisTemplate.opsForValue().set(username,refreshToken);
+            redisTemplate.opsForValue().set(userName,refreshToken);
         } catch (ExpiredJwtException e) {
             throw new JwtExpiredException("RefreshToken Expired");
         } catch (IllegalArgumentException e) {
@@ -133,11 +137,14 @@ public class UserServiceImpl implements UserService{
         user.setRole(Role.ROLE_USER);
     }
 
+    //userId 가 아니라 다음 프로세스에 따라 로그아웃을 진행한다.
+    //유저의 refreshToken이 만료되었을때
+    //유저가 로그아웃을 직접 진행했을때 => 로그아웃시 accessToken을 함께 보내, 해당 accessToken을 비활성화해야 한다.
     @Override
     public void logoutProcess(Long userId) {
         Member member = memberRepository
                 .findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("UserNotFoundException occurred"));
+                .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred"));
         String username = member.getUsername();
         redisTemplate.delete(username);
     }

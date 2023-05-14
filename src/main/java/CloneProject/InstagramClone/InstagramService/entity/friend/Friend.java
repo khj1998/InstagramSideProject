@@ -1,17 +1,19 @@
 package CloneProject.InstagramClone.InstagramService.entity.friend;
 
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
-import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import javax.persistence.*;
 import java.util.Date;
 
 @Getter
 @Entity
 @Table(name = "friends")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Friend {
     @Id
     @Column(name = "friend_id")
@@ -29,11 +31,9 @@ public class Friend {
     @JoinColumn(name = "to_friend_fk")
     private Member toMember;
 
-    public void setFromMember(Member fromMember) {
+    @Builder
+    public Friend(Member fromMember,Member toMember) {
         this.fromMember = fromMember;
-    }
-
-    public void setToMember(Member toMember) {
         this.toMember = toMember;
     }
 }

@@ -9,15 +9,15 @@ import CloneProject.InstagramClone.InstagramService.exception.follow.UnfollowFai
 import CloneProject.InstagramClone.InstagramService.exception.friend.DuplicatedFriendException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendMinSelectException;
 import CloneProject.InstagramClone.InstagramService.exception.friend.FriendNoFoundException;
-import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagLimitException;
-import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNameNotValidException;
+import CloneProject.InstagramClone.InstagramService.exception.hashtag.*;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtSignatureException;
 import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
 import CloneProject.InstagramClone.InstagramService.exception.user.EmailAlreadyExistsException;
+import CloneProject.InstagramClone.InstagramService.exception.user.IllegalUserIdException;
 import CloneProject.InstagramClone.InstagramService.exception.user.UserNotAuthenticated;
-import CloneProject.InstagramClone.InstagramService.exception.user.UserNotFoundException;
+import CloneProject.InstagramClone.InstagramService.exception.user.UserIdNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -37,7 +37,7 @@ public class ExceptionControllerAdvice {
                 .build();
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(UserIdNotFoundException.class)
     public ResponseEntity<ExceptionResponse> handleUserNotFoundException() {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid request")
@@ -50,6 +50,14 @@ public class ExceptionControllerAdvice {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid authentication request")
                 .setException_message("user principal not exists")
+                .build();
+    }
+
+    @ExceptionHandler(IllegalUserIdException.class)
+    public ResponseEntity<ExceptionResponse> handleIllegalUserIdException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid user id request")
+                .setException_message("user id must not be null")
                 .build();
     }
 
@@ -149,10 +157,42 @@ public class ExceptionControllerAdvice {
                 .build();
     }
 
+    @ExceptionHandler(HashTagNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleHashTagNotFoundException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid hashtag request")
+                .setException_message("Such HashTag not found")
+                .build();
+    }
+
+    @ExceptionHandler(NotHashTagEntityException.class)
+    public ResponseEntity<ExceptionResponse> handleNotHashTagEntityException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid entity request")
+                .setException_message("Hashtag Entity required")
+                .build();
+    }
+
+    @ExceptionHandler(HashTagMappingNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleNotHashTagMappingException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid HashTagMapping Entity find process")
+                .setException_message("Such HashTagMapping Entity not exists")
+                .build();
+    }
+
+    @ExceptionHandler(HashTagNotAssignedException.class)
+    public ResponseEntity<ExceptionResponse> handleNotHashTagNotAssignedException() {
+        return new ExceptionResponse.ExceptionResponseBuilder(false)
+                .setException("invalid find popular hashtag request")
+                .setException_message("Any HashTag not assigned yet")
+                .build();
+    }
+
     @ExceptionHandler(JwtExpiredException.class)
     public ResponseEntity<ExceptionResponse> handleJwtExpiredException() {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
-                .setException("invalid_request")
+                .setException("invalid jwt request")
                 .setException_message("Request with expired Json Web Token")
                 .build();
     }
