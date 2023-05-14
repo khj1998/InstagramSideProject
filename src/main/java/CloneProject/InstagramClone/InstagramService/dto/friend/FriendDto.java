@@ -10,5 +10,4 @@ import java.util.Date;
 public class FriendDto {
     private String accessToken;
     private Long id;
-    private Date createdAt;
 }

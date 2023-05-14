@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * FriendServiceImpl class for side project.
@@ -58,8 +59,8 @@ public class FriendServiceImpl implements FriendService {
         Member fromMember = tokenService.FindMemberByToken(accessToken);
         List<Friend> addFriendList = getAddFriendList(friendDtoList,fromMember);
         friendRepository.saveAll(addFriendList);
-
         List<FriendDto> addFriendDtoList = getAddFriendDtoList(addFriendList);
+
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Friends")
@@ -105,14 +106,9 @@ public class FriendServiceImpl implements FriendService {
      * @return List<FriendDto> friendDtoList to be included in the response body
      */
     protected List<FriendDto> getAddFriendDtoList(List<Friend> addFriendList) {
-        List<FriendDto> addFriendDtoList = new ArrayList<>();
-
-        for (Friend friend : addFriendList) {
-            FriendDto friendDto = modelMapper.map(friend,FriendDto.class);
-            friendDto.setCreatedAt(friend.getCreatedAt());
-        }
-
-        return addFriendDtoList;
+        return addFriendList.stream()
+                .map(friend -> modelMapper.map(friend,FriendDto.class))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -183,13 +179,8 @@ public class FriendServiceImpl implements FriendService {
      * @return List<FriendDto>
      */
     protected List<FriendDto> getFriendDtoList(List<Friend> friendList) {
-        List<FriendDto> friendDtoList = new ArrayList<>();
-
-        for (Friend friend : friendList) {
-            FriendDto friendDto = modelMapper.map(friend.getToMember(),FriendDto.class);
-            friendDto.setCreatedAt(friend.getCreatedAt());
-            friendDtoList.add(friendDto);
-        }
-        return friendDtoList;
+        return friendList.stream()
+                .map(friend -> modelMapper.map(friend.getToMember(),FriendDto.class))
+                .collect(Collectors.toList());
     }
 }

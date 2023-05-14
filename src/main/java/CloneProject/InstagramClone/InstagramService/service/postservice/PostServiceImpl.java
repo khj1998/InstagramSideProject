@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * PostServiceImpl class for side project.
@@ -506,14 +507,8 @@ public class PostServiceImpl implements PostService {
      * @return List<PostDto> PostDto list to be used for response body
      */
     protected List<PostDto> getPostDtoList(List<PostLike> postLikeList) {
-        List<PostDto> postDtoList = new ArrayList<>();
-        PostDto postDto;
-
-        for (PostLike postLike : postLikeList) {
-            postDto = modelMapper.map(postLike.getPost(), PostDto.class);
-            postDtoList.add(postDto);
-        }
-
-        return postDtoList;
+        return postLikeList.stream()
+                .map(postLike -> modelMapper.map(postLike.getPost(), PostDto.class))
+                .collect(Collectors.toList());
     }
 }

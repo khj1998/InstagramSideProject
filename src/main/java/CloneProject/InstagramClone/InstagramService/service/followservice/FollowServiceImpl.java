@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * FollowServiceImpl Class for side project.
@@ -248,13 +249,7 @@ public class FollowServiceImpl implements FollowService {
     public ResponseEntity<ApiResponse> getBlockedUsers(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
-
-        List<BlockMemberDto> responseDtoList = new ArrayList<>();
-        List<BlockedMember> blockedMemberList = memberEntity.getBlockingList();
-
-        for (BlockedMember blockedMember : blockedMemberList) {
-            responseDtoList.add(modelMapper.map(blockedMember.getToMember(), BlockMemberDto.class));
-        }
+        List<BlockMemberDto> responseDtoList = getBlockedMemberDtoByToMember(memberEntity.getBlockingList());
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
@@ -262,6 +257,13 @@ public class FollowServiceImpl implements FollowService {
                 .data(responseDtoList)
                 .build();
     }
+
+    private List<BlockMemberDto> getBlockedMemberDtoByToMember(List<BlockedMember> blockedMemberList) {
+        return blockedMemberList.stream()
+                .map(blockedMember -> modelMapper.map(blockedMember.getToMember(),BlockMemberDto.class))
+                .collect(Collectors.toList());
+    }
+
 
     /**
      * A function that looks up the user who blocked me
@@ -274,18 +276,18 @@ public class FollowServiceImpl implements FollowService {
     public ResponseEntity<ApiResponse> getBlockingUsers(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
-
-        List<BlockMemberDto> responseDtoList = new ArrayList<>();
-        List<BlockedMember> blockedMemberList = memberEntity.getBlockedList();
-
-        for (BlockedMember blockedMember : blockedMemberList) {
-            responseDtoList.add(modelMapper.map(blockedMember.getFromMember(), BlockMemberDto.class));
-        }
+        List<BlockMemberDto> responseDtoList = getBlockedMemberDtoByFromMember(memberEntity.getBlockedList());
 
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("users who blocking my account")
                 .data(responseDtoList)
                 .build();
+    }
+
+    private List<BlockMemberDto> getBlockedMemberDtoByFromMember(List<BlockedMember> blockedMemberList) {
+        return blockedMemberList.stream()
+                .map(blockedMember -> modelMapper.map(blockedMember.getFromMember(), BlockMemberDto.class))
+                .collect(Collectors.toList());
     }
 }
