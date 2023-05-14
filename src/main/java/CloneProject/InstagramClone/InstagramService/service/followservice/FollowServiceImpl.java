@@ -157,18 +157,22 @@ public class FollowServiceImpl implements FollowService {
     public ResponseEntity<ApiResponse> getFollowers(HttpServletRequest req) throws JwtExpiredException {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
+        List<FollowDto> followerDtoList = getFollowerDtoList(memberEntity.getFollowerList());
 
-        List<FollowDto> resDtoList = new ArrayList<>();
-        List<Follow> followerList = memberEntity.getFollowerList();
+        return createGetFollowerResponse(followerDtoList);
+    }
 
-        for (Follow follower : followerList) {
-            resDtoList.add(modelMapper.map(follower.getFromMember(),FollowDto.class));
-        }
+    private List<FollowDto> getFollowerDtoList(List<Follow> followerList) {
+        return followerList.stream()
+                .map(follower -> modelMapper.map(follower.getFromMember(),FollowDto.class))
+                .collect(Collectors.toList());
+    }
 
+    private ResponseEntity<ApiResponse> createGetFollowerResponse(List<FollowDto> followerDtoList) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get User Follower List")
-                .data(resDtoList)
+                .data(followerDtoList)
                 .build();
     }
 
