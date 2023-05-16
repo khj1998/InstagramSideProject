@@ -41,9 +41,6 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
 
-    /**
-     * 댓글 쓴 Member, 댓글 - Member, 글 - 댓글 연관관계 매핑
-     */
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> AddComment(CommentDto commentDto) throws JwtExpiredException,UsernameNotFoundException {

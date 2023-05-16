@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.11'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	id 'jacoco'
 }
 
 group = 'CloneProject'
@@ -20,6 +21,32 @@ repositories {
 javadoc {
 	source = sourceSets.main.java.srcDirs
 	options.encoding = 'UTF-8'
+}
+
+jacoco {
+	toolVersion = '0.8.8'
+}
+
+jacocoTestReport {
+	reports {
+		xml.required = false
+		csv.required = false
+		html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+	}
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			element = 'CLASS'
+
+			limit {
+				counter = 'BRANCH'
+				value = 'COVEREDRATIO'
+				minimum = 0.90
+			}
+		}
+	}
 }
 
 dependencies {
@@ -43,5 +70,9 @@ dependencies {
 }
 
 tasks.named('test') {
+	useJUnitPlatform()
+}
+
+test {
 	useJUnitPlatform()
 }
