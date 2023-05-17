@@ -6,6 +6,6 @@ import org.springframework.http.ResponseEntity;
 import javax.servlet.http.HttpServletRequest;
 
 public interface HashTagService {
-    ResponseEntity<ApiResponse> GetHashTag(HttpServletRequest req, String hashTagName);
-    ResponseEntity<ApiResponse> GetPopularHashTag(HttpServletRequest req);
+    ResponseEntity<ApiResponse> GetHashTag(HttpServletRequest req,Long id);
+    ResponseEntity<ApiResponse> GetPopularHashTag();
 }

@@ -64,44 +64,22 @@ public class FriendServiceImpl implements FriendService {
         return createAddFriendResponse(addFriendDtoList);
     }
 
-    /**
-     * A function that returns the list of friends to add
-     * @param friendDtoList Dto list of friends to add
-     * @param fromMember Current member entity to add a friend to add a friend
-     * @return List<Friend> Friend entity list to add to friend storage
-     * @throws UserIdNotFoundException Cannot find user id in database
-     */
-    protected List<Friend> getAddFriendList(List<FriendDto> friendDtoList,Member fromMember) {
-        List<Friend> addFriendList = new ArrayList<>();
-
-        for (FriendDto friendDto : friendDtoList) {
-            Member toMember = memberRepository.findById(friendDto.getId())
-                    .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred"));
-            Friend friend = createFriendEntity(fromMember,toMember);
-            addFriendList.add(friend);
-        }
-        return addFriendList;
+    private List<Friend> getAddFriendList(List<FriendDto> friendDtoList,Member fromMember) {
+        return friendDtoList.stream()
+                .map(friendDto -> memberRepository.findById(friendDto.getId())
+                        .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred")))
+                .map(toMember -> createFriendEntity(fromMember,toMember))
+                .collect(Collectors.toList());
     }
 
-    /**
-     * A function that creates friend entity
-     * @param fromMember Current member entity to add a friend to add a friend
-     * @param toMember Friend entity to be added to friend storage
-     * @return Friend A friend entity
-     */
-    protected Friend createFriendEntity(Member fromMember, Member toMember) {
+    private Friend createFriendEntity(Member fromMember, Member toMember) {
         return Friend.builder()
                 .fromMember(fromMember)
                 .toMember(toMember)
                 .build();
     }
 
-    /**
-     * A Function that generate friendDtoList to be included in the response body
-     * @param addFriendList List of friend entities to be converted to Dto
-     * @return List<FriendDto> friendDtoList to be included in the response body
-     */
-    protected List<FriendDto> getAddFriendDtoList(List<Friend> addFriendList) {
+    private List<FriendDto> getAddFriendDtoList(List<Friend> addFriendList) {
         return addFriendList.stream()
                 .map(friend -> modelMapper.map(friend,FriendDto.class))
                 .collect(Collectors.toList());
@@ -136,23 +114,11 @@ public class FriendServiceImpl implements FriendService {
         return createDeleteFriend();
     }
 
-    /**
-     * A function to delete registered friends
-     * @param fromMember Subject entity deleting friends
-     * @param friendDtoList A function that converts the requested friend Dto list to be deleted into a friend entity list
-     * @return List<Friend> Friend entity list to be deleted
-     * @throws FriendNoFoundException Unregistered friend.
-     */
-    protected List<Friend> findDeletedFriend(Member fromMember, List<FriendDto> friendDtoList) {
-        List<Friend> deleteFriendList = new ArrayList<>();
-
-        for (FriendDto friendDto : friendDtoList) {
-            Long toMemberId = friendDto.getId();
-            Friend friend = friendRepository.findByFromMemberIdAndToMemberId(fromMember.getId(),toMemberId)
-                    .orElseThrow(()->new FriendNoFoundException("FriendNoFoundException occurred"));
-            deleteFriendList.add(friend);
-        }
-        return deleteFriendList;
+    private List<Friend> findDeletedFriend(Member fromMember, List<FriendDto> toFriendDtoList) {
+        return toFriendDtoList.stream()
+                .map(toFriendDto -> friendRepository.findByFromMemberIdAndToMemberId(fromMember.getId(), toFriendDto.getId())
+                        .orElseThrow(()->new FriendNoFoundException("FriendNoFoundException occurred")))
+                .collect(Collectors.toList());
     }
 
     private ResponseEntity<ApiResponse> createDeleteFriend() {
