@@ -20,13 +20,13 @@ public class HashTagController {
     private final HashTagService hashTagService;
 
     @GetMapping("/find")
-    public ResponseEntity<ApiResponse> getHashTagCounts(HttpServletRequest req,
-                                                        @RequestParam("hashTag") String hashTag) {
-        return hashTagService.GetHashTag(req,hashTag);
+    public ResponseEntity<ApiResponse> getHashTag(HttpServletRequest req,
+                                                        @RequestParam("id") Long id) {
+        return hashTagService.GetHashTag(req,id);
     }
 
     @GetMapping("/popular-tags")
-    public ResponseEntity<ApiResponse> getPopularTags(HttpServletRequest req) {
-        return hashTagService.GetPopularHashTag(req);
+    public ResponseEntity<ApiResponse> getPopularTags() {
+        return hashTagService.GetPopularHashTag();
     }
 }

@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,53 +37,53 @@ public class HashTagServiceImpl implements HashTagService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetHashTag(HttpServletRequest req,String hashTagName) {
+    public ResponseEntity<ApiResponse> GetHashTag(HttpServletRequest req,Long id) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         tokenService.isTokenValid(accessToken);
-        HashTag hashTag = hashTagRepository.findByTagName("#"+hashTagName);
+        HashTag hashTag = hashTagRepository.findById(id)
+                .orElseThrow(() -> new HashTagNotFoundException("HashTagNotFoundException occurred"));
+        HashTagDto hashTagDto = createHashTagDto(hashTag);
 
-        if (hashTag == null) {
-            throw new HashTagNotFoundException("HashTagNotFoundException occurred");
-        }
+        return createGetHashTagResponse(hashTagDto);
+    }
 
-        HashTagDto resDto = modelMapper.map(hashTag, HashTagDto.class);
-        resDto.setHashTagCount(hashTag.getTagCount());
+    private HashTagDto createHashTagDto(HashTag hashTag) {
+        HashTagDto hashTagDto = modelMapper.map(hashTag, HashTagDto.class);
+        hashTagDto.setHashTagCount(hashTag.getTagCount());
+        return hashTagDto;
+    }
 
+    private ResponseEntity<ApiResponse> createGetHashTagResponse(HashTagDto hashTagDto) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get HashTag Count")
-                .data(resDto)
+                .data(hashTagDto)
                 .build();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetPopularHashTag(HttpServletRequest req) {
-        String accessToken = tokenService.ExtractTokenFromReq(req);
-        try {
-            tokenService.isTokenValid(accessToken);
-        } catch (ExpiredJwtException e) {
-            throw new JwtExpiredException("JwtExpiredException occurred");
-        } catch (Exception e){
-            throw new JwtIllegalException("JwtIllegalException occurred");
-        }
-
+    public ResponseEntity<ApiResponse> GetPopularHashTag() {
         Slice<HashTag> hashTagList = hashTagRepository.findSliceBy(PageRequest.of(0,3, Sort.by(Sort.Direction.DESC,"tagCount")));
         if (hashTagList.getSize() == 0) {
             throw new HashTagNotAssignedException("HashTagNotAssignedException occurred");
         }
-        List<HashTagDto> resDtoList = new ArrayList<>();
+        List<HashTagDto> hashTagDtoList = getHashTagDtoList(hashTagList.getContent());
 
-        List<HashTag> hashTags = hashTagList.getContent();
+        return createPopularHashTagResponse(hashTagDtoList);
+    }
 
-        for (HashTag hashTag : hashTags) {
-            resDtoList.add(modelMapper.map(hashTag, HashTagDto.class));
-        }
+    private List<HashTagDto> getHashTagDtoList(List<HashTag> hashTagList) {
+        return hashTagList.stream()
+                .map(hashTag -> modelMapper.map(hashTag,HashTagDto.class))
+                .collect(Collectors.toList());
+    }
 
+    private ResponseEntity<ApiResponse> createPopularHashTagResponse(List<HashTagDto> hashTagDtoList) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get Popular HashTag")
-                .data(resDtoList)
+                .data(hashTagDtoList)
                 .build();
     }
 }
