@@ -100,28 +100,12 @@ public class PostServiceImpl implements PostService {
         createNewHashTagMapping(hashTag,postEntity);
     }
 
-    private HashTag createNewHashTag(String tagName) {
-        return HashTag.builder()
-                .tagName(tagName)
-                .tagCount(1L)
-                .build();
-    }
-
     private void createNewHashTagMapping(HashTag hashTag,Post postEntity) {
         HashTagMapping hashTagMapping = HashTagMapping.builder()
                 .post(postEntity)
                 .hashTag(hashTag)
                 .build();
         hashTagMappingRepository.save(hashTagMapping);
-    }
-
-    private Post createPost(Member memberEntity, PostDto postDto) {
-        return Post.builder()
-                .member(memberEntity)
-                .title(postDto.getTitle())
-                .content(postDto.getTitle())
-                .imageUrl(postDto.getImageUrl())
-                .build();
     }
 
     private ResponseEntity<ApiResponse> createAddPostResponse(PostDto responsePostDto) {
@@ -163,19 +147,22 @@ public class PostServiceImpl implements PostService {
     }
 
     private PostDto getFoundPostDto(Post foundPostEntity) {
-        return addHashTagToPostDto(foundPostEntity);
+        PostDto foundPostDto = convertPostDto(foundPostEntity);
+        foundPostDto.setHashTagList(getHashTagDtoList(foundPostEntity));
+        return foundPostDto;
     }
 
-    private PostDto addHashTagToPostDto(Post foundPostEntity) {
-        PostDto foundPostDto = modelMapper.map(foundPostEntity,PostDto.class);
-        List<HashTagMapping> hashTagMappingList = foundPostEntity.getHashTagMappingList();
+    private List<HashTagDto> getHashTagDtoList(Post foundPostEntity) {
+        List<HashTag> hashTagList = getHashTagListFromHashTagMapping(foundPostEntity.getHashTagMappingList());
+        return hashTagList.stream()
+                .map(this::convertHashTagDto)
+                .collect(Collectors.toList());
+    }
 
-        for (HashTagMapping hashTagMapping : hashTagMappingList) {
-            HashTagDto hashTagDto = modelMapper.map(hashTagMapping.getHashTag(), HashTagDto.class);
-            foundPostDto.getHashTagList().add(hashTagDto);
-        }
-
-        return foundPostDto;
+    private List<HashTag> getHashTagListFromHashTagMapping(List<HashTagMapping> hashTagMappingList) {
+        return hashTagMappingList.stream()
+                .map(HashTagMapping::getHashTag)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -219,38 +206,17 @@ public class PostServiceImpl implements PostService {
 
     private void updateNewHashTag(Post postEntity,List<HashTagDto> hashDtoList) {
         List<HashTag> nowHashTagList = getNowPostHashTagList(postEntity);
-        boolean isNewHashTag;
+        List<HashTag> newHashTagList = convertHashTagList(hashDtoList);
 
-        List<HashTag> updateHashTagList = getHashTagList(hashDtoList);
-
-        for (HashTagDto hashTagDto : hashDtoList) {
-            HashTag hashTag = HashTag.builder()
-                    .tagName(hashTagDto.getTagName())
-                    .build();
-            isNewHashTag = nowHashTagList.contains(hashTag);
-            createNewHashTag(isNewHashTag,postEntity,hashTagDto.getTagName());
-        }
+        newHashTagList.stream()
+                .filter(newHashTag -> !nowHashTagList.contains(newHashTag))
+                .forEach(newHashTag -> createNewHashTag(postEntity, newHashTag.getTagName()));
     }
 
-    private List<HashTag> getHashTagList(List<HashTagDto> hashDtoList) {
-        return hashDtoList.stream()
-                .map(hashTagDto -> HashTag.builder()
-                        .tagName(hashTagDto.getTagName())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    private void createNewHashTag(boolean isNewHashTag,Post nowPostEntity,String hashTagName) {
-        if (!isNewHashTag) return;
-
-        HashTag findHashTag;
-        findHashTag = hashTagRepository.findByTagName(hashTagName);
-
+    private void createNewHashTag(Post nowPostEntity,String hashTagName) {
+        HashTag findHashTag = hashTagRepository.findByTagName(hashTagName);
         if (findHashTag == null) {
-            HashTag newHashTag = HashTag.builder()
-                    .tagName(hashTagName)
-                    .tagCount(1L)
-                    .build();
+            HashTag newHashTag = createNewHashTag(hashTagName);
             saveHashTagMapping(newHashTag,nowPostEntity);
         }
     }
@@ -265,14 +231,9 @@ public class PostServiceImpl implements PostService {
 
     private void updateRemovedHashTag(Post nowPostEntity,List<HashTagDto> hashTagDtoList) {
         List<HashTag> nowHashTagList = getNowPostHashTagList(nowPostEntity);
-
-        for (HashTag hashTag : nowHashTagList) {
-            hashTag = compareHashTagAndHashTagDto(hashTag,hashTagDtoList);
-
-            if (hashTag!=null) {
-                removeHashTag(hashTag);
-            }
-        }
+        List<HashTag> newHashTagList = convertHashTagList(hashTagDtoList);
+        List<HashTag> deletedHashTagList = getDeletedHashTagList(nowHashTagList,newHashTagList);
+        doHashTagRemoval(deletedHashTagList);
     }
 
     private List<HashTag> getNowPostHashTagList(Post nowPostEntity) {
@@ -282,40 +243,29 @@ public class PostServiceImpl implements PostService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * A function that compares the hashtag of the current post with the hashtag delivered in the request to find the removed hashtag.
-     * @param hashTag Hashtag entity to be determined if removed
-     * @param hashTagDtoList List of hashtags Dto that came in as a request
-     * @return Removed hashtag entity, null if not removed
-     * @throws HashTagNameNotValidException Occurs when hashtag name is not valid
-     */
-    protected HashTag compareHashTagAndHashTagDto(HashTag hashTag,List<HashTagDto> hashTagDtoList) {
-        String nowHashTagName;
-        boolean isRemoved = true;
+    private List<HashTag> getDeletedHashTagList(List<HashTag> nowHashTagList,List<HashTag> newHashTagList) {
+        return nowHashTagList.stream()
+                .filter(nowHashTag -> !newHashTagList.contains(nowHashTag))
+                .collect(Collectors.toList());
+    }
 
-        for (HashTagDto hashTagDto : hashTagDtoList) {
-            if (!hashTagDto.getTagName().startsWith("#")){
-                throw new HashTagNameNotValidException("HashTagNameNotValidException occurred");
-            }
-
-            nowHashTagName = hashTag.getTagName();
-            if (nowHashTagName.equals(hashTagDto.getTagName())) {
-                isRemoved = false;
-                break;
+    private void doHashTagRemoval(List<HashTag> deletedHashTagList) {
+        for (HashTag hashTag : deletedHashTagList) {
+            if (hashTag.getTagCount()<=1){
+                removeHashTag(hashTag);
+            }else {
+                minusHashTagCount(hashTag);
             }
         }
+    }
 
-        return isRemoved ? hashTag:null;
+    private void minusHashTagCount(HashTag hashTag) {
+        hashTag.MinusTagCount();
+        hashTagRepository.save(hashTag);
     }
 
     private void removeHashTag(HashTag hashTag) {
-        if (hashTag.getTagCount() >= 2) {
-            hashTag.MinusTagCount();
-            hashTagRepository.save(hashTag);
-        }
-        else {
-            hashTagRepository.delete(hashTag);
-        }
+        hashTagRepository.delete(hashTag);
     }
 
     /**
@@ -372,7 +322,6 @@ public class PostServiceImpl implements PostService {
     private ResponseEntity<ApiResponse> addLikeToPost(Post nowPostEntity,Member memberEntity) {
         PostLike newPostLike = createNewPostLike(nowPostEntity,memberEntity);
         postLikeRepository.save(newPostLike);
-
         return createAddPostLikeResponse(nowPostEntity,newPostLike);
     }
 
@@ -384,8 +333,7 @@ public class PostServiceImpl implements PostService {
     }
 
     private ResponseEntity<ApiResponse> createAddPostLikeResponse(Post nowPostEntity,PostLike newPostLike) {
-        PostLikeDto postLikeDto = modelMapper.map(newPostLike, PostLikeDto.class);
-
+        PostLikeDto postLikeDto = convertPostLikeDto(newPostLike);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message(nowPostEntity.getId() + "번 글에 좋아요를 등록하였습니다.")
@@ -394,11 +342,12 @@ public class PostServiceImpl implements PostService {
     }
 
     private ResponseEntity<ApiResponse> removeLikeToPost(PostLike postLike) {
+        PostLikeDto postLikeDto = convertPostLikeDto(postLike);
         postLikeRepository.delete(postLike);
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message(postLike.getPost().getId()+"번 글의 좋아요를 취소하였습니다.")
-                .data(modelMapper.map(postLike, PostLikeDto.class))
+                .data(postLikeDto)
                 .build();
     }
 
@@ -428,14 +377,12 @@ public class PostServiceImpl implements PostService {
 
     private List<PostDto> revertPostToPostDto(List<Post> postList) {
         PostDto postDto;
-        List<HashTagMapping> hashTagMappingList;
         List<HashTagDto> hashTagDtoList;
         List<PostDto> postDtoList = new ArrayList<>();
 
         for (Post post : postList) {
-            hashTagMappingList = post.getHashTagMappingList();
-            hashTagDtoList = getHashTagDto(hashTagMappingList);
-            postDto = modelMapper.map(post, PostDto.class);
+            hashTagDtoList = getHashTagDto(post.getHashTagMappingList());
+            postDto = convertPostDto(post);
             postDto.setHashTagList(hashTagDtoList);
             postDtoList.add(postDto);
         }
@@ -445,7 +392,7 @@ public class PostServiceImpl implements PostService {
     private List<HashTagDto> getHashTagDto(List<HashTagMapping> hashTagMappingList) {
         return hashTagMappingList.stream()
                 .map(HashTagMapping::getHashTag)
-                .map(hashTag -> modelMapper.map(hashTag, HashTagDto.class))
+                .map(this::convertHashTagDto)
                 .collect(Collectors.toList());
     }
 
@@ -477,5 +424,41 @@ public class PostServiceImpl implements PostService {
         return postLikeList.stream()
                 .map(postLike -> modelMapper.map(postLike.getPost(), PostDto.class))
                 .collect(Collectors.toList());
+    }
+
+    private List<HashTag> convertHashTagList(List<HashTagDto> hashDtoList) {
+        return hashDtoList.stream()
+                .map(hashTagDto -> HashTag.builder()
+                        .tagName(hashTagDto.getTagName())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private HashTagDto convertHashTagDto(HashTag hashTag) {
+        return modelMapper.map(hashTag, HashTagDto.class);
+    }
+
+    private PostDto convertPostDto(Post postEntity) {
+        return modelMapper.map(postEntity,PostDto.class);
+    }
+
+    private PostLikeDto convertPostLikeDto(PostLike postLike) {
+        return modelMapper.map(postLike,PostLikeDto.class);
+    }
+
+    private Post createPost(Member memberEntity, PostDto postDto) {
+        return Post.builder()
+                .member(memberEntity)
+                .title(postDto.getTitle())
+                .content(postDto.getTitle())
+                .imageUrl(postDto.getImageUrl())
+                .build();
+    }
+
+    private HashTag createNewHashTag(String tagName) {
+        return HashTag.builder()
+                .tagName(tagName)
+                .tagCount(1L)
+                .build();
     }
 }
