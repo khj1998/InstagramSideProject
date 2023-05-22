@@ -41,17 +41,20 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
 
+    /**
+     * A function to add comment to a post
+     * @param commentDto Comment information object as a Request
+     * @return ResponseEntitu<ApiResponse> A response that is returned when adding comment is successful
+     */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> AddComment(CommentDto commentDto) throws JwtExpiredException,UsernameNotFoundException {
-        Post postEntity = postRepository
-                .findById(commentDto.getPostId())
-                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
+    public ResponseEntity<ApiResponse> AddComment(CommentDto commentDto) {
+        Post postEntity = findPostById(commentDto.getPostId());
         Member memberEntity = tokenService.FindMemberByToken(commentDto.getAccessToken());
         Comment commentEntity = createCommentEntity(postEntity,memberEntity,commentDto.getContent());
         commentRepository.save(commentEntity);
+        CommentDto responseCommentDto =  convertCommentDto(commentEntity);
 
-        CommentDto responseCommentDto =  modelMapper.map(commentEntity, CommentDto.class);
         return createAddCommentResponse(responseCommentDto);
     }
 
@@ -71,12 +74,15 @@ public class CommentServiceImpl implements CommentService {
                 .build();
     }
 
+    /**
+     * A function that acts as editing comment
+     * @param commentDto Comment information object as a Request
+     * @return ResponseEntity<ApiResponse> A response that is returned when editing comment is successful
+     */
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> EditComment(CommentDto commentDto) {
-        Comment commentEntity = commentRepository
-                .findById(commentDto.getCommentId())
-                .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
+        Comment commentEntity = findCommentById(commentDto.getCommentId());
         commentEntity.ChangeContent(commentDto.getContent());
         commentRepository.save(commentEntity);
 
@@ -92,14 +98,17 @@ public class CommentServiceImpl implements CommentService {
                 .build();
     }
 
+    /**
+     * A function to add likes to comment
+     * @param commentLikeDto Comment like information object as a Request
+     * @return ResponseEntity<ApiResponse> A response that is returned when adding comment like is successful
+     */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> AddCommentLike(CommentLikeDto commentLikeDto) throws JwtExpiredException {
+    public ResponseEntity<ApiResponse> AddCommentLike(CommentLikeDto commentLikeDto) {
         Long commentId = commentLikeDto.getCommentId();
         Member memberEntity = tokenService.FindMemberByToken(commentLikeDto.getAccessToken());
-        Comment commentEntity = commentRepository
-                .findById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
+        Comment commentEntity = findCommentById(commentId);
         CommentLike findCommentLikeEntity = commentLikeRepository.findByMemberIdAndCommentId(memberEntity.getId(),commentEntity.getId());
         CommentLike newCommentLike = findCommentLikeEntity==null ?
                 addCommentLike(commentEntity,memberEntity) : deleteCommentLike(findCommentLikeEntity);
@@ -109,10 +118,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private CommentLike addCommentLike(Comment commentEntity,Member memberEntity) {
-        CommentLike commentLike = CommentLike.builder()
-                        .comment(commentEntity)
-                        .member(memberEntity)
-                        .build();
+        CommentLike commentLike = createCommentLike(commentEntity,memberEntity);
         commentLikeRepository.save(commentLike);
         return commentLike;
     }
@@ -137,6 +143,11 @@ public class CommentServiceImpl implements CommentService {
                 .build();
     }
 
+    /**
+     * A function to delete comment
+     * @param commentId comment Id value as a Request
+     * @return ResponseEntity<ApiResponse> A response that is returned when deleting comment is successful
+     */
     @Override
     @Transactional
     public ResponseEntity<ApiResponse> DeleteComment(Long commentId) {
@@ -159,9 +170,14 @@ public class CommentServiceImpl implements CommentService {
         return formatter.format(date);
     }
 
+    /**
+     * A function that looks up comments created by users themselves
+     * @param req HttpServletRequest
+     * @return ResponseEntity<ApiResponse> The response that is returned when the comment lookup you created is successful
+     */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetMyComments(HttpServletRequest req) throws JwtExpiredException,UsernameNotFoundException {
+    public ResponseEntity<ApiResponse> GetMyComments(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Comment> commentList = memberEntity.getCommentList();
@@ -180,17 +196,20 @@ public class CommentServiceImpl implements CommentService {
 
     private List<CommentDto> getCommentDtoList(List<Comment> commentList) {
         return commentList.stream()
-                .map(comment -> modelMapper.map(comment, CommentDto.class))
+                .map(this::convertCommentDto)
                 .collect(Collectors.toList());
     }
 
+    /**
+     *
+     * @param req HttpServletRequest
+     * @return ResponseEntity<ApiResponse>
+     */
     @Override
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse> GetMyCommentLikes(HttpServletRequest req) {
-        List<CommentDto> resDto = new ArrayList<>();
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
-
         List<CommentLike> commentLikeList = memberEntity.getCommentLikeList();
         List<CommentDto> commentDtoList = createCommentDtoList(commentLikeList);
 
@@ -210,4 +229,28 @@ public class CommentServiceImpl implements CommentService {
                 .data(commentDtoList)
                 .build();
     }
+
+    private CommentDto convertCommentDto(Comment commentEntity) {
+        return modelMapper.map(commentEntity, CommentDto.class);
+    }
+
+    private Post findPostById(Long postId) {
+        return postRepository
+                .findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
+    }
+
+    private Comment findCommentById(Long commentId) {
+        return commentRepository
+                .findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("CommentNotFoundException occurred"));
+    }
+
+    private CommentLike createCommentLike(Comment commentEntity,Member memberEntity) {
+        return CommentLike.builder()
+                .comment(commentEntity)
+                .member(memberEntity)
+                .build();
+    }
+
 }

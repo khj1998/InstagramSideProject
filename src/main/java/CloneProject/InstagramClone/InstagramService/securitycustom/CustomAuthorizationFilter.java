@@ -41,10 +41,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        /**
-         * Access Token 유효성 확인
-         */
+        
         ObjectMapper objectMapper = new ObjectMapper();
         InputStream inputStream;
         String tokenBody;

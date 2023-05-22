@@ -14,7 +14,6 @@ import CloneProject.InstagramClone.InstagramService.entity.member.Role;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.service.TokenService;
-import CloneProject.InstagramClone.InstagramService.service.userservice.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +42,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> CreateUser(SignUpDto signUpDto) {
-        if (findUser(signUpDto.getEmail()) == null) {
+    public ResponseEntity<ApiResponse> SignUpUser(SignUpDto signUpDto) {
+        if (findUserByEmail(signUpDto.getEmail()) == null) {
             Member user = setRoleToUser(signUpDto);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             memberRepository.save(user);
@@ -52,6 +51,10 @@ public class UserServiceImpl implements UserService {
             throw new EmailAlreadyExistsException("이미 존재하는 이메일입니다!");
         }
 
+        return createSignUpResponse(signUpDto);
+    }
+
+    private ResponseEntity<ApiResponse> createSignUpResponse(SignUpDto signUpDto) {
         return new ApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Sign Up Success")
@@ -61,20 +64,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<AuthResponse> LogInSuccessProcess(String username) {
-        Member member = memberRepository
-                .findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
+        Member member = findUserByEmail(username);
 
         // 로그인 성공시, accessToken,refreshToken 발급.
         String accessToken = tokenService.generateAccessToken(member);
         String refreshToken = tokenService.generateRefreshToken(member);
         redisTemplate.opsForValue().set(username,refreshToken);
 
-        return new AuthResponse.AuthResponseBuilder(true,"Bearer")
-                .setAccessToken(accessToken)
-                .setExpiresIn(ACCESS_TOKEN_EXPIRATION_TIME/1000)
-                .setMessage("Login Success")
-                .build();
+        return createTokenResponse(accessToken);
     }
 
     /**
@@ -84,15 +81,12 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public ResponseEntity<AuthResponse> ReallocateAccessToken(AuthDto authDto) {
-
         Long userId = authDto.getUserId();
         if (userId == null) {
             throw new IllegalUserIdException("IllegalUserIdException occurred");
         }
 
-        Member member = memberRepository
-                .findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("UsernameNotFoundException occurred"));
+        Member member = findMemberById(userId);
         String userName = member.getUsername();
         String refreshToken = (String) redisTemplate.opsForValue().get(userName);
         String accessToken;
@@ -111,6 +105,10 @@ public class UserServiceImpl implements UserService {
             throw new JwtSignatureException("Illegal Signature");
         }
 
+        return createTokenResponse(accessToken);
+    }
+
+    private ResponseEntity<AuthResponse> createTokenResponse(String accessToken) {
         return new AuthResponse.AuthResponseBuilder(true,"Bearer")
                 .setAccessToken(accessToken)
                 .setExpiresIn(ACCESS_TOKEN_EXPIRATION_TIME/1000)
@@ -121,10 +119,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public void ChangePassword() {}
 
-    private Member findUser(String email) {
+    private Member findUserByEmail(String username) {
         return memberRepository
-                .findByEmail(email)
-                .orElse(null);
+                .findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username not found exception occurred"));
     }
 
     private Member setRoleToUser(SignUpDto signUpDto) {
@@ -142,10 +140,14 @@ public class UserServiceImpl implements UserService {
     //유저가 로그아웃을 직접 진행했을때 => 로그아웃시 accessToken을 함께 보내, 해당 accessToken을 비활성화해야 한다.
     @Override
     public void logoutProcess(Long userId) {
-        Member member = memberRepository
-                .findById(userId)
-                .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred"));
+        Member member = findMemberById(userId);
         String username = member.getUsername();
         redisTemplate.delete(username);
+    }
+
+    private Member findMemberById(Long userId) {
+        return  memberRepository
+                .findById(userId)
+                .orElseThrow(() -> new UserIdNotFoundException("UserNotFoundException occurred"));
     }
 }

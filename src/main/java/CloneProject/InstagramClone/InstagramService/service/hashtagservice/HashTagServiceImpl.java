@@ -37,10 +37,10 @@ public class HashTagServiceImpl implements HashTagService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetHashTag(HttpServletRequest req,Long id) {
+    public ResponseEntity<ApiResponse> GetHashTag(HttpServletRequest req,Long hashTagId) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         tokenService.isTokenValid(accessToken);
-        HashTag hashTag = hashTagRepository.findById(id)
+        HashTag hashTag = hashTagRepository.findById(hashTagId)
                 .orElseThrow(() -> new HashTagNotFoundException("HashTagNotFoundException occurred"));
         HashTagDto hashTagDto = createHashTagDto(hashTag);
 

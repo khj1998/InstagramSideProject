@@ -64,14 +64,10 @@ public class PostServiceImpl implements PostService {
 
         postDto.getHashTagList()
                 .forEach(hashTagDto -> updateHashTag(hashTagList,postEntity,hashTagDto));
-        PostDto responsePostDto = createResponsePostDto(postEntity);
+        PostDto responsePostDto = convertResponsePostDto(postEntity);
         addHashTagDtoToPostDto(responsePostDto,hashTagList);
 
         return createAddPostResponse(responsePostDto);
-    }
-
-    private PostDto createResponsePostDto(Post postEntity) {
-        return modelMapper.map(postEntity, PostDto.class);
     }
 
     private void addHashTagDtoToPostDto(PostDto responsePostDto,List<HashTag> hashTagList) {
@@ -101,10 +97,7 @@ public class PostServiceImpl implements PostService {
     }
 
     private void createNewHashTagMapping(HashTag hashTag,Post postEntity) {
-        HashTagMapping hashTagMapping = HashTagMapping.builder()
-                .post(postEntity)
-                .hashTag(hashTag)
-                .build();
+        HashTagMapping hashTagMapping = createHashTagMapping(hashTag,postEntity);
         hashTagMappingRepository.save(hashTagMapping);
     }
 
@@ -129,10 +122,7 @@ public class PostServiceImpl implements PostService {
     public ResponseEntity<ApiResponse> FindPost(HttpServletRequest req, Long postId) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         tokenService.isTokenValid(accessToken);
-
-        Post foundPostEntity = postRepository
-                .findById(postId)
-                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
+        Post foundPostEntity = findPostById(postId);
         PostDto foundPostDto = getFoundPostDto(foundPostEntity);
 
         return createFindPostResponse(foundPostDto);
@@ -309,9 +299,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public ResponseEntity<ApiResponse> AddPostLike(PostLikeDto postLikeDto) {
         Member memberEntity = tokenService.FindMemberByToken(postLikeDto.getAccessToken());
-        Post postEntity = postRepository
-                .findById(postLikeDto.getPostId())
-                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
+        Post postEntity = findPostById(postLikeDto.getPostId());
         PostLike postLike = postLikeRepository.findByMemberIdAndPostId(memberEntity.getId(),postLikeDto.getPostId());
 
         return postLike==null ?
@@ -407,7 +395,7 @@ public class PostServiceImpl implements PostService {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<PostLike> postLikeList = memberEntity.getPostLikeList();
-        List<PostDto> postDtoList = getPostDtoList(postLikeList);
+        List<PostDto> postDtoList = convertPostDtoList(postLikeList);
 
         return createGetPostLikeListResponse(postDtoList);
     }
@@ -420,7 +408,12 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
-    private List<PostDto> getPostDtoList(List<PostLike> postLikeList) {
+    private Post findPostById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
+    }
+
+    private List<PostDto> convertPostDtoList(List<PostLike> postLikeList) {
         return postLikeList.stream()
                 .map(postLike -> modelMapper.map(postLike.getPost(), PostDto.class))
                 .collect(Collectors.toList());
@@ -432,6 +425,10 @@ public class PostServiceImpl implements PostService {
                         .tagName(hashTagDto.getTagName())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    private PostDto convertResponsePostDto(Post postEntity) {
+        return modelMapper.map(postEntity, PostDto.class);
     }
 
     private HashTagDto convertHashTagDto(HashTag hashTag) {
@@ -452,6 +449,13 @@ public class PostServiceImpl implements PostService {
                 .title(postDto.getTitle())
                 .content(postDto.getTitle())
                 .imageUrl(postDto.getImageUrl())
+                .build();
+    }
+
+    private HashTagMapping createHashTagMapping(HashTag hashTag,Post postEntity) {
+        return HashTagMapping.builder()
+                .hashTag(hashTag)
+                .post(postEntity)
                 .build();
     }
 

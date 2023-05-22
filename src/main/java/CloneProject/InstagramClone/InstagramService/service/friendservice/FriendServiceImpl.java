@@ -140,15 +140,10 @@ public class FriendServiceImpl implements FriendService {
         List<Friend> friendList = memberEntity.getFriendList();
         List<FriendDto> friendDtoList = getFriendDtoList(friendList);
 
-        return createAddFriendResponse(friendDtoList);
+        return createGetFriendListResponse(friendDtoList);
     }
 
-    /**
-     * A function that generates a friendDtoList to enter the response body
-     * @param friendList List of friend entities to be converted to Dto
-     * @return List<FriendDto>
-     */
-    protected List<FriendDto> getFriendDtoList(List<Friend> friendList) {
+    private List<FriendDto> getFriendDtoList(List<Friend> friendList) {
         return friendList.stream()
                 .map(friend -> modelMapper.map(friend.getToMember(),FriendDto.class))
                 .collect(Collectors.toList());

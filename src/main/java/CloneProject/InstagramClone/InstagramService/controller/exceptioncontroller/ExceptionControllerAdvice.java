@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExceptionControllerAdvice {
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ExceptionResponse> handleEmailAlreadyExistsException() {
+    public ResponseEntity<ExceptionResponse> handleException(EmailAlreadyExistsException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid signup request")
                 .setException_message("email already exists exception")
@@ -38,7 +38,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(UserIdNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleUserNotFoundException() {
+    public ResponseEntity<ExceptionResponse> handleException(UserIdNotFoundException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid request")
                 .setException_message("user not found exception")
@@ -46,7 +46,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(UserNotAuthenticated.class)
-    public ResponseEntity<ExceptionResponse> handleUserPrincipalNotExistsException() {
+    public ResponseEntity<ExceptionResponse> handleException(UserNotAuthenticated ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid authentication request")
                 .setException_message("user principal not exists")
@@ -54,7 +54,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(IllegalUserIdException.class)
-    public ResponseEntity<ExceptionResponse> handleIllegalUserIdException() {
+    public ResponseEntity<ExceptionResponse> handleException(IllegalUserIdException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid user id request")
                 .setException_message("user id must not be null")
@@ -62,7 +62,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ExceptionResponse> handleAnnotationException() {
+    public ResponseEntity<ExceptionResponse> handleException(MethodArgumentNotValidException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("")
                 .setException_message("")
@@ -70,7 +70,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(PostNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handlePostNotFoundException() {
+    public ResponseEntity<ExceptionResponse> handleException(PostNotFoundException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid post request")
                 .setException_message("failed to find post")
@@ -78,7 +78,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(CommentNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleCommentNotFoundException() {
+    public ResponseEntity<ExceptionResponse> handleException(CommentNotFoundException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid comment request")
                 .setException_message("failed to find comment")
@@ -86,7 +86,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(FollowLimitException.class)
-    public ResponseEntity<ExceptionResponse> handleFollowLimitException() {
+    public ResponseEntity<ExceptionResponse> handleException(FollowLimitException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid follow request")
                 .setException_message("following limit exceeded")
@@ -94,7 +94,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(FollowMySelfException.class)
-    public ResponseEntity<ExceptionResponse> handleFollowMySelfException() {
+    public ResponseEntity<ExceptionResponse> handleException(FollowMySelfException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid follow request")
                 .setException_message("following my account is not valid")
@@ -102,7 +102,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(UnfollowFailedException.class)
-    public ResponseEntity<ExceptionResponse> handleUnfollowFailedException() {
+    public ResponseEntity<ExceptionResponse> handleException(UnfollowFailedException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid unfollow request")
                 .setException_message("Unfollow failed exception occurred")
@@ -110,7 +110,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(BlockMySelfException.class)
-    public ResponseEntity<ExceptionResponse> handleBlockMySelfException() {
+    public ResponseEntity<ExceptionResponse> handleException(BlockMySelfException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid user blocking request")
                 .setException_message("block myself request is not valid")
@@ -118,7 +118,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(FriendMinSelectException.class)
-    public ResponseEntity<ExceptionResponse> handleFriendMinSelectException() {
+    public ResponseEntity<ExceptionResponse> handleException(FriendMinSelectException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid friend add request")
                 .setException_message("At least one friend must be selected")
@@ -126,7 +126,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(FriendNoFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleFriendNoFoundException() {
+    public ResponseEntity<ExceptionResponse> handleException(FriendNoFoundException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid friend delete request")
                 .setException_message("friend not exists")
@@ -134,7 +134,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(DuplicatedFriendException.class)
-    public ResponseEntity<ExceptionResponse> handleDuplicatedFriendException() {
+    public ResponseEntity<ExceptionResponse> handleException(DuplicatedFriendException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid add friend request")
                 .setException_message("Duplicated friend")
@@ -142,7 +142,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(HashTagNameNotValidException.class)
-    public ResponseEntity<ExceptionResponse> handleHashTagNameNotValidException() {
+    public ResponseEntity<ExceptionResponse> handleException(HashTagNameNotValidException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid hash tag request")
                 .setException_message("Hashtag name must be started with #")
@@ -150,7 +150,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(HashTagLimitException.class)
-    public ResponseEntity<ExceptionResponse> handleHashTagLimitException() {
+    public ResponseEntity<ExceptionResponse> handleException(HashTagLimitException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid hash tag numbers")
                 .setException_message("HastTag limit(30) exceeded")
@@ -158,7 +158,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(HashTagNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleHashTagNotFoundException() {
+    public ResponseEntity<ExceptionResponse> handleException(HashTagNotFoundException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid hashtag request")
                 .setException_message("Such HashTag not found")
@@ -166,7 +166,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(NotHashTagEntityException.class)
-    public ResponseEntity<ExceptionResponse> handleNotHashTagEntityException() {
+    public ResponseEntity<ExceptionResponse> handleException(NotHashTagEntityException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid entity request")
                 .setException_message("Hashtag Entity required")
@@ -174,7 +174,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(HashTagMappingNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> handleNotHashTagMappingException() {
+    public ResponseEntity<ExceptionResponse> handleException(HashTagMappingNotFoundException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid HashTagMapping Entity find process")
                 .setException_message("Such HashTagMapping Entity not exists")
@@ -182,7 +182,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(HashTagNotAssignedException.class)
-    public ResponseEntity<ExceptionResponse> handleNotHashTagNotAssignedException() {
+    public ResponseEntity<ExceptionResponse> handleException(HashTagNotAssignedException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid find popular hashtag request")
                 .setException_message("Any HashTag not assigned yet")
@@ -190,7 +190,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(JwtExpiredException.class)
-    public ResponseEntity<ExceptionResponse> handleJwtExpiredException() {
+    public ResponseEntity<ExceptionResponse> handleException(JwtExpiredException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid jwt request")
                 .setException_message("Request with expired Json Web Token")
@@ -198,7 +198,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(JwtIllegalException.class)
-    public ResponseEntity<ExceptionResponse> handleJwtIllegalException() {
+    public ResponseEntity<ExceptionResponse> handleException(JwtIllegalException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid_request")
                 .setException_message("Request with Illegal Json Web Token")
@@ -206,7 +206,7 @@ public class ExceptionControllerAdvice {
     }
 
     @ExceptionHandler(JwtSignatureException.class)
-    public ResponseEntity<ExceptionResponse> handleJwtSignatureException() {
+    public ResponseEntity<ExceptionResponse> handleException(JwtSignatureException ex) {
         return new ExceptionResponse.ExceptionResponseBuilder(false)
                 .setException("invalid_request")
                 .setException_message("Request with Invalid Json web Token Signature")

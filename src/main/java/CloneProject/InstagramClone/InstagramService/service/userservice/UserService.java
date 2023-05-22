@@ -8,7 +8,7 @@ import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface UserService {
-    ResponseEntity<ApiResponse> CreateUser(SignUpDto signUpDto);
+    ResponseEntity<ApiResponse> SignUpUser(SignUpDto signUpDto);
     void ChangePassword();
     void logoutProcess(Long userId);
     ResponseEntity<AuthResponse> ReallocateAccessToken(AuthDto authDto);
