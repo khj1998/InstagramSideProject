@@ -3,7 +3,7 @@ package CloneProject.InstagramClone.InstagramService.service.postservice;
 import CloneProject.InstagramClone.InstagramService.dto.hashtag.HashTagDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.PostLikeDto;
-import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.RestApiResponse;
 import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTag;
 import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTagMapping;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
@@ -53,7 +53,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> AddPost(PostDto postDto) {
+    public ResponseEntity<RestApiResponse> AddPost(PostDto postDto) {
         List<HashTag> hashTagList = new ArrayList<>();
         Member memberEntity = tokenService.FindMemberByToken(postDto.getAccessToken());
         Post postEntity = createPost(memberEntity,postDto);
@@ -101,8 +101,8 @@ public class PostServiceImpl implements PostService {
         hashTagMappingRepository.save(hashTagMapping);
     }
 
-    private ResponseEntity<ApiResponse> createAddPostResponse(PostDto responsePostDto) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createAddPostResponse(PostDto responsePostDto) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Post")
                 .data(responsePostDto)
@@ -119,7 +119,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> FindPost(HttpServletRequest req, Long postId) {
+    public ResponseEntity<RestApiResponse> FindPost(HttpServletRequest req, Long postId) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         tokenService.isTokenValid(accessToken);
         Post foundPostEntity = findPostById(postId);
@@ -128,8 +128,8 @@ public class PostServiceImpl implements PostService {
         return createFindPostResponse(foundPostDto);
     }
 
-    private ResponseEntity<ApiResponse> createFindPostResponse(PostDto foundPostDto) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createFindPostResponse(PostDto foundPostDto) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("get post Id : "+foundPostDto.getId())
                 .data(foundPostDto)
@@ -162,7 +162,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> EditPost(PostDto postDto) {
+    public ResponseEntity<RestApiResponse> EditPost(PostDto postDto) {
         Post postEntity = updatePostWithoutHashTag(postDto);
         List<HashTagDto> hashDtoList = postDto.getHashTagList();
         updateNewHashTag(postEntity,hashDtoList);
@@ -174,8 +174,8 @@ public class PostServiceImpl implements PostService {
         return createEditPostResponse(resPostDto);
     }
 
-    private ResponseEntity<ApiResponse> createEditPostResponse(PostDto postDto) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createEditPostResponse(PostDto postDto) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("edited post number : "+postDto.getId())
                 .data(postDto)
@@ -266,7 +266,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> DeletePost(Long postId) {
+    public ResponseEntity<RestApiResponse> DeletePost(Long postId) {
         Post postEntity = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("PostNotFoundException occurred"));
         postRepository.delete(postEntity);
@@ -274,9 +274,9 @@ public class PostServiceImpl implements PostService {
         return createDeletePostResponse(postId);
     }
 
-    private ResponseEntity<ApiResponse> createDeletePostResponse(Long postId) {
+    private ResponseEntity<RestApiResponse> createDeletePostResponse(Long postId) {
         String deletedAt = getDeletedDate();
-        return new ApiResponse.ApiResponseBuilder<>()
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Delete postId : "+postId)
                 .updatedAt(deletedAt)
@@ -297,7 +297,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> AddPostLike(PostLikeDto postLikeDto) {
+    public ResponseEntity<RestApiResponse> AddPostLike(PostLikeDto postLikeDto) {
         Member memberEntity = tokenService.FindMemberByToken(postLikeDto.getAccessToken());
         Post postEntity = findPostById(postLikeDto.getPostId());
         PostLike postLike = postLikeRepository.findByMemberIdAndPostId(memberEntity.getId(),postLikeDto.getPostId());
@@ -307,7 +307,7 @@ public class PostServiceImpl implements PostService {
                 removeLikeToPost(postLike);
     }
 
-    private ResponseEntity<ApiResponse> addLikeToPost(Post nowPostEntity,Member memberEntity) {
+    private ResponseEntity<RestApiResponse> addLikeToPost(Post nowPostEntity, Member memberEntity) {
         PostLike newPostLike = createNewPostLike(nowPostEntity,memberEntity);
         postLikeRepository.save(newPostLike);
         return createAddPostLikeResponse(nowPostEntity,newPostLike);
@@ -320,19 +320,19 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
-    private ResponseEntity<ApiResponse> createAddPostLikeResponse(Post nowPostEntity,PostLike newPostLike) {
+    private ResponseEntity<RestApiResponse> createAddPostLikeResponse(Post nowPostEntity, PostLike newPostLike) {
         PostLikeDto postLikeDto = convertPostLikeDto(newPostLike);
-        return new ApiResponse.ApiResponseBuilder<>()
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message(nowPostEntity.getId() + "번 글에 좋아요를 등록하였습니다.")
                 .data(postLikeDto)
                 .build();
     }
 
-    private ResponseEntity<ApiResponse> removeLikeToPost(PostLike postLike) {
+    private ResponseEntity<RestApiResponse> removeLikeToPost(PostLike postLike) {
         PostLikeDto postLikeDto = convertPostLikeDto(postLike);
         postLikeRepository.delete(postLike);
-        return new ApiResponse.ApiResponseBuilder<>()
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message(postLike.getPost().getId()+"번 글의 좋아요를 취소하였습니다.")
                 .data(postLikeDto)
@@ -346,7 +346,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetMyPosts(HttpServletRequest req) {
+    public ResponseEntity<RestApiResponse> GetMyPosts(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Post> postList = memberEntity.getPostList();
@@ -355,8 +355,8 @@ public class PostServiceImpl implements PostService {
         return createGetMyPostsResponse(postDtoList);
     }
 
-    private ResponseEntity<ApiResponse> createGetMyPostsResponse(List<PostDto> postDtoList) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createGetMyPostsResponse(List<PostDto> postDtoList) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("내가 작성한 게시물들 리스트")
                 .data(postDtoList)
@@ -391,7 +391,7 @@ public class PostServiceImpl implements PostService {
      */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetPostLikeList(HttpServletRequest req) {
+    public ResponseEntity<RestApiResponse> GetPostLikeList(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<PostLike> postLikeList = memberEntity.getPostLikeList();
@@ -400,8 +400,8 @@ public class PostServiceImpl implements PostService {
         return createGetPostLikeListResponse(postDtoList);
     }
 
-    private ResponseEntity<ApiResponse> createGetPostLikeListResponse(List<PostDto> postDtoList) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createGetPostLikeListResponse(List<PostDto> postDtoList) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("내가 좋아요를 누른 글 리스트")
                 .data(postDtoList)

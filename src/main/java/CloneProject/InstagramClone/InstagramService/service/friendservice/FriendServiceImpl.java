@@ -1,7 +1,7 @@
 package CloneProject.InstagramClone.InstagramService.service.friendservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.friend.FriendDto;
-import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.RestApiResponse;
 import CloneProject.InstagramClone.InstagramService.entity.friend.Friend;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.exception.friend.DuplicatedFriendException;
@@ -11,7 +11,6 @@ import CloneProject.InstagramClone.InstagramService.exception.user.UserIdNotFoun
 import CloneProject.InstagramClone.InstagramService.repository.FriendRepository;
 import CloneProject.InstagramClone.InstagramService.repository.MemberRepository;
 import CloneProject.InstagramClone.InstagramService.service.TokenService;
-import CloneProject.InstagramClone.InstagramService.service.friendservice.FriendService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,7 +47,7 @@ public class FriendServiceImpl implements FriendService {
      */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> AddFriend(List<FriendDto> friendDtoList) {
+    public ResponseEntity<RestApiResponse> AddFriend(List<FriendDto> friendDtoList) {
         if (friendDtoList.size() == 0) {
             throw new FriendMinSelectException("FriendMinSelectException occurred");
         }
@@ -85,8 +83,8 @@ public class FriendServiceImpl implements FriendService {
                 .collect(Collectors.toList());
     }
 
-    private ResponseEntity<ApiResponse> createAddFriendResponse(List<FriendDto> addFriendDtoList) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createAddFriendResponse(List<FriendDto> addFriendDtoList) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Friends")
                 .data(addFriendDtoList)
@@ -102,7 +100,7 @@ public class FriendServiceImpl implements FriendService {
      */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> DeleteFriend(List<FriendDto> friendDtoList) {
+    public ResponseEntity<RestApiResponse> DeleteFriend(List<FriendDto> friendDtoList) {
         if (friendDtoList.size() == 0) {
             throw new FriendMinSelectException("FriendMinSelectException occurred");
         }
@@ -121,8 +119,8 @@ public class FriendServiceImpl implements FriendService {
                 .collect(Collectors.toList());
     }
 
-    private ResponseEntity<ApiResponse> createDeleteFriend() {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createDeleteFriend() {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Delete Friends")
                 .build();
@@ -134,7 +132,7 @@ public class FriendServiceImpl implements FriendService {
      * @return ResponseEntity<ApiResponse> ResponseEntity returned when a friend list lookup is successful
      */
     @Override
-    public ResponseEntity<ApiResponse> GetFriendList(HttpServletRequest req) {
+    public ResponseEntity<RestApiResponse> GetFriendList(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Friend> friendList = memberEntity.getFriendList();
@@ -149,8 +147,8 @@ public class FriendServiceImpl implements FriendService {
                 .collect(Collectors.toList());
     }
 
-    private ResponseEntity<ApiResponse> createGetFriendListResponse(List<FriendDto> friendDtoList) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createGetFriendListResponse(List<FriendDto> friendDtoList) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get Friends")
                 .data(friendDtoList)

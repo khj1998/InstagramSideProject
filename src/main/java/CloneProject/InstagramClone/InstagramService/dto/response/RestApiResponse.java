@@ -4,18 +4,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.springframework.http.ResponseEntity;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({"success","message","data","updatedAt"})
-public class ApiResponse<T> {
+public class RestApiResponse<T> {
     public boolean success;
     public String message;
     public T data;
     public String updatedAt;
 
-    private ApiResponse(ApiResponseBuilder<T> builder) {
+    private RestApiResponse(ApiResponseBuilder<T> builder) {
         this.success = builder.success;
         this.message = builder.message;
         this.data = builder.data;
@@ -60,11 +57,11 @@ public class ApiResponse<T> {
             return this;
         }
 
-        public ResponseEntity<ApiResponse> build() {
-            ApiResponse apiResponse = new ApiResponse(this);
+        public ResponseEntity<RestApiResponse> build() {
+            RestApiResponse restApiResponse = new RestApiResponse(this);
             return ResponseEntity.ok()
                     .header("Content-Type", "application/json")
-                    .body(apiResponse);
+                    .body(restApiResponse);
         }
     }
 }

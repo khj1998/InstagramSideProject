@@ -2,7 +2,7 @@ package CloneProject.InstagramClone.InstagramService.service.userservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.auth.AuthDto;
 import CloneProject.InstagramClone.InstagramService.dto.auth.SignUpDto;
-import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.RestApiResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.AuthResponse;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> SignUpUser(SignUpDto signUpDto) {
+    public ResponseEntity<RestApiResponse> SignUpUser(SignUpDto signUpDto) {
         if (findUserByEmail(signUpDto.getEmail()) == null) {
             Member user = setRoleToUser(signUpDto);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -54,8 +54,8 @@ public class UserServiceImpl implements UserService {
         return createSignUpResponse(signUpDto);
     }
 
-    private ResponseEntity<ApiResponse> createSignUpResponse(SignUpDto signUpDto) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createSignUpResponse(SignUpDto signUpDto) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Sign Up Success")
                 .data(signUpDto)

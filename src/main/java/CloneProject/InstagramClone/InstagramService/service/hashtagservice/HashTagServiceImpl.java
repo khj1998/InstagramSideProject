@@ -1,16 +1,12 @@
 package CloneProject.InstagramClone.InstagramService.service.hashtagservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.hashtag.HashTagDto;
-import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.RestApiResponse;
 import CloneProject.InstagramClone.InstagramService.entity.hashtag.HashTag;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNotAssignedException;
 import CloneProject.InstagramClone.InstagramService.exception.hashtag.HashTagNotFoundException;
-import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
-import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtIllegalException;
 import CloneProject.InstagramClone.InstagramService.repository.HashTagRepository;
 import CloneProject.InstagramClone.InstagramService.service.TokenService;
-import CloneProject.InstagramClone.InstagramService.service.hashtagservice.HashTagService;
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -22,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +32,7 @@ public class HashTagServiceImpl implements HashTagService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetHashTag(HttpServletRequest req,Long hashTagId) {
+    public ResponseEntity<RestApiResponse> GetHashTag(HttpServletRequest req, Long hashTagId) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         tokenService.isTokenValid(accessToken);
         HashTag hashTag = hashTagRepository.findById(hashTagId)
@@ -53,8 +48,8 @@ public class HashTagServiceImpl implements HashTagService {
         return hashTagDto;
     }
 
-    private ResponseEntity<ApiResponse> createGetHashTagResponse(HashTagDto hashTagDto) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createGetHashTagResponse(HashTagDto hashTagDto) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get HashTag Count")
                 .data(hashTagDto)
@@ -63,7 +58,7 @@ public class HashTagServiceImpl implements HashTagService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetPopularHashTag() {
+    public ResponseEntity<RestApiResponse> GetPopularHashTag() {
         Slice<HashTag> hashTagList = hashTagRepository.findSliceBy(PageRequest.of(0,3, Sort.by(Sort.Direction.DESC,"tagCount")));
         if (hashTagList.getSize() == 0) {
             throw new HashTagNotAssignedException("HashTagNotAssignedException occurred");
@@ -79,8 +74,8 @@ public class HashTagServiceImpl implements HashTagService {
                 .collect(Collectors.toList());
     }
 
-    private ResponseEntity<ApiResponse> createPopularHashTagResponse(List<HashTagDto> hashTagDtoList) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createPopularHashTagResponse(List<HashTagDto> hashTagDtoList) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get Popular HashTag")
                 .data(hashTagDtoList)

@@ -23,7 +23,6 @@ import java.util.List;
 @Table(name="members")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member implements UserDetails {
-
     @Id
     @Column(name = "member_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

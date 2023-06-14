@@ -3,7 +3,7 @@ package CloneProject.InstagramClone.InstagramService.service.followservice;
 import static CloneProject.InstagramClone.InstagramService.config.SpringConst.*;
 import CloneProject.InstagramClone.InstagramService.dto.follow.BlockMemberDto;
 import CloneProject.InstagramClone.InstagramService.dto.follow.FollowDto;
-import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.RestApiResponse;
 import CloneProject.InstagramClone.InstagramService.dto.response.FollowResponse;
 import CloneProject.InstagramClone.InstagramService.entity.member.BlockedMember;
 import CloneProject.InstagramClone.InstagramService.entity.follow.Follow;
@@ -142,7 +142,7 @@ public class FollowServiceImpl implements FollowService {
      */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> getFollowings(HttpServletRequest req) throws JwtExpiredException {
+    public ResponseEntity<RestApiResponse> getFollowings(HttpServletRequest req) throws JwtExpiredException {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<FollowDto> followDtoList = getFollowDtoList(memberEntity.getFollowingList());
@@ -156,8 +156,8 @@ public class FollowServiceImpl implements FollowService {
                 .collect(Collectors.toList());
     }
 
-    private ResponseEntity<ApiResponse> createGetFollowingsResponse(List<FollowDto> followDtoList) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createGetFollowingsResponse(List<FollowDto> followDtoList) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get User Following List")
                 .data(followDtoList)
@@ -171,7 +171,7 @@ public class FollowServiceImpl implements FollowService {
      */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> getFollowers(HttpServletRequest req) throws JwtExpiredException {
+    public ResponseEntity<RestApiResponse> getFollowers(HttpServletRequest req) throws JwtExpiredException {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<FollowDto> followerDtoList = getFollowerDtoList(memberEntity.getFollowerList());
@@ -185,8 +185,8 @@ public class FollowServiceImpl implements FollowService {
                 .collect(Collectors.toList());
     }
 
-    private ResponseEntity<ApiResponse> createGetFollowerResponse(List<FollowDto> followerDtoList) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createGetFollowerResponse(List<FollowDto> followerDtoList) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get User Follower List")
                 .data(followerDtoList)
@@ -248,7 +248,7 @@ public class FollowServiceImpl implements FollowService {
      */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> unBlockUser(BlockMemberDto blockMemberDto) {
+    public ResponseEntity<RestApiResponse> unBlockUser(BlockMemberDto blockMemberDto) {
         String accessToken = blockMemberDto.getAccessToken();
         Member fromMember = tokenService.FindMemberByToken(accessToken);
         Member toMember = findToMemberById(blockMemberDto.getId());
@@ -265,8 +265,8 @@ public class FollowServiceImpl implements FollowService {
                 .orElseThrow(() -> new UnBlockFailedException("UnBlockedFailedException occurred"));
     }
 
-    private ResponseEntity<ApiResponse> createUnBlockUserResponse(BlockMemberDto blockMemberDto) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createUnBlockUserResponse(BlockMemberDto blockMemberDto) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("unblock user Id : " + blockMemberDto.getId())
                 .build();
@@ -280,7 +280,7 @@ public class FollowServiceImpl implements FollowService {
      */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> getBlockedUsers(HttpServletRequest req) {
+    public ResponseEntity<RestApiResponse> getBlockedUsers(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<BlockMemberDto> responseDtoList = getBlockedMemberDtoByToMember(memberEntity.getBlockingList());
@@ -294,8 +294,8 @@ public class FollowServiceImpl implements FollowService {
                 .collect(Collectors.toList());
     }
 
-    private ResponseEntity<ApiResponse> createGetBlockedUsersResponse(List<BlockMemberDto> responseDtoList) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createGetBlockedUsersResponse(List<BlockMemberDto> responseDtoList) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("get all blocked users")
                 .data(responseDtoList)
@@ -310,7 +310,7 @@ public class FollowServiceImpl implements FollowService {
      */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> getBlockingUsers(HttpServletRequest req) {
+    public ResponseEntity<RestApiResponse> getBlockingUsers(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<BlockMemberDto> responseDtoList = getBlockedMemberDtoByFromMember(memberEntity.getBlockedList());
@@ -324,8 +324,8 @@ public class FollowServiceImpl implements FollowService {
                 .collect(Collectors.toList());
     }
 
-    private ResponseEntity<ApiResponse> createGetBlockingUsersResponse(List<BlockMemberDto> responseDtoList) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createGetBlockingUsersResponse(List<BlockMemberDto> responseDtoList) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("users who blocking my account")
                 .data(responseDtoList)

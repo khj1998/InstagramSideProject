@@ -2,30 +2,26 @@ package CloneProject.InstagramClone.InstagramService.service.commentservice;
 
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentDto;
 import CloneProject.InstagramClone.InstagramService.dto.post.CommentLikeDto;
-import CloneProject.InstagramClone.InstagramService.dto.response.ApiResponse;
+import CloneProject.InstagramClone.InstagramService.dto.response.RestApiResponse;
 import CloneProject.InstagramClone.InstagramService.entity.comment.Comment;
 import CloneProject.InstagramClone.InstagramService.entity.comment.CommentLike;
 import CloneProject.InstagramClone.InstagramService.entity.member.Member;
 import CloneProject.InstagramClone.InstagramService.entity.post.Post;
 import CloneProject.InstagramClone.InstagramService.exception.comment.CommentNotFoundException;
-import CloneProject.InstagramClone.InstagramService.exception.jwt.JwtExpiredException;
 import CloneProject.InstagramClone.InstagramService.exception.post.PostNotFoundException;
 import CloneProject.InstagramClone.InstagramService.repository.CommentLikeRepository;
 import CloneProject.InstagramClone.InstagramService.repository.CommentRepository;
 import CloneProject.InstagramClone.InstagramService.repository.PostRepository;
 import CloneProject.InstagramClone.InstagramService.service.TokenService;
-import CloneProject.InstagramClone.InstagramService.service.commentservice.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +44,7 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> AddComment(CommentDto commentDto) {
+    public ResponseEntity<RestApiResponse> AddComment(CommentDto commentDto) {
         Post postEntity = findPostById(commentDto.getPostId());
         Member memberEntity = tokenService.FindMemberByToken(commentDto.getAccessToken());
         Comment commentEntity = createCommentEntity(postEntity,memberEntity,commentDto.getContent());
@@ -66,8 +62,8 @@ public class CommentServiceImpl implements CommentService {
                 .build();
     }
 
-    private ResponseEntity<ApiResponse> createAddCommentResponse(CommentDto commentDto) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createAddCommentResponse(CommentDto commentDto) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Add Comment")
                 .data(commentDto)
@@ -81,7 +77,7 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> EditComment(CommentDto commentDto) {
+    public ResponseEntity<RestApiResponse> EditComment(CommentDto commentDto) {
         Comment commentEntity = findCommentById(commentDto.getCommentId());
         commentEntity.ChangeContent(commentDto.getContent());
         commentRepository.save(commentEntity);
@@ -89,9 +85,9 @@ public class CommentServiceImpl implements CommentService {
         return createEditCommentResponse(commentEntity);
     }
 
-    private ResponseEntity<ApiResponse> createEditCommentResponse(Comment commentEntity) {
+    private ResponseEntity<RestApiResponse> createEditCommentResponse(Comment commentEntity) {
         CommentDto commentDto = modelMapper.map(commentEntity,CommentDto.class);
-        return new ApiResponse.ApiResponseBuilder<>()
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Comment Edit")
                 .data(commentDto)
@@ -105,7 +101,7 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> AddCommentLike(CommentLikeDto commentLikeDto) {
+    public ResponseEntity<RestApiResponse> AddCommentLike(CommentLikeDto commentLikeDto) {
         Long commentId = commentLikeDto.getCommentId();
         Member memberEntity = tokenService.FindMemberByToken(commentLikeDto.getAccessToken());
         Comment commentEntity = findCommentById(commentId);
@@ -128,16 +124,16 @@ public class CommentServiceImpl implements CommentService {
         return null;
     }
 
-    private ResponseEntity<ApiResponse> createAddCommentLikeResponse(Comment commentEntity) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createAddCommentLikeResponse(Comment commentEntity) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 누르셨습니다")
                 .data(modelMapper.map(commentEntity, CommentDto.class))
                 .build();
     }
 
-    private ResponseEntity<ApiResponse> createDeleteCommentLikeResponse(Comment commentEntity) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createDeleteCommentLikeResponse(Comment commentEntity) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Id: "+commentEntity.getId()+" 댓글에 좋아요를 취소하셨습니다.")
                 .build();
@@ -150,14 +146,14 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     @Transactional
-    public ResponseEntity<ApiResponse> DeleteComment(Long commentId) {
+    public ResponseEntity<RestApiResponse> DeleteComment(Long commentId) {
         commentRepository.deleteById(commentId);
         return createDeleteCommentResponse(commentId);
     }
 
-    private ResponseEntity<ApiResponse> createDeleteCommentResponse(Long commentId) {
+    private ResponseEntity<RestApiResponse> createDeleteCommentResponse(Long commentId) {
         String deleteDate = createDeleteDate();
-        return new ApiResponse.ApiResponseBuilder<>()
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Delete CommentId : "+commentId)
                 .updatedAt(deleteDate)
@@ -177,7 +173,7 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetMyComments(HttpServletRequest req) {
+    public ResponseEntity<RestApiResponse> GetMyComments(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<Comment> commentList = memberEntity.getCommentList();
@@ -186,8 +182,8 @@ public class CommentServiceImpl implements CommentService {
         return createGetMyCommentsResponse(commentDtoList);
     }
 
-    private ResponseEntity<ApiResponse> createGetMyCommentsResponse(List<CommentDto> commentDtoList) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createGetMyCommentsResponse(List<CommentDto> commentDtoList) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("Get My Comments")
                 .data(commentDtoList)
@@ -207,7 +203,7 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse> GetMyCommentLikes(HttpServletRequest req) {
+    public ResponseEntity<RestApiResponse> GetMyCommentLikes(HttpServletRequest req) {
         String accessToken = tokenService.ExtractTokenFromReq(req);
         Member memberEntity = tokenService.FindMemberByToken(accessToken);
         List<CommentLike> commentLikeList = memberEntity.getCommentLikeList();
@@ -222,8 +218,8 @@ public class CommentServiceImpl implements CommentService {
                 .collect(Collectors.toList());
     }
 
-    private ResponseEntity<ApiResponse> createGetMyCommentLikeResponse(List<CommentDto> commentDtoList) {
-        return new ApiResponse.ApiResponseBuilder<>()
+    private ResponseEntity<RestApiResponse> createGetMyCommentLikeResponse(List<CommentDto> commentDtoList) {
+        return new RestApiResponse.ApiResponseBuilder<>()
                 .success(true)
                 .message("좋아요를 누른 댓글 리스트 조회")
                 .data(commentDtoList)

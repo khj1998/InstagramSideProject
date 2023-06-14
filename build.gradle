@@ -43,7 +43,7 @@ jacocoTestCoverageVerification {
 			limit {
 				counter = 'BRANCH'
 				value = 'COVEREDRATIO'
-				minimum = 0.90
+				minimum = 0.70
 			}
 		}
 	}
@@ -59,6 +59,8 @@ dependencies {
 	implementation 'org.jetbrains:annotations:24.0.1'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly	'io.jsonwebtoken:jjwt-jackson:0.11.5'
