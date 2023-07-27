@@ -63,23 +63,12 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-        http.cors()
-                .configurationSource(corsConfigurationSource())
-                .and()
-                .csrf().disable();
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .httpBasic().disable()
+                .csrf().disable()
+                .build();
 
-        http.authorizeHttpRequests((uri -> uri.anyRequest().permitAll()));
-
-        http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-        http.addFilterBefore(getCustomAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(customAuthorizationFilter, CustomAuthenticationFilter.class)
-                .addFilterBefore(customJwtExceptionFilter, CustomAuthorizationFilter.class);
-
-        return http.build();
     }
 
     private AbstractAuthenticationProcessingFilter getCustomAuthenticationFilter() throws Exception {
